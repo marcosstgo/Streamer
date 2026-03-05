@@ -1,0 +1,23 @@
+FFmpeg binaries included with this release
+=======================================
+
+FFmpeg is third-party software distributed under its own license (LGPL or GPL depending on build options).
+
+Key points:
+- FFmpeg project: https://ffmpeg.org/
+- License: GNU Lesser General Public License (LGPL) version 2.1 or later, or GNU General Public License (GPL) when built with GPL-only components.
+
+If you redistribute FFmpeg binaries included with Streamer Pro, you must comply with FFmpeg's license terms.
+This typically means including a copy of the applicable license(s) and providing access to the corresponding source code
+for the FFmpeg binary you distribute when GPL obligations apply.
+
+If you did not build the binaries yourself, identify the provider and include their build options and source information.
+
+Links and resources:
+- FFmpeg licensing information: https://ffmpeg.org/legal.html
+- LGPL 2.1 text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+- GPL 3.0 text: https://www.gnu.org/licenses/gpl-3.0.html
+
+Suggested practice for Streamer Pro releases:
+- Prefer uploading ffmpeg.exe and ffprobe.exe as Release assets on GitHub rather than keeping them in the repository history.
+- Include this file `LICENSE-FFMPEG.txt` alongside the release assets and in the release notes.
