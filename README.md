@@ -14,6 +14,24 @@ Requisitos
 - .NET 8 Runtime
 - `ffmpeg.exe` y `ffprobe.exe` disponibles en el mismo directorio que el ejecutable de la aplicación o instalados en el PATH.
 
+Requisito adicional (Windows Desktop Runtime)
+-------------------------------------------
+Streamer Pro es una aplicación WPF y requiere el Windows Desktop Runtime para .NET 8. Algunos usuarios deben instalar `windowsdesktop-runtime-8.0.24` (o un Runtime de escritorio 8.0.x compatible) para ejecutar la aplicación.
+
+Descargar e instalar:
+- Descargas oficiales de Microsoft: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+- Página de descarga directa del Windows Desktop Runtime 8.0 (elige el instalador x64): https://dotnet.microsoft.com/en-us/download/dotnet/8.0/runtime
+
+Verificar la instalación:
+- Abre PowerShell o el símbolo del sistema y ejecuta:
+
+```powershell
+dotnet --list-runtimes
+# Busca una línea similar a: Microsoft.WindowsDesktop.App 8.0.24 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+```
+
+Si el runtime de Windows Desktop no está presente, descarga e instala el instalador `windowsdesktop-runtime` apropiado para tu sistema operativo y arquitectura, luego vuelve a ejecutar el comando de verificación.
+
 Licencia de FFmpeg
 FFmpeg es software de terceros con su propia licencia (LGPL o GPL según opciones de compilación). Consulta `LICENSE-FFMPEG.txt` en este repositorio para detalles y enlaces.
 
