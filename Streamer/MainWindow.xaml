@@ -1,67 +1,72 @@
-﻿<Window
+﻿<Window x:Class="Streamer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av" x:Class="Streamer.MainWindow"
-        Title="Corillo.live Streamer Pro" 
-        Height="750" Width="1000"
+        Title="Streamer Pro" 
+        Height="990" Width="1000"
         WindowStartupLocation="CenterScreen"
         Background="#0D1117"
         FontFamily="Segoe UI">
 
     <Window.Resources>
-        <!-- Colores como SolidColorBrush -->
-        <SolidColorBrush x:Key="BgPrimary" Color="#0D1117"/>
-        <SolidColorBrush x:Key="BgSecondary" Color="#161B22"/>
-        <SolidColorBrush x:Key="BgCard" Color="#21262D"/>
-        <SolidColorBrush x:Key="Accent" Color="#2F81F7"/>
-        <SolidColorBrush x:Key="AccentHover" Color="#388BFD"/>
-        <SolidColorBrush x:Key="Success" Color="#3FB950"/>
-        <SolidColorBrush x:Key="Danger" Color="#F85149"/>
-        <SolidColorBrush x:Key="Warning" Color="#D29922"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#F0F6FC"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#8B949E"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <!-- Corillo branding palette -->
+        <SolidColorBrush x:Key="BgPrimary" Color="#0B0D10"/>
+        <SolidColorBrush x:Key="BgCard" Color="#141820"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#232A36"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#E7ECF3"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#A7B0C0"/>
+        <SolidColorBrush x:Key="AccentYellow" Color="#F5C518"/>
+        <SolidColorBrush x:Key="DangerRed" Color="#E50914"/>
+        <SolidColorBrush x:Key="SuccessGreen" Color="#31D07E"/>
 
-        <!-- Estilos -->
-        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+        <!-- Card style used throughout -->
+        <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource BgCard}"/>
-            <Setter Property="BorderBrush" Value="#30363D"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="20"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
 
-        <Style x:Key="SectionTitle" TargetType="{x:Type TextBlock}">
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
 
-        <Style x:Key="LabelStyle" TargetType="{x:Type TextBlock}">
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="Margin" Value="0,4,0,4"/>
         </Style>
 
-        <Style x:Key="ValueStyle" TargetType="{x:Type TextBlock}">
+        <Style x:Key="FieldContainer" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Vertical"/>
+            <Setter Property="Margin" Value="0,0,12,12"/>
+        </Style>
+
+        <Style x:Key="ValueStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
-        <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="{StaticResource Accent}"/>
-            <Setter Property="Foreground" Value="White"/>
+        <!-- Buttons -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentYellow}"/>
+            <Setter Property="Foreground" Value="Black"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
+                    <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="6"
+                                CornerRadius="8"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                             VerticalAlignment="Center"/>
@@ -71,47 +76,95 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource AccentHover}"/>
+                    <Setter Property="Opacity" Value="0.95"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="SecondaryButton" TargetType="{x:Type Button}" BasedOn="{StaticResource PrimaryButton}">
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="{StaticResource DangerRed}"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
             <Setter Property="Background" Value="{StaticResource BgCard}"/>
-            <Setter Property="BorderBrush" Value="#30363D"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2D333B"/>
+                    <Setter Property="Background" Value="#1A2026"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="ComboBoxStyle" TargetType="{x:Type ComboBox}">
+        <!-- TextBox / ComboBox -->
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource BgCard}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="#30363D"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="Height" Value="35"/>
+            <Setter Property="Height" Value="34"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource AccentYellow}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
-        <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}">
-            <Setter Property="Background" Value="{StaticResource BgPrimary}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="#30363D"/>
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <!-- Simple, stable ComboBox style -->
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="BorderBrush" Value="#C8C8C8"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
         </Style>
 
-        <Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
+        <!-- Ensure dropdown items are readable (white bg, black text) -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E6E6E6"/>
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#DCDCDC"/>
+                    <Setter Property="Foreground" Value="#000000"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- CheckBox/RadioButton -->
+        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Margin" Value="0,6,0,6"/>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource AccentYellow}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource AccentYellow}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
-    <Grid Margin="15">
+    <Grid Margin="16" Background="{StaticResource BgPrimary}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -133,13 +186,13 @@
 
                 <!-- Logo y título -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="🎥" FontSize="32" Margin="0,0,15,0"/>
+                    <TextBlock Text="🎥" FontSize="32" Margin="0,0,12,0" Foreground="{StaticResource AccentYellow}"/>
                     <StackPanel>
-                        <TextBlock x:Name="TitleText" Text="Corillo.live Streamer Pro" 
+                        <TextBlock x:Name="TitleText" Text="Streamer Pro" 
                                    FontSize="24" 
                                    FontWeight="Bold" 
-                                   Foreground="{StaticResource Accent}"/>
-                        <TextBlock Text="Streaming profesional con FFmpeg" 
+                                   Foreground="{StaticResource TextPrimary}"/>
+                        <TextBlock Text="Motor avanzado de streaming" 
                                    Foreground="{StaticResource TextSecondary}"
                                    FontSize="12"/>
                     </StackPanel>
@@ -148,18 +201,18 @@
                 <!-- Estado FFmpeg -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <Border x:Name="FFmpegStatus"
-                            Background="#21262D" 
+                            Background="{StaticResource BgCard}" 
                             CornerRadius="20" 
-                            Padding="12,6">
+                            Padding="10,6">
                         <StackPanel Orientation="Horizontal">
                             <Ellipse x:Name="FFmpegIndicator"
                                      Width="10" 
                                      Height="10" 
-                                     Fill="{StaticResource Danger}" 
+                                     Fill="{StaticResource DangerRed}" 
                                      Margin="0,0,8,0"/>
                             <TextBlock x:Name="FFmpegStatusText"
                                        Text="FFmpeg: Buscando..." 
-                                       Foreground="{StaticResource TextPrimary}"/>
+                                       Foreground="{StaticResource TextPrimary}" Height="19"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -172,7 +225,7 @@
                       Margin="0,0,0,15">
             <StackPanel>
                 <!-- Sección: Configuración básica -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="🔧 Configuración básica" 
                                    Style="{StaticResource SectionTitle}"/>
@@ -188,7 +241,7 @@
                             </Grid.RowDefinitions>
 
                             <!-- RTMP Base -->
-                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,15">
+                            <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldContainer}">
                                 <TextBlock Text="RTMP Base URL" 
                                            Style="{StaticResource LabelStyle}"/>
                                 <TextBox x:Name="RTMPBase" 
@@ -197,42 +250,78 @@
                             </StackPanel>
 
                             <!-- Stream Key -->
-                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,15">
+                            <StackPanel Grid.Row="0" Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="12,0,0,0">
                                 <TextBlock Text="Stream Key" 
                                            Style="{StaticResource LabelStyle}"/>
                                 <TextBox x:Name="StreamKey" 
                                          Text="" 
                                          Style="{StaticResource TextBoxStyle}"
-                                         ToolTip="Ej: openmovies, katatonia, etc"/>
+                                         ToolTip="Ej: openmovies, katatonia, etc"
+                                         LostFocus="StreamKey_LostFocus"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- Fuente -->
-                        <StackPanel Margin="0,0,0,10">
+                            <StackPanel Margin="0,0,0,10">
                             <TextBlock Text="Fuente de video" 
                                        Style="{StaticResource LabelStyle}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
+                                <RadioButton x:Name="ModeOnline" Content="Fuentes online" IsChecked="True" Margin="0,0,12,0" Style="{StaticResource RadioButtonStyle}"/>
+                                <RadioButton x:Name="ModeFolder" Content="Carpeta local (playlist)" Style="{StaticResource RadioButtonStyle}"/>
+                            </StackPanel>
                             <ComboBox x:Name="SourceCombo" 
                                       Style="{StaticResource ComboBoxStyle}" 
-                                      Height="40"
-                                      SelectedIndex="0" SelectionChanged="SourceCombo_SelectionChanged">
-                                <ComboBoxItem Content="Tears of Steel - Sci-fi corto (open)"/>
-                                <ComboBoxItem Content="Big Buck Bunny - Animación (open)"/>
-                                <ComboBoxItem Content="Elephant's Dream - Open movie clásico"/>
-                                <ComboBoxItem Content="Sintel - Fantasy (open)"/>
-                                <ComboBoxItem IsEnabled="False" Content="--- 4K Samples ---"/>
-                                <ComboBoxItem Content="For Bigger Blazes - 4K Sample"/>
-                                <ComboBoxItem Content="For Bigger Escape - 4K Sample"/>
-                                <ComboBoxItem IsEnabled="False" Content="--- Test Patterns ---"/>
-                                <ComboBoxItem Content="Test Pattern (Color bars)"/>
-                                <ComboBoxItem Content="SMPTE Color Bars"/>
-                                <ComboBoxItem Content="Black Screen"/>
+                                      ItemsSource="{Binding Sources}"
+                                      SelectedItem="{Binding SelectedSource, Mode=TwoWay}"
+                                      IsSynchronizedWithCurrentItem="True"
+                                      Height="36" IsEnabled="{Binding IsOnlineMode}"
+                                      DisplayMemberPath="DisplayText">
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="IsEnabled" Value="{Binding IsAvailable}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                                        <Setter Property="Background" Value="{StaticResource BgCard}"/>
+                                        <Style.Triggers>
+                                            <!-- Disabled items appear gray -->
+                                            <DataTrigger Binding="{Binding IsAvailable}" Value="False">
+                                                <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
                             </ComboBox>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock x:Name="SourceStatusText" Text="Cargando fuentes..." Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                                <Button x:Name="OpenSourcesButton" Content="Abrir carpeta de fuentes" Style="{StaticResource SecondaryButton}" Margin="12,0,6,0" Padding="8,4" Click="OpenSourcesButton_Click"/>
+                                <Button x:Name="ReloadSourcesButton" Content="Recargar fuentes" Style="{StaticResource SecondaryButton}" Padding="8,4" Click="ReloadSourcesButton_Click"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical" Margin="0,8,0,0" x:Name="FolderControls" Visibility="Collapsed">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="SelectedFolderText" Grid.Column="0" IsReadOnly="True" Style="{StaticResource TextBoxStyle}"/>
+                                    <Button x:Name="SelectFolderButton" Grid.Column="1" Content="Seleccionar carpeta..." Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Click="SelectFolderButton_Click"/>
+                                </Grid>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <CheckBox x:Name="FolderLoopCheck" Content="Loop" Style="{StaticResource CheckBoxStyle}" Margin="0,0,20,0"/>
+                                        <CheckBox x:Name="FolderRandomCheck" Content="Random" Style="{StaticResource CheckBoxStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
 
                         <!-- Info del video -->
-                        <Border Background="#161B22" 
-                                CornerRadius="6" 
-                                Padding="15" 
+                        <Border Background="{StaticResource BgCard}" 
+                                CornerRadius="8" 
+                                Padding="12" 
                                 Margin="0,10,0,0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -272,12 +361,12 @@
                 </Border>
 
                 <!-- Sección: Perfiles de calidad -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="⚡ Perfiles de calidad" 
                                    Style="{StaticResource SectionTitle}"/>
 
-                        <WrapPanel Margin="0,0,0,15">
+                        <UniformGrid Columns="3" Margin="0,0,0,15">
                             <Button x:Name="Profile480p"
                                     Style="{StaticResource SecondaryButton}" 
                                     Content="Baja (480p) - 1000k" 
@@ -313,10 +402,10 @@
                                     Content="Personalizado..." 
                                     Margin="0,0,5,5"
                                     Click="ProfileCustom_Click"/>
-                        </WrapPanel>
+                        </UniformGrid>
 
                         <!-- Configuración manual -->
-                        <Border Background="#161B22" CornerRadius="6" Padding="15">
+                        <Border Background="{StaticResource BgCard}" CornerRadius="8" Padding="12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -325,23 +414,23 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <StackPanel Grid.Column="0" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
                                     <TextBlock Text="Video Bitrate" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="VideoBitrateManual" 
                                              Text="2500k" 
                                              Style="{StaticResource TextBoxStyle}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                <StackPanel Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
                                     <TextBlock Text="Audio Bitrate" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="AudioBitrateManual" 
                                              Text="128k" 
                                              Style="{StaticResource TextBoxStyle}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                                <StackPanel Grid.Column="2" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
                                     <TextBlock Text="Preset x264" Style="{StaticResource LabelStyle}"/>
                                     <ComboBox x:Name="PresetCombo" 
                                               Style="{StaticResource ComboBoxStyle}" 
-                                              SelectedIndex="2">
+                                              SelectedIndex="2" Foreground="Black">
                                         <ComboBoxItem Content="ultrafast"/>
                                         <ComboBoxItem Content="superfast"/>
                                         <ComboBoxItem Content="veryfast"/>
@@ -379,7 +468,7 @@
                 </Border>
 
                 <!-- Sección: Opciones avanzadas -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="⚙️ Opciones avanzadas" 
                                    Style="{StaticResource SectionTitle}"/>
@@ -391,7 +480,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
                                 <CheckBox x:Name="ForceYUV"
                                           Content="Forzar yuv420p" 
                                           IsChecked="True"
@@ -404,8 +493,7 @@
                                           IsChecked="True"
                                           Style="{StaticResource CheckBoxStyle}"/>
                             </StackPanel>
-
-                            <StackPanel Grid.Column="1">
+                            <StackPanel Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
                                 <CheckBox x:Name="ShowFFmpegCommand"
                                           Content="Mostrar comando FFmpeg" 
                                           Style="{StaticResource CheckBoxStyle}"/>
@@ -431,7 +519,7 @@
                 </Border>
 
                 <!-- Sección: Favoritos -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -456,7 +544,9 @@
                                  BorderThickness="0"
                                  Height="80"
                                  Margin="0,0,0,10"
-                                 SelectionChanged="FavoritesList_SelectionChanged"/>
+                                 SelectionChanged="FavoritesList_SelectionChanged" BorderBrush="White" Foreground="White"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"/>
 
                         <TextBlock Text="📋 Últimos streams" 
                                    Style="{StaticResource SectionTitle}"
@@ -465,17 +555,19 @@
                         <ListBox x:Name="HistoryList"
                                  Background="#161B22" 
                                  BorderThickness="0"
-                                 Height="60"/>
+                                 Height="60" Foreground="White"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
 
         <!-- Footer con controles -->
-        <Border Grid.Row="2" 
-                Background="#161B22" 
+                <Border Grid.Row="2" 
+                Background="{StaticResource BgCard}"
                 CornerRadius="8" 
-                Padding="20">
+                Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -488,17 +580,17 @@
                     <Ellipse x:Name="StreamStatus"
                              Width="12" 
                              Height="12" 
-                             Fill="{StaticResource Danger}" 
+                             Fill="{StaticResource DangerRed}" 
                              Margin="0,0,10,0"/>
                     <TextBlock x:Name="StreamStatusText" 
                                Text="Detenido" 
-                               Foreground="{StaticResource Danger}"
+                               Foreground="{StaticResource DangerRed}"
                                FontWeight="SemiBold"
-                               Margin="0,0,20,0"/>
+                               Margin="0,0,20,0" Height="18"/>
 
                     <TextBlock x:Name="StreamTime" 
                                Text="Tiempo: 00:00:00" 
-                               Foreground="{StaticResource TextSecondary}"/>
+                               Foreground="{StaticResource TextSecondary}" Height="17"/>
                 </StackPanel>
 
                 <!-- Botones de control -->
@@ -512,12 +604,21 @@
 
                 <Button Grid.Column="2" 
                         x:Name="StopButton"
-                        Style="{StaticResource SecondaryButton}"
+                        Style="{StaticResource DangerButton}"
                         Content="⏹️ Detener"
                         Width="100"
                         IsEnabled="False"
                         Click="StopStream_Click"/>
             </Grid>
         </Border>
+                <!-- Footer credits -->
+                <TextBlock Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource TextSecondary}" FontSize="11">
+                    <Run>Desarrollado por Marcos Santiago</Run>
+                    <LineBreak/>
+                    <Run>con la ayuda de GitHub Copilot y ChatGPT</Run>
+                    <LineBreak/>
+                    <Run/>
+                    <Hyperlink NavigateUri="https://corillo.live" RequestNavigate="CorilloLink_RequestNavigate" Foreground="{StaticResource AccentYellow}">corillo.live</Hyperlink>
+                </TextBlock>
     </Grid>
 </Window>
