@@ -288,16 +288,9 @@ namespace Streamer
             try
             {
                 if (string.IsNullOrEmpty(plain)) return string.Empty;
-                using var aes = Aes.Create();
-                aes.Key = _aesKey;
-                aes.IV = _aesIV;
-                using var ms = new MemoryStream();
-                using var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
-                using (var sw = new StreamWriter(cs, Encoding.UTF8))
-                {
-                    sw.Write(plain);
-                }
-                return Convert.ToBase64String(ms.ToArray());
+                var bytes = Encoding.UTF8.GetBytes(plain);
+                var protectedBytes = ProtectedData.Protect(bytes, null, DataProtectionScope.CurrentUser);
+                return Convert.ToBase64String(protectedBytes);
             }
             catch
             {
@@ -307,9 +300,22 @@ namespace Streamer
 
         private static string DecryptString(string encrypted)
         {
+            if (string.IsNullOrEmpty(encrypted)) return string.Empty;
+
+            // Try DPAPI (preferred). If it fails, fallback to legacy AES decryption for older configs.
             try
             {
-                if (string.IsNullOrEmpty(encrypted)) return string.Empty;
+                var protectedBytes = Convert.FromBase64String(encrypted);
+                var bytes = ProtectedData.Unprotect(protectedBytes, null, DataProtectionScope.CurrentUser);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch
+            {
+                // Fallback to legacy AES-based decryption used in earlier releases
+            }
+
+            try
+            {
                 var bytes = Convert.FromBase64String(encrypted);
                 using var aes = Aes.Create();
                 aes.Key = _aesKey;
