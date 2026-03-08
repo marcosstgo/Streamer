@@ -706,13 +706,14 @@ namespace Streamer
         }
 
         /// <summary>
-        /// Polls GPU utilization on a background thread every 1.5 seconds.
+        /// Polls GPU utilization on a background thread every 2 seconds.
+        /// Uses nvidia-smi for NVIDIA GPUs (fast and accurate), falls back to WMI query.
         /// Stores result in _cachedGpuUsage for the UI timer to read.
         /// </summary>
         private void StartGpuPolling()
         {
             if (_gpuPollTimer != null) return;
-            _gpuPollTimer = new System.Threading.Timer(_ => PollGpuUsage(), null, 0, 1500);
+            _gpuPollTimer = new System.Threading.Timer(_ => PollGpuUsage(), null, 0, 2000);
         }
 
         private void StopGpuPolling()
@@ -726,36 +727,47 @@ namespace Streamer
         {
             try
             {
-                var category = new PerformanceCounterCategory("GPU Engine");
-                var instanceNames = category.GetInstanceNames();
-                double total = 0;
-                foreach (var name in instanceNames)
+                // NVIDIA: use nvidia-smi (instant, lightweight, accurate)
+                if (_detectedHwEncoder != null && _detectedHwEncoder.Contains("nvenc"))
                 {
-                    if (!name.Contains("engtype_3D") && !name.Contains("engtype_Video"))
-                        continue;
-
-                    using var counter = new PerformanceCounter("GPU Engine", "Utilization Percentage", name, true);
-                    counter.NextValue(); // prime the counter
+                    var result = QueryNvidiaSmi();
+                    if (result >= 0) { _cachedGpuUsage = result; return; }
                 }
 
-                // Brief pause to allow delta calculation
-                Thread.Sleep(200);
-
-                foreach (var name in instanceNames)
-                {
-                    if (!name.Contains("engtype_3D") && !name.Contains("engtype_Video"))
-                        continue;
-
-                    using var counter = new PerformanceCounter("GPU Engine", "Utilization Percentage", name, true);
-                    total += counter.NextValue();
-                }
-
-                _cachedGpuUsage = total;
+                // Fallback: not available
+                _cachedGpuUsage = -1;
             }
             catch
             {
                 _cachedGpuUsage = -1;
             }
+        }
+
+        /// <summary>
+        /// Queries nvidia-smi for GPU utilization. Returns -1 if unavailable.
+        /// </summary>
+        private static double QueryNvidiaSmi()
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "nvidia-smi",
+                    Arguments = "--query-gpu=utilization.gpu --format=csv,noheader,nounits",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                };
+                using var proc = Process.Start(psi);
+                if (proc == null) return -1;
+                var output = proc.StandardOutput.ReadToEnd().Trim();
+                proc.WaitForExit(1000);
+                if (double.TryParse(output, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out var val))
+                    return val;
+            }
+            catch { }
+            return -1;
         }
 
         private void ParseFFmpegProgress(string line)
