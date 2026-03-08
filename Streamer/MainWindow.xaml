@@ -96,7 +96,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
-                            <Image Source="pack://siteoforigin:,,,/streamerpro.png" Width="52" Height="52" Margin="0,0,16,0" Stretch="Uniform"/>
+                            <Image Source="/streamerpro.png" Width="52" Height="52" Margin="0,0,16,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased"/>
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock x:Name="TitleText" Text="Streamer Pro" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>

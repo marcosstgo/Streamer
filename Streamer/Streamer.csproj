@@ -36,6 +36,7 @@
     <Content Include="streamerpro.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="streamerpro.png" />
     <Content Include="streamerpro.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
