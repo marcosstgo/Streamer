@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## [1.8] - 2025
 
 ### Added
@@ -9,6 +10,15 @@
 - Rounded button templates (PrimaryButton, DangerButton, BigPrimaryButton, BigDangerButton)
 - StatusPill style for transmitting/stopped indicator
 - BadgeStyle for version badge in header
+- Auto-reconnect with exponential backoff for online streaming (max 5 attempts: 2s, 4s, 8s, 16s, 30s)
+- Hardware encoder detection (h264_nvenc, h264_qsv, h264_amf) with automatic fallback
+- Per-process CPU and memory tracking for FFmpeg (instead of system-wide)
+- Circular buffer for stderr/stdout to prevent unbounded memory growth in long streams
+- Keyframe interval (-g) set to 2 seconds for RTMP server compatibility
+- Rate control: -maxrate and -bufsize for stable RTMP bitrate delivery
+- FLV flags: -flvflags no_duration_filesize to suppress FFmpeg warnings
+- DetectHwEncoderAsync helper for probing GPU encoder availability
+- IsFFmpegProgressLine filter and AddToCircularBuffer utility methods
 - Professional status bar with inline metrics (Bitrate, FPS, CPU, MEM, Speed)
 - Server status indicator with connectivity and latency in header
 - Action buttons column with Iniciar Stream and Detener plus live timer
@@ -32,6 +42,12 @@
 - Header simplified: removed heavy CardShadow, added border
 - Footer redesigned as single status bar with inline metrics and action buttons
 - Credits footer text uses XML entities for cross-encoding compatibility
+- ExecuteFFmpegAsync now uses WaitForExitAsync (native .NET 8) instead of 200ms polling loop
+- Stderr UI dispatching reduced: progress lines (frame=, size=) are filtered out from history
+- MessageBox after FFmpeg exit only shows last 30 non-progress error lines on non-zero exit code
+- StringBuilders replaced with circular Queue buffers (max 200 lines) for memory efficiency
+- HW acceleration now switches encoder to h264_nvenc with mapped NVENC presets
+- BuildEncodingArguments includes -maxrate, -bufsize, -g, and -flvflags for RTMP optimization
 
 ### Fixed
 - StreamTimeCompact timer now syncs with main StreamTime
@@ -39,6 +55,9 @@
 - Heart and satellite emoji in CreditsWindow render correctly (XML char entities)
 - Duplicate x:Name conflicts resolved (MetricBitrate, MetricFps, etc.)
 - File encoding issues with emoji characters resolved
+- CPU metric now tracks FFmpeg process specifically instead of system-wide PerformanceCounter
+- Memory metric (MEM) now shows FFmpeg working set in real-time
+- Online stream no longer silently dies on server disconnect (auto-reconnect)
 
 ## [1.5] - Previous
 ### Added

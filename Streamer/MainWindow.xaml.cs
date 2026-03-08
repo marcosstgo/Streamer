@@ -146,6 +146,17 @@ namespace Streamer
         private static readonly Regex _regexFps = new(@"fps=\s*([\d.]+)", RegexOptions.Compiled);
         private PerformanceCounter? _cpuCounter;
 
+        // Per-process CPU tracking
+        private DateTime _lastCpuCheck;
+        private TimeSpan _lastCpuTime;
+
+        // Circular buffer size for stderr/stdout to prevent unbounded memory growth
+        private const int MaxStderrBufferLines = 200;
+
+        // Reconnection settings for online mode
+        private const int MaxReconnectAttempts = 5;
+        private static readonly int[] ReconnectDelaysMs = { 2000, 4000, 8000, 16000, 30000 };
+
         private enum CloseAction
         {
             Ask = 0,
@@ -350,6 +361,9 @@ namespace Streamer
                 _cpuCounter.NextValue();
             }
             catch { _cpuCounter = null; }
+
+            _lastCpuCheck = DateTime.UtcNow;
+            _lastCpuTime = TimeSpan.Zero;
         }
 
         private async void CheckFFmpeg()
@@ -599,10 +613,37 @@ namespace Streamer
                 StreamTime.Text = $"Tiempo: {elapsed:hh\\:mm\\:ss}";
                 try { StreamTimeCompact.Text = $"{elapsed:hh\\:mm\\:ss}"; } catch { }
 
+                // Per-process CPU usage (more accurate than system-wide)
                 try
                 {
-                    if (_cpuCounter != null)
+                    var proc = ffmpegProcess;
+                    if (proc != null && !proc.HasExited)
+                    {
+                        var now = DateTime.UtcNow;
+                        var cpuTime = proc.TotalProcessorTime;
+                        var wallElapsed = (now - _lastCpuCheck).TotalMilliseconds;
+                        if (wallElapsed > 0)
+                        {
+                            var cpuElapsed = (cpuTime - _lastCpuTime).TotalMilliseconds;
+                            var cpuPercent = cpuElapsed / (wallElapsed * Environment.ProcessorCount) * 100.0;
+                            MetricCpu.Text = $"{cpuPercent:F1}%";
+                        }
+                        _lastCpuCheck = now;
+                        _lastCpuTime = cpuTime;
+
+                        // Memory usage of FFmpeg process
+                        try
+                        {
+                            var memMb = proc.WorkingSet64 / (1024.0 * 1024.0);
+                            MetricMem.Text = $"{memMb:F1} MB";
+                        }
+                        catch { }
+                    }
+                    else if (_cpuCounter != null)
+                    {
+                        // Fallback to system-wide CPU
                         MetricCpu.Text = $"{_cpuCounter.NextValue():F0}%";
+                    }
                 }
                 catch { }
             }
@@ -625,6 +666,29 @@ namespace Streamer
                     Dispatcher.BeginInvoke(() => MetricFps.Text = $"{mFps.Groups[1].Value}");
             }
             catch { }
+        }
+
+        /// <summary>
+        /// Returns true if the stderr line is a progress/stats line (should not clutter history).
+        /// </summary>
+        private static bool IsFFmpegProgressLine(string line)
+        {
+            // Progress lines typically start with "frame=", "size=", or contain "bitrate=" and "speed="
+            if (string.IsNullOrWhiteSpace(line)) return false;
+            var trimmed = line.TrimStart();
+            return trimmed.StartsWith("frame=", StringComparison.Ordinal)
+                || trimmed.StartsWith("size=", StringComparison.Ordinal)
+                || (trimmed.Contains("bitrate=") && trimmed.Contains("speed="));
+        }
+
+        /// <summary>
+        /// Adds a line to a circular buffer (Queue), keeping max capacity.
+        /// </summary>
+        private static void AddToCircularBuffer(Queue<string> buffer, string line, int maxLines)
+        {
+            buffer.Enqueue(line);
+            while (buffer.Count > maxLines)
+                buffer.Dequeue();
         }
 
         private async Task LoadAndValidateSourcesAsync()
@@ -785,6 +849,8 @@ namespace Streamer
                         AddToHistory("HWAccel: enabled (online mode)");
                         args.AddRange(new[] { "-hwaccel", "auto" });
                     }
+                    // Store HW flag for encoder selection in BuildEncodingArguments
+                    bool useHwEncoder = hwAccelFlagOnline;
 
                     args.AddRange(new[] { "-re", "-i", sourceUrl });
                     args.AddRange(BuildEncodingArguments(
@@ -796,7 +862,8 @@ namespace Streamer
                         resolution: resolution,
                         fps: fps,
                         forceYuv: ForceYUV.IsChecked == true,
-                        isFolderMode: false
+                        isFolderMode: false,
+                        useHwEncoder: useHwEncoder
                     ));
 
                     if (ShowFFmpegCommand.IsChecked == true)
@@ -806,13 +873,39 @@ namespace Streamer
                                       MessageBoxButton.OK, MessageBoxImage.Information);
                     }
 
-                    // Start ffmpeg asynchronously (do not await to keep UI responsive)
-                    _ = ExecuteFFmpegAsync(args, ffmpegCts.Token);
+                    // Start ffmpeg with auto-reconnect on failure
+                    var capturedArgs = args.ToList();
+                    var capturedCts = ffmpegCts;
+                    _ = Task.Run(async () =>
+                    {
+                        await Dispatcher.InvokeAsync(() => { isStreaming = true; streamStartTime = DateTime.Now; timer.Start(); UpdateStreamStatus(true); });
+                        int attempt = 0;
+                        try
+                        {
+                            while (!capturedCts.Token.IsCancellationRequested)
+                            {
+                                await ExecuteFFmpegAsync(capturedArgs, capturedCts.Token).ConfigureAwait(false);
 
-                    isStreaming = true;
-                    streamStartTime = DateTime.Now;
-                    timer.Start();
-                    UpdateStreamStatus(true);
+                                if (capturedCts.Token.IsCancellationRequested) break;
+
+                                attempt++;
+                                if (attempt >= MaxReconnectAttempts)
+                                {
+                                    await Dispatcher.InvokeAsync(() => AddToHistory($"Max reconnect attempts ({MaxReconnectAttempts}) reached. Stopping."));
+                                    break;
+                                }
+
+                                var delayMs = ReconnectDelaysMs[Math.Min(attempt - 1, ReconnectDelaysMs.Length - 1)];
+                                await Dispatcher.InvokeAsync(() => AddToHistory($"Stream ended unexpectedly. Reconnecting in {delayMs / 1000}s (attempt {attempt}/{MaxReconnectAttempts})..."));
+                                await Task.Delay(delayMs, capturedCts.Token).ConfigureAwait(false);
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        finally
+                        {
+                            await Dispatcher.InvokeAsync(() => { isStreaming = false; timer.Stop(); UpdateStreamStatus(false); });
+                        }
+                    });
 
                     AddToHistory($"Stream iniciado: {sourceObj.Name} - {vBitrate}");
                 }
@@ -935,7 +1028,8 @@ namespace Streamer
                         resolution: resolution,
                         fps: fps,
                         forceYuv: forceYuvFlag,
-                        isFolderMode: true
+                        isFolderMode: true,
+                        useHwEncoder: hwAccelFlag
                     ));
 
                     // Start a background loop to run ffmpeg and optionally restart
@@ -1027,7 +1121,6 @@ namespace Streamer
         private async Task ExecuteFFmpegAsync(IEnumerable<string> args, CancellationToken ct)
         {
             var proc = new Process();
-            // Assign process to a job so child processes are killed if the app exits/crashes
             ProcessJob? job = null;
 
             var ffmpegPath = GetFfmpegPath();
@@ -1042,38 +1135,36 @@ namespace Streamer
             };
 
             foreach (var a in args ?? Enumerable.Empty<string>())
-            {
                 proc.StartInfo.ArgumentList.Add(a);
-            }
 
-            // publish reference once
+            // Reset per-process CPU tracking
+            _lastCpuCheck = DateTime.UtcNow;
+            _lastCpuTime = TimeSpan.Zero;
+
             ffmpegProcess = proc;
 
-            var outputSb = new StringBuilder();
-            var errorSb = new StringBuilder();
+            // Circular buffers instead of unbounded StringBuilders
+            var outputBuffer = new Queue<string>(MaxStderrBufferLines + 10);
+            var errorBuffer = new Queue<string>(MaxStderrBufferLines + 10);
 
             var outputTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var errorTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             proc.OutputDataReceived += (s, e) =>
             {
-                if (e.Data == null) outputTcs.TrySetResult(true);
-                else
-                {
-                    outputSb.AppendLine(e.Data);
-                    // Append to UI safely
-                    Dispatcher.BeginInvoke(() => AddToHistory(e.Data));
-                }
+                if (e.Data == null) { outputTcs.TrySetResult(true); return; }
+                AddToCircularBuffer(outputBuffer, e.Data, MaxStderrBufferLines);
             };
+
             proc.ErrorDataReceived += (s, e) =>
             {
-                if (e.Data == null) errorTcs.TrySetResult(true);
-                else
-                {
-                    errorSb.AppendLine(e.Data);
-                    ParseFFmpegProgress(e.Data);
+                if (e.Data == null) { errorTcs.TrySetResult(true); return; }
+                AddToCircularBuffer(errorBuffer, e.Data, MaxStderrBufferLines);
+                ParseFFmpegProgress(e.Data);
+
+                // Only dispatch non-progress lines to UI history to reduce overhead
+                if (!IsFFmpegProgressLine(e.Data))
                     Dispatcher.BeginInvoke(() => AddToHistory(e.Data));
-                }
             };
 
             try
@@ -1093,45 +1184,49 @@ namespace Streamer
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
 
-                // monitor cancellation
+                // Use WaitForExitAsync (native .NET 8) instead of polling loop
                 using (ct.Register(() =>
                 {
                     try { if (!proc.HasExited) proc.StandardInput.WriteLine("q"); } catch { }
                 }))
                 {
-                    // Wait for exit or cancellation
-                    while (!proc.HasExited)
+                    try
                     {
-                        if (ct.IsCancellationRequested)
-                        {
-                            // give it a moment, then kill tree
-                            try { if (!proc.WaitForExit(1500)) proc.Kill(entireProcessTree: true); } catch { try { proc.Kill(); } catch { } }
-                            break;
-                        }
-                        await Task.Delay(200, ct).ConfigureAwait(false);
+                        await proc.WaitForExitAsync(ct).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Graceful shutdown: give FFmpeg 1.5s after 'q' was sent
+                        try { if (!proc.WaitForExit(1500)) proc.Kill(entireProcessTree: true); }
+                        catch { try { proc.Kill(); } catch { } }
                     }
                 }
 
-                // ensure readers finish
+                // Ensure async readers finish
                 await Task.WhenAll(outputTcs.Task, errorTcs.Task).ConfigureAwait(false);
 
-                string output = outputSb.ToString();
-                string error = errorSb.ToString();
+                int exitCode = -1;
+                try { exitCode = proc.ExitCode; } catch { }
 
-                Dispatcher.Invoke(() =>
+                await Dispatcher.InvokeAsync(() =>
                 {
-                    if (!string.IsNullOrEmpty(output))
-                        AddToHistory("FFmpeg: Completado");
+                    AddToHistory($"FFmpeg exited (code {exitCode})");
 
-                    if (!string.IsNullOrEmpty(error) && !error.Contains("Press") && !error.Contains("KB"))
-                        System.Windows.MessageBox.Show(error, "FFmpeg Output",
-                                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    // Only show error popup if exit code is non-zero and not cancelled
+                    if (exitCode != 0 && !ct.IsCancellationRequested)
+                    {
+                        var lastLines = errorBuffer.TakeLast(30).ToList();
+                        if (lastLines.Any(l => !IsFFmpegProgressLine(l)))
+                        {
+                            var errorText = string.Join("\n", lastLines.Where(l => !IsFFmpegProgressLine(l)));
+                            if (!string.IsNullOrWhiteSpace(errorText))
+                                System.Windows.MessageBox.Show(errorText, $"FFmpeg Error (code {exitCode})",
+                                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    }
                 });
             }
-            catch (OperationCanceledException)
-            {
-                // cancellation requested
-            }
+            catch (OperationCanceledException) { /* cancellation */ }
             catch (Exception ex)
             {
                 Dispatcher.Invoke(() =>
@@ -1140,19 +1235,49 @@ namespace Streamer
             }
             finally
             {
-                // Clear the shared reference only if it still points to this process
                 Interlocked.CompareExchange(ref ffmpegProcess, null, proc);
-
-                Dispatcher.Invoke(() =>
-                {
-                    isStreaming = false;
-                    timer.Stop();
-                    UpdateStreamStatus(false);
-                });
-
                 try { proc.Dispose(); } catch { }
                 try { job?.Dispose(); } catch { }
             }
+        }
+
+        /// <summary>
+        /// Detects available HW encoder by testing each one with a short null encode.
+        /// Returns "h264_nvenc", "h264_qsv", "h264_amf", or null if none available.
+        /// </summary>
+        private async Task<string?> DetectHwEncoderAsync()
+        {
+            var encoders = new[] { "h264_nvenc", "h264_qsv", "h264_amf" };
+            var ffmpegPath = GetFfmpegPath();
+            foreach (var enc in encoders)
+            {
+                try
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = ffmpegPath,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    };
+                    psi.ArgumentList.Add("-f");
+                    psi.ArgumentList.Add("lavfi");
+                    psi.ArgumentList.Add("-i");
+                    psi.ArgumentList.Add("nullsrc=s=256x256:d=1");
+                    psi.ArgumentList.Add("-c:v");
+                    psi.ArgumentList.Add(enc);
+                    psi.ArgumentList.Add("-f");
+                    psi.ArgumentList.Add("null");
+                    psi.ArgumentList.Add("-");
+                    using var p = Process.Start(psi);
+                    if (p == null) continue;
+                    await p.WaitForExitAsync().ConfigureAwait(false);
+                    if (p.ExitCode == 0) return enc;
+                }
+                catch { }
+            }
+            return null;
         }
 
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -1608,20 +1733,53 @@ namespace Streamer
             string resolution,
             string fps,
             bool forceYuv,
-            bool isFolderMode)
+            bool isFolderMode,
+            bool useHwEncoder = false)
         {
-            var args = new List<string>(20);
+            var args = new List<string>(24);
 
-            // video encoding
+            // video encoding - select encoder based on HW acceleration flag
             args.Add("-c:v");
-            args.Add("libx264");
-            args.Add("-preset");
-            args.Add(string.IsNullOrWhiteSpace(preset) ? "veryfast" : preset);
+            if (useHwEncoder)
+            {
+                // Try NVENC first (most common), encoder availability is validated by FFmpeg at runtime
+                args.Add("h264_nvenc");
+                args.Add("-preset");
+                // NVENC presets differ from x264: map common ones
+                var nvPreset = preset switch
+                {
+                    "ultrafast" or "superfast" or "veryfast" => "p1",
+                    "faster" or "fast" => "p4",
+                    "medium" => "p5",
+                    _ => "p4"
+                };
+                args.Add(nvPreset);
+            }
+            else
+            {
+                args.Add("libx264");
+                args.Add("-preset");
+                args.Add(string.IsNullOrWhiteSpace(preset) ? "veryfast" : preset);
+            }
 
             if (!string.IsNullOrWhiteSpace(videoBitrate))
             {
                 args.Add("-b:v");
                 args.Add(videoBitrate);
+
+                // Constrain bitrate peaks for stable RTMP delivery
+                args.Add("-maxrate");
+                args.Add(videoBitrate);
+
+                // Buffer size = 2x bitrate for smooth encoding
+                // Parse numeric part and double it
+                var numericPart = new string(videoBitrate.Where(c => char.IsDigit(c)).ToArray());
+                var suffix = new string(videoBitrate.Where(c => !char.IsDigit(c)).ToArray());
+                if (int.TryParse(numericPart, out var bitrateValue))
+                {
+                    args.Add("-bufsize");
+                    args.Add($"{bitrateValue * 2}{suffix}");
+                }
             }
 
             // If a resolution is provided, apply a safe filter that preserves aspect ratio
@@ -1658,6 +1816,13 @@ namespace Streamer
             {
                 args.Add("-r");
                 args.Add(fps);
+
+                // Set keyframe interval to 2 seconds (required by most RTMP servers)
+                if (int.TryParse(fps, out var fpsValue) && fpsValue > 0)
+                {
+                    args.Add("-g");
+                    args.Add((fpsValue * 2).ToString());
+                }
             }
 
             // Keep yuv420p as default pixel format for broad compatibility
@@ -1683,6 +1848,8 @@ namespace Streamer
             // output format and url
             args.Add("-f");
             args.Add("flv");
+            args.Add("-flvflags");
+            args.Add("no_duration_filesize");
             args.Add(rtmpUrl);
 
             return args;
