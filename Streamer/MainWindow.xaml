@@ -163,7 +163,7 @@
                                     <ComboBoxItem Content="Corillo.live" Tag="rtmp://corillo.live/live/" IsSelected="True"/>
                                     <ComboBoxItem Content="Twitch" Tag="rtmp://live.twitch.tv/app/"/>
                                     <ComboBoxItem Content="YouTube" Tag="rtmp://a.rtmp.youtube.com/live2/"/>
-                                    <ComboBoxItem Content="Kick" Tag="rtmps://fa723fc1b171.global-contribute.live-video.net/app/"/>
+                                    <ComboBoxItem Content="Kick" Tag="" ToolTip="Pega tu URL de ingest desde kick.com/dashboard/settings/stream"/>
                                     <ComboBoxItem Content="Facebook" Tag="rtmps://live-api-s.facebook.com:443/rtmp/"/>
                                     <ComboBoxItem Content="Personalizado" Tag=""/>
                                 </ComboBox>

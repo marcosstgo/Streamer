@@ -2516,9 +2516,25 @@ namespace Streamer
         private void PlatformCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!_uiReady) return;
-            if (PlatformCombo.SelectedItem is ComboBoxItem item && item.Tag is string url && !string.IsNullOrEmpty(url))
+            if (PlatformCombo.SelectedItem is ComboBoxItem item)
             {
-                RTMPBase.Text = url;
+                var url = item.Tag as string ?? "";
+                var platform = item.Content?.ToString() ?? "";
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    RTMPBase.Text = url;
+                }
+                else if (platform == "Kick")
+                {
+                    RTMPBase.Text = "";
+                    AddToHistory("Kick: pega tu URL de ingest desde kick.com/dashboard/settings/stream");
+                }
+                else if (platform == "Personalizado")
+                {
+                    // Leave current URL as-is for custom
+                }
+
                 _ = CheckServerStatusAsync();
             }
         }
