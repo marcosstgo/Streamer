@@ -163,6 +163,10 @@ namespace Streamer
         // Detected hardware encoder (cached at startup). null = not available or not detected yet.
         private string? _detectedHwEncoder = null;
 
+        // GPU usage: polled on background thread, read on UI thread
+        private double _cachedGpuUsage = -1;
+        private System.Threading.Timer? _gpuPollTimer;
+
         private enum CloseAction
         {
             Ask = 0,
@@ -683,11 +687,11 @@ namespace Streamer
                         }
                         catch { }
 
-                        // GPU usage (system-wide GPU engine utilization)
+                        // GPU usage (read cached value from background poll)
                         try
                         {
-                            var gpuUsage = GetGpuUsage();
-                            MetricGpu.Text = gpuUsage >= 0 ? $"{gpuUsage:F1}%" : "--";
+                            var gpu = _cachedGpuUsage;
+                            MetricGpu.Text = gpu >= 0 ? $"{gpu:F1}%" : "--";
                         }
                         catch { MetricGpu.Text = "--"; }
                     }
@@ -702,10 +706,23 @@ namespace Streamer
         }
 
         /// <summary>
-        /// Gets total GPU utilization percentage using Windows Performance Counters (GPU Engine category).
-        /// Returns -1 if not available.
+        /// Polls GPU utilization on a background thread every 1.5 seconds.
+        /// Stores result in _cachedGpuUsage for the UI timer to read.
         /// </summary>
-        private double GetGpuUsage()
+        private void StartGpuPolling()
+        {
+            if (_gpuPollTimer != null) return;
+            _gpuPollTimer = new System.Threading.Timer(_ => PollGpuUsage(), null, 0, 1500);
+        }
+
+        private void StopGpuPolling()
+        {
+            _gpuPollTimer?.Dispose();
+            _gpuPollTimer = null;
+            _cachedGpuUsage = -1;
+        }
+
+        private void PollGpuUsage()
         {
             try
             {
@@ -714,25 +731,30 @@ namespace Streamer
                 double total = 0;
                 foreach (var name in instanceNames)
                 {
-                    // Only look at "engtype_3D" or "engtype_VideoDecode" or "engtype_VideoEncode" instances
                     if (!name.Contains("engtype_3D") && !name.Contains("engtype_Video"))
                         continue;
 
-                    var counters = category.GetCounters(name);
-                    foreach (var counter in counters)
-                    {
-                        if (counter.CounterName == "Utilization Percentage")
-                        {
-                            total += counter.NextValue();
-                        }
-                        counter.Dispose();
-                    }
+                    using var counter = new PerformanceCounter("GPU Engine", "Utilization Percentage", name, true);
+                    counter.NextValue(); // prime the counter
                 }
-                return total;
+
+                // Brief pause to allow delta calculation
+                Thread.Sleep(200);
+
+                foreach (var name in instanceNames)
+                {
+                    if (!name.Contains("engtype_3D") && !name.Contains("engtype_Video"))
+                        continue;
+
+                    using var counter = new PerformanceCounter("GPU Engine", "Utilization Percentage", name, true);
+                    total += counter.NextValue();
+                }
+
+                _cachedGpuUsage = total;
             }
             catch
             {
-                return -1;
+                _cachedGpuUsage = -1;
             }
         }
 
@@ -1907,6 +1929,7 @@ namespace Streamer
                 MetricFps.Text = "--";
                 MetricCpu.Text = "--";
                 try { MetricGpu.Text = "--"; } catch { }
+                StartGpuPolling();
             }
             else
             {
@@ -1924,6 +1947,7 @@ namespace Streamer
                 MetricFps.Text = "--";
                 MetricCpu.Text = "--";
                 try { MetricGpu.Text = "--"; } catch { }
+                StopGpuPolling();
             }
         }
 
