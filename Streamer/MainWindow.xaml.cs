@@ -274,7 +274,7 @@ namespace Streamer
                         var key = DecryptString(encrypted);
                         await Dispatcher.InvokeAsync(() =>
                         {
-                            try { if (StreamKey != null) StreamKey.Text = key; } catch { }
+                            try { if (StreamKey != null) SetStreamKeyText(key); } catch { }
                         });
                     }
                 }
@@ -290,7 +290,7 @@ namespace Streamer
         {
             try
             {
-                var toSave = StreamKey?.Text ?? string.Empty;
+                var toSave = GetStreamKeyText();
                 var encrypted = EncryptString(toSave);
                 var cfg = new { StreamKey = encrypted };
                 var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions { WriteIndented = true });
@@ -843,7 +843,7 @@ namespace Streamer
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(StreamKey.Text))
+                if (string.IsNullOrWhiteSpace(GetStreamKeyText()))
                 {
                     System.Windows.MessageBox.Show("Stream key es requerido", "Error",
                                   MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -851,7 +851,7 @@ namespace Streamer
                 }
 
                 string rtmpBase = RTMPBase.Text.TrimEnd('/');
-                string streamKey = StreamKey.Text.TrimStart('/');
+                string streamKey = GetStreamKeyText().TrimStart('/');
                 string rtmpUrl = $"{rtmpBase}/{streamKey}";
                 string vBitrate = VideoBitrateManual.Text;
                 string aBitrate = AudioBitrateManual.Text;
@@ -1998,7 +1998,7 @@ namespace Streamer
                 {
                     Name = name,
                     RtmpBase = RTMPBase.Text,
-                    StreamKey = EncryptString(StreamKey.Text),
+                    StreamKey = EncryptString(GetStreamKeyText()),
                     Source = SelectedSource?.Name,
                     VBitrate = VideoBitrateManual.Text,
                     ABitrate = AudioBitrateManual.Text,
@@ -2140,7 +2140,7 @@ namespace Streamer
                                 {
                                     var raw = config["StreamKey"]?.ToString() ?? "";
                                     var decrypted = DecryptString(raw);
-                                    StreamKey.Text = string.IsNullOrEmpty(decrypted) ? raw : decrypted;
+                                    SetStreamKeyText(string.IsNullOrEmpty(decrypted) ? raw : decrypted);
                                 }
                                 if (config.ContainsKey("VBitrate"))
                                     VideoBitrateManual.Text = config["VBitrate"]?.ToString() ?? "2500k";
@@ -2333,8 +2333,59 @@ namespace Streamer
 
         private async void StreamKey_LostFocus(object sender, RoutedEventArgs e)
         {
-            // Save the stream key when the user leaves the textbox
+            // Sync between PasswordBox and TextBox
+            SyncStreamKeyFromActive();
             await SaveConfigAsync().ConfigureAwait(false);
+        }
+
+        private void ToggleStreamKey_Click(object sender, RoutedEventArgs e)
+        {
+            if (StreamKey.Visibility == Visibility.Collapsed)
+            {
+                // Show plain text
+                StreamKey.Text = StreamKeyHidden.Password;
+                StreamKey.Visibility = Visibility.Visible;
+                StreamKeyHidden.Visibility = Visibility.Collapsed;
+                ToggleKeyBtn.Content = "🔒";
+            }
+            else
+            {
+                // Hide with password dots
+                StreamKeyHidden.Password = StreamKey.Text;
+                StreamKeyHidden.Visibility = Visibility.Visible;
+                StreamKey.Visibility = Visibility.Collapsed;
+                ToggleKeyBtn.Content = "👁";
+            }
+        }
+
+        /// <summary>
+        /// Gets the current stream key value from whichever control is active.
+        /// </summary>
+        private string GetStreamKeyText()
+        {
+            if (StreamKey.Visibility == Visibility.Visible)
+                return StreamKey.Text;
+            return StreamKeyHidden.Password;
+        }
+
+        /// <summary>
+        /// Sets the stream key value in both controls.
+        /// </summary>
+        private void SetStreamKeyText(string value)
+        {
+            StreamKey.Text = value;
+            StreamKeyHidden.Password = value;
+        }
+
+        /// <summary>
+        /// Syncs the stream key from the currently visible control to the other.
+        /// </summary>
+        private void SyncStreamKeyFromActive()
+        {
+            if (StreamKey.Visibility == Visibility.Visible)
+                StreamKeyHidden.Password = StreamKey.Text;
+            else
+                StreamKey.Text = StreamKeyHidden.Password;
         }
 
         private async void RTMPBase_LostFocus(object sender, RoutedEventArgs e)

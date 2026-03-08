@@ -160,7 +160,15 @@
                             <TextBox Grid.Row="0" Grid.Column="1" x:Name="RTMPBase" Text="rtmp://corillo.live/live/" Style="{StaticResource TextBoxStyle}" LostFocus="RTMPBase_LostFocus"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Stream Key" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="12,0,0,0"/>
-                            <TextBox Grid.Row="0" Grid.Column="3" x:Name="StreamKey" Style="{StaticResource TextBoxStyle}" ToolTip="Ej: openmovies, katatonia, etc" LostFocus="StreamKey_LostFocus"/>
+                            <Grid Grid.Row="0" Grid.Column="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <PasswordBox x:Name="StreamKeyHidden" Grid.Column="0" PasswordChar="&#x25CF;" Style="{StaticResource PasswordBoxStyle}" ToolTip="Stream Key" LostFocus="StreamKey_LostFocus"/>
+                                <TextBox x:Name="StreamKey" Grid.Column="0" Style="{StaticResource TextBoxStyle}" ToolTip="Stream Key" Visibility="Collapsed" LostFocus="StreamKey_LostFocus"/>
+                                <Button x:Name="ToggleKeyBtn" Grid.Column="1" Content="👁" Width="30" Height="28" Margin="4,0,0,0" Cursor="Hand" Click="ToggleStreamKey_Click" ToolTip="Mostrar/Ocultar Stream Key" Background="Transparent" Foreground="{StaticResource TextMuted}" BorderThickness="0" FontSize="14"/>
+                            </Grid>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Modo de Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
                             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="3">
