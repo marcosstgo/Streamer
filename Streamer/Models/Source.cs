@@ -27,7 +27,7 @@ namespace Streamer.Models
         {
             get
             {
-                var desc = string.IsNullOrWhiteSpace(Description) ? string.Empty : $" — {Description}";
+                var desc = string.IsNullOrWhiteSpace(Description) ? string.Empty : $" - {Description}";
                 var avail = IsAvailable ? string.Empty : " (No disponible)";
                 return $"{Name}{desc}{avail}";
             }

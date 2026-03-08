@@ -123,6 +123,9 @@ namespace Streamer
         private bool isStreaming = false;
         private bool _uiReady = false;
 
+        // Debounce timer for history save to avoid excessive disk writes
+        private DispatcherTimer? _historySaveTimer;
+
         private readonly string appDataPath;
 
         // Tray & close behavior
@@ -357,6 +360,14 @@ namespace Streamer
         {
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
+            // Debounce timer: save history 3 seconds after last change
+            _historySaveTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+            _historySaveTimer.Tick += (s, e) =>
+            {
+                _historySaveTimer.Stop();
+                _ = SaveHistoryAsync();
+            };
 
             try
             {
@@ -1253,6 +1264,7 @@ namespace Streamer
             catch (OperationCanceledException) { /* cancellation */ }
             catch (Exception ex)
             {
+                Logger.LogError($"FFmpeg error: {ex}");
                 Dispatcher.Invoke(() =>
                     System.Windows.MessageBox.Show($"Error en FFmpeg: {ex.Message}", "Error",
                                     MessageBoxButton.OK, MessageBoxImage.Error));
@@ -1662,91 +1674,6 @@ namespace Streamer
             }
         }
 
-        private void ExecuteFFmpeg(string command)
-        {
-            // Back-compat: allow callers to pass a single command string
-            var args = new List<string>();
-            if (!string.IsNullOrWhiteSpace(command))
-            {
-                var trimmed = command.StartsWith("ffmpeg ") ? command.Substring(7) : command;
-                // naive split on spaces for legacy strings (best-effort)
-                args.AddRange(trimmed.Split(' ').Where(s => !string.IsNullOrEmpty(s)));
-            }
-
-            ExecuteFFmpeg(args);
-        }
-
-        private void ExecuteFFmpeg(IEnumerable<string> args)
-        {
-            var proc = new Process();
-            var ffmpegPath = GetFfmpegPath();
-            proc.StartInfo = new ProcessStartInfo
-            {
-                FileName = ffmpegPath,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            };
-
-            // Fill ArgumentList (safer than building one large string)
-            foreach (var a in args ?? Enumerable.Empty<string>())
-            {
-                proc.StartInfo.ArgumentList.Add(a);
-            }
-
-            // publish reference once
-            ffmpegProcess = proc;
-
-            var outputSb = new StringBuilder();
-            var errorSb = new StringBuilder();
-
-            proc.OutputDataReceived += (s, e) => { if (e.Data != null) outputSb.AppendLine(e.Data); };
-            proc.ErrorDataReceived += (s, e) => { if (e.Data != null) errorSb.AppendLine(e.Data); };
-
-            try
-            {
-                proc.Start();
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
-
-                proc.WaitForExit();
-
-                string output = outputSb.ToString();
-                string error = errorSb.ToString();
-
-                Dispatcher.Invoke(() =>
-                {
-                    if (!string.IsNullOrEmpty(output))
-                        AddToHistory("FFmpeg: Completado");
-
-                    if (!string.IsNullOrEmpty(error) && !error.Contains("Press") && !error.Contains("KB"))
-                        System.Windows.MessageBox.Show(error, "FFmpeg Output",
-                                        MessageBoxButton.OK, MessageBoxImage.Information);
-                });
-            }
-            catch (Exception ex)
-            {
-                Dispatcher.Invoke(() =>
-                    System.Windows.MessageBox.Show($"Error en FFmpeg: {ex.Message}", "Error",
-                                    MessageBoxButton.OK, MessageBoxImage.Error));
-            }
-            finally
-            {
-                // Clear the shared reference only if it still points to this process
-                Interlocked.CompareExchange(ref ffmpegProcess, null, proc);
-
-                Dispatcher.Invoke(() =>
-                {
-                    isStreaming = false;
-                    timer.Stop();
-                    UpdateStreamStatus(false);
-                });
-
-                try { proc.Dispose(); } catch { }
-            }
-        }
-
         // Refactored helper: returns encoding/output arguments only. Does NOT include -re, -i, or hwaccel.
         private IEnumerable<string> BuildEncodingArguments(
             string sourceUrl,
@@ -1953,13 +1880,13 @@ namespace Streamer
                 {
                     case "480p":
                         VideoBitrateManual.Text = "1000k";
-                        AudioBitrateManual.Text = "96k";
+                        AudioBitrateManual.Text = "160k";
                         ResolutionManual.Text = "854x480";
                         FPSManual.Text = "30";
                         break;
                     case "720p":
                         VideoBitrateManual.Text = "2500k";
-                        AudioBitrateManual.Text = "128k";
+                        AudioBitrateManual.Text = "160k";
                         ResolutionManual.Text = "1280x720";
                         FPSManual.Text = "30";
                         break;
@@ -1971,7 +1898,7 @@ namespace Streamer
                         break;
                     case "1080p60":
                         VideoBitrateManual.Text = "5000k";
-                        AudioBitrateManual.Text = "192k";
+                        AudioBitrateManual.Text = "160k";
                         ResolutionManual.Text = "1920x1080";
                         FPSManual.Text = "60";
                         break;
@@ -2059,7 +1986,7 @@ namespace Streamer
                 {
                     Name = name,
                     RtmpBase = RTMPBase.Text,
-                    StreamKey = StreamKey.Text,
+                    StreamKey = EncryptString(StreamKey.Text),
                     Source = SelectedSource?.Name,
                     VBitrate = VideoBitrateManual.Text,
                     ABitrate = AudioBitrateManual.Text,
@@ -2157,12 +2084,13 @@ namespace Streamer
             try
             {
                 var history = new List<string>();
-                // Access UI collection on dispatcher to build snapshot
+                // Access UI collection on dispatcher to build snapshot - only save last 20
                 await Dispatcher.InvokeAsync(() =>
                 {
-                    foreach (var item in HistoryList.Items)
+                    var count = Math.Min(HistoryList.Items.Count, 20);
+                    for (int i = 0; i < count; i++)
                     {
-                        history.Add(item?.ToString() ?? string.Empty);
+                        history.Add(HistoryList.Items[i]?.ToString() ?? string.Empty);
                     }
                 });
 
@@ -2176,7 +2104,7 @@ namespace Streamer
             }
         }
 
-        private void FavoritesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void FavoritesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (FavoritesList.SelectedItem != null)
             {
@@ -2187,48 +2115,56 @@ namespace Streamer
 
                     if (File.Exists(favPath))
                     {
-                        string json = File.ReadAllText(favPath);
+                        string json = await File.ReadAllTextAsync(favPath).ConfigureAwait(false);
                         var config = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
                         if (config != null)
                         {
-                            if (config.ContainsKey("RtmpBase"))
-                                RTMPBase.Text = config["RtmpBase"]?.ToString() ?? "";
-                            if (config.ContainsKey("StreamKey"))
-                                StreamKey.Text = config["StreamKey"]?.ToString() ?? "";
-                            if (config.ContainsKey("VBitrate"))
-                                VideoBitrateManual.Text = config["VBitrate"]?.ToString() ?? "2500k";
-                            if (config.ContainsKey("ABitrate"))
-                                AudioBitrateManual.Text = config["ABitrate"]?.ToString() ?? "128k";
-                            if (config.ContainsKey("Resolution"))
-                                ResolutionManual.Text = config["Resolution"]?.ToString() ?? "1280x720";
-                            if (config.ContainsKey("FPS"))
-                                FPSManual.Text = config["FPS"]?.ToString() ?? "30";
-
-                            // Buscar preset en combo
-                            if (config.ContainsKey("Preset") && PresetCombo.Items.Count > 0)
+                            await Dispatcher.InvokeAsync(() =>
                             {
-                                string preset = config["Preset"]?.ToString() ?? "veryfast";
-                                for (int i = 0; i < PresetCombo.Items.Count; i++)
+                                if (config.ContainsKey("RtmpBase"))
+                                    RTMPBase.Text = config["RtmpBase"]?.ToString() ?? "";
+                                if (config.ContainsKey("StreamKey"))
                                 {
-                                    var item = PresetCombo.Items[i] as ComboBoxItem;
-                                    if (item?.Content?.ToString() == preset)
+                                    var raw = config["StreamKey"]?.ToString() ?? "";
+                                    var decrypted = DecryptString(raw);
+                                    StreamKey.Text = string.IsNullOrEmpty(decrypted) ? raw : decrypted;
+                                }
+                                if (config.ContainsKey("VBitrate"))
+                                    VideoBitrateManual.Text = config["VBitrate"]?.ToString() ?? "2500k";
+                                if (config.ContainsKey("ABitrate"))
+                                    AudioBitrateManual.Text = config["ABitrate"]?.ToString() ?? "160k";
+                                if (config.ContainsKey("Resolution"))
+                                    ResolutionManual.Text = config["Resolution"]?.ToString() ?? "1280x720";
+                                if (config.ContainsKey("FPS"))
+                                    FPSManual.Text = config["FPS"]?.ToString() ?? "30";
+
+                                if (config.ContainsKey("Preset") && PresetCombo.Items.Count > 0)
+                                {
+                                    string preset = config["Preset"]?.ToString() ?? "veryfast";
+                                    for (int i = 0; i < PresetCombo.Items.Count; i++)
                                     {
-                                        PresetCombo.SelectedIndex = i;
-                                        break;
+                                        var item = PresetCombo.Items[i] as ComboBoxItem;
+                                        if (item?.Content?.ToString() == preset)
+                                        {
+                                            PresetCombo.SelectedIndex = i;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
+                            });
                         }
 
-                        MessageBox.Show($"Configuración '{name}' cargada", "Éxito",
-                                      MessageBoxButton.OK, MessageBoxImage.Information);
+                        await Dispatcher.InvokeAsync(() =>
+                            MessageBox.Show($"Configuraci\u00f3n '{name}' cargada", "\u00c9xito",
+                                          MessageBoxButton.OK, MessageBoxImage.Information));
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error cargando configuración: {ex.Message}", "Error",
-                                  MessageBoxButton.OK, MessageBoxImage.Error);
+                    await Dispatcher.InvokeAsync(() =>
+                        MessageBox.Show($"Error cargando configuraci\u00f3n: {ex.Message}", "Error",
+                                      MessageBoxButton.OK, MessageBoxImage.Error));
                 }
             }
         }
@@ -2244,13 +2180,17 @@ namespace Streamer
             }
 
             HistoryList.Items.Insert(0, $"{DateTime.Now:HH:mm:ss} - {entry}");
-            while (HistoryList.Items.Count > 20)
+            while (HistoryList.Items.Count > 100)
             {
                 HistoryList.Items.RemoveAt(HistoryList.Items.Count - 1);
             }
 
-            // Save history asynchronously - don't block UI
-            _ = SaveHistoryAsync();
+            // Log to file for diagnostics
+            Logger.LogInfo(entry);
+
+            // Debounce history save - restart timer on each new entry
+            _historySaveTimer?.Stop();
+            _historySaveTimer?.Start();
         }
 
         private void OpenSourcesButton_Click(object sender, RoutedEventArgs e)
@@ -2300,18 +2240,13 @@ namespace Streamer
             await LoadAndValidateSourcesAsync();
         }
 
-        private void SourceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         private async void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
             try
             {
                 // Run initialization tasks that require the UI
                 await LoadAndValidateSourcesAsync().ConfigureAwait(false);
-                await CheckFFmpegAsync().ConfigureAwait(false);
+                CheckFFmpeg();
                 await CheckServerStatusAsync().ConfigureAwait(false);
 
                 // Ensure window is on-screen and visible
@@ -2395,14 +2330,6 @@ namespace Streamer
             await CheckServerStatusAsync().ConfigureAwait(false);
         }
 
-        private void AudioBitrateManual_TextChanged(object sender, TextChangedEventArgs e)
-        {
-        }
-
-        private void PresetCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-        }
-
         private void DeleteFavorite_Click(object sender, RoutedEventArgs e)
         {
             if (FavoritesList.SelectedItems.Count == 0)
@@ -2442,9 +2369,5 @@ namespace Streamer
             credits.ShowDialog();
         }
 
-        private void FPSManual_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
     }
 }

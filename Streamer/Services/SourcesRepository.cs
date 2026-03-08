@@ -9,7 +9,7 @@ namespace Streamer.Services
 {
     public static class SourcesRepository
     {
-        private const string AppFolderName = "StreamerPro";
+        private const string AppFolderName = "CorilloStreamer";
         private const string SourcesFileName = "sources.json";
 
         public static string GetAppFolder()
