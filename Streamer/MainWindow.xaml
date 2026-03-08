@@ -44,7 +44,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Status pill -->
@@ -77,7 +76,6 @@
                 <!-- Right action buttons -->
                 <Button Grid.Column="3" x:Name="StartButton" Style="{StaticResource PrimaryButton}" Content="▶ Iniciar" Padding="12,6" FontSize="12" Margin="0,0,6,0" Click="StartStream_Click"/>
                 <Button Grid.Column="4" x:Name="StopButton" Style="{StaticResource DangerButton}" Content="■ Detener" Padding="12,6" FontSize="12" Margin="0,0,6,0" Click="StopStream_Click" IsEnabled="False"/>
-                <Button Grid.Column="5" Style="{StaticResource SecondaryButton}" Padding="6" FontSize="14" Content="⚙" Width="34" Height="34"/>
             </Grid>
         </Border>
 
@@ -123,9 +121,6 @@
                                     <TextBlock x:Name="FFmpegStatusText" Text="FFmpeg: Detectado" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12"/>
                                 </StackPanel>
                             </Border>
-                            <Button Style="{StaticResource SecondaryButton}" Width="34" Height="34" Padding="0">
-                                <TextBlock Text="⚙" FontSize="16" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -302,7 +297,7 @@
                                         <TextBox x:Name="AudioBitrateManual" Text="160k" Style="{StaticResource TextBoxStyle}" Width="100"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
-                                        <TextBlock Text="Preset x264" Style="{StaticResource LabelStyle}"/>
+                                        <TextBlock Text="Preset" Style="{StaticResource LabelStyle}"/>
                                         <ComboBox x:Name="PresetCombo" Style="{StaticResource ComboBoxStyle}" SelectedIndex="4" Foreground="Black" Height="28">
                                             <ComboBoxItem Content="ultrafast"/>
                                             <ComboBoxItem Content="superfast"/>
@@ -337,8 +332,8 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="⏱" Foreground="{StaticResource TextMuted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBlock x:Name="StreamTimeCompact" Text="00:00:00" Foreground="{StaticResource TextSecondary}" FontFamily="{DynamicResource MonoFont}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <Ellipse x:Name="VideoHealthIndicator" Width="8" Height="8" Fill="{StaticResource StatusGreen}" Margin="0,0,6,0"/>
-                            <TextBlock x:Name="VideoHealthText" Text="En vivo" Foreground="{StaticResource StatusGreen}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="VideoHealthIndicator" Width="8" Height="8" Fill="{StaticResource StatusGreen}" Margin="0,0,6,0" Visibility="Hidden"/>
+                            <TextBlock x:Name="VideoHealthText" Text="En vivo" Foreground="{StaticResource StatusGreen}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="Hidden"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

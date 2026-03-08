@@ -1965,6 +1965,8 @@ namespace Streamer
                 StopButton.IsEnabled = true;
                 try { StartBig.IsEnabled = false; } catch { }
                 try { StopBig.IsEnabled = true; } catch { }
+                try { VideoHealthIndicator.Visibility = Visibility.Visible; } catch { }
+                try { VideoHealthText.Visibility = Visibility.Visible; } catch { }
                 MetricBitrate.Text = "--";
                 MetricSpeed.Text = "--";
                 MetricFps.Text = "--";
@@ -1981,6 +1983,8 @@ namespace Streamer
                 StopButton.IsEnabled = false;
                 try { StartBig.IsEnabled = true; } catch { }
                 try { StopBig.IsEnabled = false; } catch { }
+                try { VideoHealthIndicator.Visibility = Visibility.Hidden; } catch { }
+                try { VideoHealthText.Visibility = Visibility.Hidden; } catch { }
                 StreamTime.Text = "Tiempo: 00:00:00";
                 try { StreamTimeCompact.Text = "00:00:00"; } catch { }
                 MetricBitrate.Text = "--";
