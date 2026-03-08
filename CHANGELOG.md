@@ -1,6 +1,46 @@
 # Changelog
 
-## [1.5] - Unreleased
+## [1.8] - 2025
+
+### Added
+- Complete UI redesign: dark premium dashboard matching professional mockup
+- New color palette with tokens: BgPrimary (#0F1720), BgPanel (#141C26), AccentYellow (#F5B72E), etc.
+- Custom CheckBox and RadioButton templates with dark theme and yellow accent
+- Rounded button templates (PrimaryButton, DangerButton, BigPrimaryButton, BigDangerButton)
+- StatusPill style for transmitting/stopped indicator
+- BadgeStyle for version badge in header
+- Professional status bar with inline metrics (Bitrate, FPS, CPU, MEM, Speed)
+- Server status indicator with connectivity and latency in header
+- Action buttons column with Iniciar Stream and Detener plus live timer
+- Typography tokens (TitleFontSize, SectionTitleFontSize, LabelFontSize, etc.)
+- Dark scrollbar styles matching the theme
+- SparklinePolyline style for real-time graphs
+- Two-column layout: Config + Advanced Options side by side
+- Profiles row with 6 pill buttons (480p, 720p, 1080p, 1080p60, 4K, Personalizado)
+- Favorites and History sections with InputBg backgrounds
+- Credits window with proper emoji rendering using XML character entities
+- Comprehensive README with badges, screenshots, feature documentation
+
+### Changed
+- Window background updated to #0F1720
+- Window width increased to 1080px for better breathing room
+- Outer padding increased to 20px
+- Card border radius standardized to 10px
+- Input height standardized to 34px
+- All font sizes aligned to design tokens (14px labels, 16px section titles, 26px title)
+- Profile labels simplified (e.g. "1080p - Alto" instead of "1080p - 4500k")
+- Header simplified: removed heavy CardShadow, added border
+- Footer redesigned as single status bar with inline metrics and action buttons
+- Credits footer text uses XML entities for cross-encoding compatibility
+
+### Fixed
+- StreamTimeCompact timer now syncs with main StreamTime
+- StartBig/StopBig buttons now properly enable/disable with stream state
+- Heart and satellite emoji in CreditsWindow render correctly (XML char entities)
+- Duplicate x:Name conflicts resolved (MetricBitrate, MetricFps, etc.)
+- File encoding issues with emoji characters resolved
+
+## [1.5] - Previous
 ### Added
 - Minimize to tray support and reliable tray icon lifecycle.
 - App-level global exception handlers and safe shutdown cleanup.

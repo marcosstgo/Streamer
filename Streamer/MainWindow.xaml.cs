@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using Streamer.Models;
 using Streamer.Services;
 using System.Diagnostics;
@@ -13,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -138,6 +140,12 @@ namespace Streamer
         private CloseAction _rememberedAction = CloseAction.Ask;
         private readonly string prefsPath;
 
+        // FFmpeg progress parsing
+        private static readonly Regex _regexBitrate = new(@"bitrate=\s*([\d.]+)kbits/s", RegexOptions.Compiled);
+        private static readonly Regex _regexSpeed = new(@"speed=\s*([\d.]+)x", RegexOptions.Compiled);
+        private static readonly Regex _regexFps = new(@"fps=\s*([\d.]+)", RegexOptions.Compiled);
+        private PerformanceCounter? _cpuCounter;
+
         private enum CloseAction
         {
             Ask = 0,
@@ -153,17 +161,17 @@ namespace Streamer
             // DataContext for bindings
             DataContext = this;
 
-            // Set dynamic title with version info from assembly
+            // Set dynamic version in the yellow badge from assembly info
             try
             {
                 var version = Assembly.GetExecutingAssembly().GetName().Version;
                 if (version != null)
                 {
-                    TitleText.Text = $"Streamer Pro v{version.Major}.{version.Minor}";
+                    VersionBadge.Text = $"v{version.Major}.{version.Minor}";
                 }
                 else
                 {
-                    TitleText.Text = "Streamer Pro v1.5";
+                    VersionBadge.Text = "v1.8";
                 }
             }
             catch { }
@@ -335,6 +343,13 @@ namespace Streamer
         {
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
+            try
+            {
+                _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                _cpuCounter.NextValue();
+            }
+            catch { _cpuCounter = null; }
         }
 
         private async void CheckFFmpeg()
@@ -477,13 +492,139 @@ namespace Streamer
             }
         }
 
+        private async Task CheckServerStatusAsync()
+        {
+            try
+            {
+                string rtmpUrl = await Dispatcher.InvokeAsync(() => RTMPBase.Text ?? string.Empty);
+                string host = string.Empty;
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(rtmpUrl))
+                    {
+                        var cleaned = rtmpUrl.Trim().TrimEnd('/');
+                        // Extract hostname from rtmp://host/path or similar
+                        if (cleaned.Contains("://"))
+                        {
+                            var afterScheme = cleaned.Substring(cleaned.IndexOf("://") + 3);
+                            host = afterScheme.Split('/', ':', '?')[0];
+                        }
+                        else
+                        {
+                            host = cleaned.Split('/', ':', '?')[0];
+                        }
+                    }
+                }
+                catch { }
+
+                if (string.IsNullOrWhiteSpace(host))
+                {
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        ServerIndicator.Fill = (SolidColorBrush)FindResource("TextMuted");
+                        ServerStatusText.Text = "Servidor: --";
+                        ServerLatencyText.Text = "--";
+                    });
+                    return;
+                }
+
+                var displayHost = host;
+
+                // Ping the server to measure latency
+                long latencyMs = -1;
+                bool online = false;
+                try
+                {
+                    using var ping = new Ping();
+                    var reply = await ping.SendPingAsync(host, 3000);
+                    if (reply.Status == IPStatus.Success)
+                    {
+                        latencyMs = reply.RoundtripTime;
+                        online = true;
+                    }
+                }
+                catch
+                {
+                    // Ping may be blocked; fallback to TCP connect on port 1935 (RTMP)
+                    try
+                    {
+                        var sw = Stopwatch.StartNew();
+                        using var tcp = new System.Net.Sockets.TcpClient();
+                        var connectTask = tcp.ConnectAsync(host, 1935);
+                        if (await Task.WhenAny(connectTask, Task.Delay(3000)) == connectTask && tcp.Connected)
+                        {
+                            sw.Stop();
+                            latencyMs = sw.ElapsedMilliseconds;
+                            online = true;
+                        }
+                    }
+                    catch { }
+                }
+
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    ServerStatusText.Text = displayHost;
+                    if (online)
+                    {
+                        ServerIndicator.Fill = (SolidColorBrush)FindResource("Success");
+                        ServerLatencyText.Text = $"{latencyMs}ms · Online";
+                        ServerLatencyText.Foreground = (SolidColorBrush)FindResource("Success");
+                    }
+                    else
+                    {
+                        ServerIndicator.Fill = (SolidColorBrush)FindResource("Danger");
+                        ServerLatencyText.Text = "Offline";
+                        ServerLatencyText.Foreground = (SolidColorBrush)FindResource("Danger");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CheckServerStatusAsync error: {ex}");
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    ServerIndicator.Fill = (SolidColorBrush)FindResource("Danger");
+                    ServerStatusText.Text = "Servidor: Error";
+                    ServerLatencyText.Text = "--";
+                });
+            }
+        }
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (isStreaming)
             {
                 var elapsed = DateTime.Now - streamStartTime;
                 StreamTime.Text = $"Tiempo: {elapsed:hh\\:mm\\:ss}";
+                try { StreamTimeCompact.Text = $"{elapsed:hh\\:mm\\:ss}"; } catch { }
+
+                try
+                {
+                    if (_cpuCounter != null)
+                        MetricCpu.Text = $"{_cpuCounter.NextValue():F0}%";
+                }
+                catch { }
             }
+        }
+
+        private void ParseFFmpegProgress(string line)
+        {
+            try
+            {
+                var mBitrate = _regexBitrate.Match(line);
+                if (mBitrate.Success)
+                    Dispatcher.BeginInvoke(() => MetricBitrate.Text = $"{mBitrate.Groups[1].Value} kb/s");
+
+                var mSpeed = _regexSpeed.Match(line);
+                if (mSpeed.Success)
+                    Dispatcher.BeginInvoke(() => MetricSpeed.Text = $"{mSpeed.Groups[1].Value}x");
+
+                var mFps = _regexFps.Match(line);
+                if (mFps.Success)
+                    Dispatcher.BeginInvoke(() => MetricFps.Text = $"{mFps.Groups[1].Value}");
+            }
+            catch { }
         }
 
         private async Task LoadAndValidateSourcesAsync()
@@ -930,6 +1071,7 @@ namespace Streamer
                 else
                 {
                     errorSb.AppendLine(e.Data);
+                    ParseFFmpegProgress(e.Data);
                     Dispatcher.BeginInvoke(() => AddToHistory(e.Data));
                 }
             };
@@ -1555,6 +1697,12 @@ namespace Streamer
                 StreamStatusText.Foreground = (SolidColorBrush)FindResource("Success");
                 StartButton.IsEnabled = false;
                 StopButton.IsEnabled = true;
+                try { StartBig.IsEnabled = false; } catch { }
+                try { StopBig.IsEnabled = true; } catch { }
+                MetricBitrate.Text = "--";
+                MetricSpeed.Text = "--";
+                MetricFps.Text = "--";
+                MetricCpu.Text = "--";
             }
             else
             {
@@ -1563,7 +1711,14 @@ namespace Streamer
                 StreamStatusText.Foreground = (SolidColorBrush)FindResource("Danger");
                 StartButton.IsEnabled = true;
                 StopButton.IsEnabled = false;
+                try { StartBig.IsEnabled = true; } catch { }
+                try { StopBig.IsEnabled = false; } catch { }
                 StreamTime.Text = "Tiempo: 00:00:00";
+                try { StreamTimeCompact.Text = "00:00:00"; } catch { }
+                MetricBitrate.Text = "--";
+                MetricSpeed.Text = "--";
+                MetricFps.Text = "--";
+                MetricCpu.Text = "--";
             }
         }
 
@@ -1599,12 +1754,6 @@ namespace Streamer
                         ResolutionManual.Text = "1920x1080";
                         FPSManual.Text = "60";
                         break;
-                    case "4k":
-                        VideoBitrateManual.Text = "16000k";
-                        AudioBitrateManual.Text = "256k";
-                        ResolutionManual.Text = "3840x2160";
-                        FPSManual.Text = "30";
-                        break;
                 }
 
                 // Maintain x264 preset selection if buttons correlate to presets
@@ -1628,9 +1777,6 @@ namespace Streamer
                             case "1080p60":
                                 SelectPreset("faster");
                                 break;
-                            case "4k":
-                                SelectPreset("faster");
-                                break;
                             default:
                                 break;
                         }
@@ -1639,7 +1785,7 @@ namespace Streamer
                 catch { }
 
                 // Update visual state: make clicked button primary and others secondary
-                var profileButtons = new[] { "Profile480p", "Profile720p", "Profile1080p", "Profile1080p60", "Profile4k", "ProfileCustom" };
+                var profileButtons = new[] { "Profile480p", "Profile720p", "Profile1080p", "Profile1080p60", "ProfileCustom" };
                 foreach (var name in profileButtons)
                 {
                     if (FindName(name) is Button b)
@@ -1945,6 +2091,7 @@ namespace Streamer
                 // Run initialization tasks that require the UI
                 await LoadAndValidateSourcesAsync().ConfigureAwait(false);
                 await CheckFFmpegAsync().ConfigureAwait(false);
+                await CheckServerStatusAsync().ConfigureAwait(false);
 
                 // Ensure window is on-screen and visible
                 EnsureWindowVisible();
@@ -2020,6 +2167,63 @@ namespace Streamer
         {
             // Save the stream key when the user leaves the textbox
             await SaveConfigAsync().ConfigureAwait(false);
+        }
+
+        private async void RTMPBase_LostFocus(object sender, RoutedEventArgs e)
+        {
+            await CheckServerStatusAsync().ConfigureAwait(false);
+        }
+
+        private void AudioBitrateManual_TextChanged(object sender, TextChangedEventArgs e)
+        {
+        }
+
+        private void PresetCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
+
+        private void DeleteFavorite_Click(object sender, RoutedEventArgs e)
+        {
+            if (FavoritesList.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Selecciona un favorito para eliminar", "Aviso",
+                              MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var selected = FavoritesList.SelectedItems.Cast<object>().Select(i => i?.ToString() ?? "").ToList();
+            var result = MessageBox.Show($"¿Eliminar {selected.Count} favorito(s)?", "Confirmar",
+                          MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                foreach (var name in selected)
+                {
+                    try
+                    {
+                        string favPath = Path.Combine(appDataPath, "Favorites", $"{SanitizeFileName(name)}.json");
+                        if (File.Exists(favPath))
+                            File.Delete(favPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error deleting favorite '{name}': {ex.Message}");
+                    }
+                }
+
+                _ = LoadFavoritesAsync();
+            }
+        }
+
+        private void CreditsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var credits = new CreditsWindow { Owner = this };
+            credits.ShowDialog();
+        }
+
+        private void FPSManual_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

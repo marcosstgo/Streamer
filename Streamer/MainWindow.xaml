@@ -1,624 +1,368 @@
 ﻿<Window x:Class="Streamer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Streamer Pro" 
-        Height="990" Width="1000"
+        Title="Streamer Pro"
+        Height="990" Width="1080"
+        MinHeight="750"
         WindowStartupLocation="CenterScreen"
-        Background="#0D1117"
-        FontFamily="Segoe UI">
+        Background="#0F1720"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        FontFamily="{DynamicResource FontFamilyPrimary}">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        <!-- Corillo branding palette -->
-        <SolidColorBrush x:Key="BgPrimary" Color="#0B0D10"/>
-        <SolidColorBrush x:Key="BgCard" Color="#141820"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#232A36"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#E7ECF3"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#A7B0C0"/>
-        <SolidColorBrush x:Key="AccentYellow" Color="#F5C518"/>
-        <SolidColorBrush x:Key="DangerRed" Color="#E50914"/>
-        <SolidColorBrush x:Key="SuccessGreen" Color="#31D07E"/>
-
-        <!-- Card style used throughout -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource BgCard}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Padding" Value="16"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
-        </Style>
-
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
-        </Style>
-
-        <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Margin" Value="0,4,0,4"/>
-        </Style>
-
-        <Style x:Key="FieldContainer" TargetType="StackPanel">
-            <Setter Property="Orientation" Value="Vertical"/>
-            <Setter Property="Margin" Value="0,0,12,12"/>
-        </Style>
-
-        <Style x:Key="ValueStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-
-        <!-- Buttons -->
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource AccentYellow}"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Opacity" Value="0.95"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="{StaticResource DangerRed}"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-
-        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Background" Value="{StaticResource BgCard}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1A2026"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- TextBox / ComboBox -->
-        <Style x:Key="TextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource BgCard}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="Height" Value="34"/>
-            <Style.Triggers>
-                <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush" Value="{StaticResource AccentYellow}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-            <!-- Simple, stable ComboBox style -->
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#000000"/>
-            <Setter Property="BorderBrush" Value="#C8C8C8"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        </Style>
-
-        <!-- Ensure dropdown items are readable (white bg, black text) -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="Foreground" Value="#000000"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#E6E6E6"/>
-                    <Setter Property="Foreground" Value="#000000"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#DCDCDC"/>
-                    <Setter Property="Foreground" Value="#000000"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- CheckBox/RadioButton -->
-        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Margin" Value="0,6,0,6"/>
-            <Style.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource AccentYellow}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Margin" Value="0,0,12,0"/>
-            <Style.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource AccentYellow}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
-    <Grid Margin="16" Background="{StaticResource BgPrimary}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <DockPanel Margin="20" Background="{StaticResource BgPrimary}">
 
-        <!-- Header con estado -->
-        <Border Grid.Row="0" 
-                Background="#161B22" 
-                CornerRadius="8" 
-                Padding="20" 
-                Margin="0,0,0,15">
+        <!-- ====== BOTTOM-PINNED SECTIONS (DockPanel.Dock="Bottom") ====== -->
+
+        <!-- Footer credits (pinned at very bottom) -->
+        <Border DockPanel.Dock="Bottom" Background="Transparent" Padding="4,6">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Logo y título -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="🎥" FontSize="32" Margin="0,0,12,0" Foreground="{StaticResource AccentYellow}"/>
-                    <StackPanel>
-                        <TextBlock x:Name="TitleText" Text="Streamer Pro" 
-                                   FontSize="24" 
-                                   FontWeight="Bold" 
-                                   Foreground="{StaticResource TextPrimary}"/>
-                        <TextBlock Text="Motor avanzado de streaming" 
-                                   Foreground="{StaticResource TextSecondary}"
-                                   FontSize="12"/>
-                    </StackPanel>
-                </StackPanel>
+                <TextBlock Grid.Column="0" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center">
+                    Desarrollado por Marcos Santiago · FFmpeg es software independiente
+                </TextBlock>
 
-                <!-- Estado FFmpeg -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Border x:Name="FFmpegStatus"
-                            Background="{StaticResource BgCard}" 
-                            CornerRadius="20" 
-                            Padding="10,6">
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse x:Name="FFmpegIndicator"
-                                     Width="10" 
-                                     Height="10" 
-                                     Fill="{StaticResource DangerRed}" 
-                                     Margin="0,0,8,0"/>
-                            <TextBlock x:Name="FFmpegStatusText"
-                                       Text="FFmpeg: Buscando..." 
-                                       Foreground="{StaticResource TextPrimary}" Height="19"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                <Button Grid.Column="1" x:Name="CreditsButton" Content="Créditos" Style="{StaticResource SecondaryButton}" Padding="10,4" Click="CreditsButton_Click"/>
             </Grid>
         </Border>
 
-        <!-- Contenido principal -->
-        <ScrollViewer Grid.Row="1" 
-                      VerticalScrollBarVisibility="Auto"
-                      Margin="0,0,0,15">
-            <StackPanel>
-                <!-- Sección: Configuración básica -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
-                    <StackPanel>
-                        <TextBlock Text="🔧 Configuración básica" 
-                                   Style="{StaticResource SectionTitle}"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+        <!-- Footer / Status bar -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource BgPanel}" CornerRadius="10" Padding="14,10" Margin="0,0,0,6" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                            <!-- RTMP Base -->
-                            <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldContainer}">
-                                <TextBlock Text="RTMP Base URL" 
-                                           Style="{StaticResource LabelStyle}"/>
-                                <TextBox x:Name="RTMPBase" 
-                                         Text="rtmp://corillo.live/live/" 
-                                         Style="{StaticResource TextBoxStyle}"/>
-                            </StackPanel>
-
-                            <!-- Stream Key -->
-                            <StackPanel Grid.Row="0" Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="12,0,0,0">
-                                <TextBlock Text="Stream Key" 
-                                           Style="{StaticResource LabelStyle}"/>
-                                <TextBox x:Name="StreamKey" 
-                                         Text="" 
-                                         Style="{StaticResource TextBoxStyle}"
-                                         ToolTip="Ej: openmovies, katatonia, etc"
-                                         LostFocus="StreamKey_LostFocus"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- Fuente -->
-                            <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="Fuente de video" 
-                                       Style="{StaticResource LabelStyle}"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
-                                <RadioButton x:Name="ModeOnline" Content="Fuentes online" IsChecked="True" Margin="0,0,12,0" Style="{StaticResource RadioButtonStyle}"/>
-                                <RadioButton x:Name="ModeFolder" Content="Carpeta local (playlist)" Style="{StaticResource RadioButtonStyle}"/>
-                            </StackPanel>
-                            <ComboBox x:Name="SourceCombo" 
-                                      Style="{StaticResource ComboBoxStyle}" 
-                                      ItemsSource="{Binding Sources}"
-                                      SelectedItem="{Binding SelectedSource, Mode=TwoWay}"
-                                      IsSynchronizedWithCurrentItem="True"
-                                      Height="36" IsEnabled="{Binding IsOnlineMode}"
-                                      DisplayMemberPath="DisplayText">
-                                <ComboBox.ItemContainerStyle>
-                                    <Style TargetType="ComboBoxItem">
-                                        <Setter Property="IsEnabled" Value="{Binding IsAvailable}"/>
-                                        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-                                        <Setter Property="Background" Value="{StaticResource BgCard}"/>
-                                        <Style.Triggers>
-                                            <!-- Disabled items appear gray -->
-                                            <DataTrigger Binding="{Binding IsAvailable}" Value="False">
-                                                <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ComboBox.ItemContainerStyle>
-                            </ComboBox>
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <TextBlock x:Name="SourceStatusText" Text="Cargando fuentes..." Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                                <Button x:Name="OpenSourcesButton" Content="Abrir carpeta de fuentes" Style="{StaticResource SecondaryButton}" Margin="12,0,6,0" Padding="8,4" Click="OpenSourcesButton_Click"/>
-                                <Button x:Name="ReloadSourcesButton" Content="Recargar fuentes" Style="{StaticResource SecondaryButton}" Padding="8,4" Click="ReloadSourcesButton_Click"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Vertical" Margin="0,8,0,0" x:Name="FolderControls" Visibility="Collapsed">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="SelectedFolderText" Grid.Column="0" IsReadOnly="True" Style="{StaticResource TextBoxStyle}"/>
-                                    <Button x:Name="SelectFolderButton" Grid.Column="1" Content="Seleccionar carpeta..." Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Click="SelectFolderButton_Click"/>
-                                </Grid>
-                                <Grid Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                        <CheckBox x:Name="FolderLoopCheck" Content="Loop" Style="{StaticResource CheckBoxStyle}" Margin="0,0,20,0"/>
-                                        <CheckBox x:Name="FolderRandomCheck" Content="Random" Style="{StaticResource CheckBoxStyle}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- Info del video -->
-                        <Border Background="{StaticResource BgCard}" 
-                                CornerRadius="8" 
-                                Padding="12" 
-                                Margin="0,10,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Resolución" Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock x:Name="VideoResolution" 
-                                               Text="1920x1080" 
-                                               Style="{StaticResource ValueStyle}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="FPS" Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock x:Name="VideoFPS" 
-                                               Text="30" 
-                                               Style="{StaticResource ValueStyle}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Codec" Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock x:Name="VideoCodec" 
-                                               Text="H.264" 
-                                               Style="{StaticResource ValueStyle}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <TextBlock Text="Bitrate" Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock x:Name="VideoBitrateInfo" 
-                                               Text="4500k" 
-                                               Style="{StaticResource ValueStyle}"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
+                <!-- Status pill -->
+                <Border Grid.Column="0" Style="{StaticResource StatusPill}" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse x:Name="StreamStatus" Width="10" Height="10" Fill="{StaticResource DangerRed}" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="StreamStatusText" Text="Detenido" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="13"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Sección: Perfiles de calidad -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <!-- Live metrics inline -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Bitrate:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="MetricBitrate" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="FPS:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="MetricFps" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="CPU:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="MetricCpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="MEM:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="MetricMem" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="Speed:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="MetricSpeed" Text="--" Foreground="{StaticResource SparklineCPU}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Stream time -->
+                <TextBlock Grid.Column="2" x:Name="StreamTime" Text="00:00:00" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{DynamicResource MonoFont}" FontSize="13"/>
+
+                <!-- Right action buttons -->
+                <Button Grid.Column="3" x:Name="StartButton" Style="{StaticResource PrimaryButton}" Content="▶ Iniciar" Padding="12,6" FontSize="12" Margin="0,0,6,0" Click="StartStream_Click"/>
+                <Button Grid.Column="4" x:Name="StopButton" Style="{StaticResource DangerButton}" Content="■ Detener" Padding="12,6" FontSize="12" Margin="0,0,6,0" Click="StopStream_Click" IsEnabled="False"/>
+                <Button Grid.Column="5" Style="{StaticResource SecondaryButton}" Padding="6" FontSize="14" Content="⚙" Width="34" Height="34"/>
+            </Grid>
+        </Border>
+
+        <!-- ====== SCROLLABLE CONTENT (fills remaining space) ====== -->
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+
+                <!-- Header / Topbar -->
+                <Border Background="{StaticResource BgPanel}" CornerRadius="10" Padding="16,14" Margin="0,0,0,20" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
+                            <Image Source="pack://siteoforigin:,,,/streamerpro.png" Width="52" Height="52" Margin="0,0,16,0" Stretch="Uniform"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="TitleText" Text="Streamer Pro" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                                    <Border Style="{StaticResource BadgeStyle}" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock x:Name="VersionBadge" Text="v1.8" FontWeight="Bold" Foreground="Black" FontSize="11"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="Streaming profesional simplificado" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="{StaticResource InputBg}" CornerRadius="16" Padding="10,6" Margin="0,0,10,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse x:Name="ServerIndicator" Width="10" Height="10" Fill="{StaticResource TextMuted}" Margin="0,0,6,0"/>
+                                    <TextBlock x:Name="ServerStatusText" Text="Servidor: --" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" FontSize="11"/>
+                                    <TextBlock Text=" · " Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" FontSize="11"/>
+                                    <TextBlock x:Name="ServerLatencyText" Text="--" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" FontSize="11"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource InputBg}" CornerRadius="16" Padding="10,6" Margin="0,0,10,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse x:Name="FFmpegIndicator" Width="10" Height="10" Fill="{StaticResource StatusGreen}" Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="FFmpegStatusText" Text="FFmpeg: Detectado" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12"/>
+                                </StackPanel>
+                            </Border>
+                            <Button Style="{StaticResource SecondaryButton}" Width="34" Height="34" Padding="0">
+                                <TextBlock Text="⚙" FontSize="16" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Row 1: Config + Advanced options side by side -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                <!-- Configuración de Transmisión -->
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="16" Margin="0">
                     <StackPanel>
-                        <TextBlock Text="⚡ Perfiles de calidad" 
-                                   Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="📡 Configuración de Transmisión" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
 
-                        <UniformGrid Columns="3" Margin="0,0,0,15">
-                            <Button x:Name="Profile480p"
-                                    Style="{StaticResource SecondaryButton}" 
-                                    Content="Baja (480p) - 1000k" 
-                                    Margin="0,0,5,5"
-                                    Tag="480p"
-                                    Click="ProfileButton_Click"/>
-                            <Button x:Name="Profile720p"
-                                    Style="{StaticResource PrimaryButton}" 
-                                    Content="Media (720p) - 2500k" 
-                                    Margin="0,0,5,5"
-                                    Tag="720p"
-                                    Click="ProfileButton_Click"/>
-                            <Button x:Name="Profile1080p"
-                                    Style="{StaticResource SecondaryButton}" 
-                                    Content="Alta (1080p) - 4500k" 
-                                    Margin="0,0,5,5"
-                                    Tag="1080p"
-                                    Click="ProfileButton_Click"/>
-                            <Button x:Name="Profile1080p60"
-                                    Style="{StaticResource SecondaryButton}" 
-                                    Content="Alta+ (1080p60) - 5000k" 
-                                    Margin="0,0,5,5"
-                                    Tag="1080p60"
-                                    Click="ProfileButton_Click"/>
-                            <Button x:Name="Profile4k"
-                                    Style="{StaticResource SecondaryButton}" 
-                                    Content="Ultra (4K) - 16000k" 
-                                    Margin="0,0,5,5"
-                                    Tag="4k"
-                                    Click="ProfileButton_Click"/>
-                            <Button x:Name="ProfileCustom"
-                                    Style="{StaticResource SecondaryButton}" 
-                                    Content="Personalizado..." 
-                                    Margin="0,0,5,5"
-                                    Click="ProfileCustom_Click"/>
-                        </UniformGrid>
+                        <Grid Margin="0,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <!-- Configuración manual -->
-                        <Border Background="{StaticResource BgCard}" CornerRadius="8" Padding="12">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Servidor RTMP" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="RTMPBase" Text="rtmp://corillo.live/live/" Style="{StaticResource TextBoxStyle}" LostFocus="RTMPBase_LostFocus"/>
 
-                            <StackPanel Grid.Column="0" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
-                                    <TextBlock Text="Video Bitrate" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="VideoBitrateManual" 
-                                             Text="2500k" 
-                                             Style="{StaticResource TextBoxStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Stream Key" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            <TextBox Grid.Row="0" Grid.Column="3" x:Name="StreamKey" Style="{StaticResource TextBoxStyle}" ToolTip="Ej: openmovies, katatonia, etc" LostFocus="StreamKey_LostFocus"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Modo de Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="3">
+                                <RadioButton x:Name="ModeOnline" Content="🌐 Fuentes online" IsChecked="True" Margin="0,0,12,0" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce directamente desde una URL online"/>
+                                <RadioButton x:Name="ModeFolder" Content="📁 Carpeta local (playlist)" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce una carpeta local como playlist"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Top"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" Grid.ColumnSpan="3">
+                                <ComboBox x:Name="SourceCombo" Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" Height="34" IsEnabled="{Binding IsOnlineMode}" DisplayMemberPath="DisplayText" HorizontalAlignment="Stretch" Foreground="Black">
+                                    <ComboBox.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ComboBoxItem}">
+                                            <Setter Property="IsEnabled" Value="{Binding IsAvailable}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                                            <Setter Property="Background" Value="{StaticResource BgCard}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAvailable}" Value="False">
+                                                    <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                </ComboBox>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock x:Name="SourceStatusText" Text="Cargando fuentes..." Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" Value="Listo">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Button x:Name="OpenSourcesButton" Content="Abrir carpeta de fuentes" Style="{StaticResource SecondaryButton}" Margin="12,0,6,0" Padding="8,4" Click="OpenSourcesButton_Click" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeOnline}"/>
+                                    <Button x:Name="ReloadSourcesButton" Content="Recargar fuentes" Style="{StaticResource SecondaryButton}" Padding="8,4" Click="ReloadSourcesButton_Click" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeOnline}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
-                                    <TextBlock Text="Audio Bitrate" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="AudioBitrateManual" 
-                                             Text="128k" 
-                                             Style="{StaticResource TextBoxStyle}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
-                                    <TextBlock Text="Preset x264" Style="{StaticResource LabelStyle}"/>
-                                    <ComboBox x:Name="PresetCombo" 
-                                              Style="{StaticResource ComboBoxStyle}" 
-                                              SelectedIndex="2" Foreground="Black">
-                                        <ComboBoxItem Content="ultrafast"/>
-                                        <ComboBoxItem Content="superfast"/>
-                                        <ComboBoxItem Content="veryfast"/>
-                                        <ComboBoxItem Content="faster"/>
-                                        <ComboBoxItem Content="fast"/>
-                                        <ComboBoxItem Content="medium"/>
-                                    </ComboBox>
-                                </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <TextBlock Text="Resolución/FPS" Style="{StaticResource LabelStyle}"/>
+
+                                <!-- Folder controls -->
+                                <StackPanel Orientation="Vertical" Margin="0,12,0,0" x:Name="FolderControls" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeFolder}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBox x:Name="ResolutionManual" 
-                                                 Grid.Column="0" 
-                                                 Text="1280x720" 
-                                                 Style="{StaticResource TextBoxStyle}"/>
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="@" 
-                                                   VerticalAlignment="Center"
-                                                   Margin="5,0"
-                                                   Foreground="{StaticResource TextSecondary}"/>
-                                        <TextBox x:Name="FPSManual" 
-                                                 Grid.Column="2" 
-                                                 Text="30" 
-                                                 Style="{StaticResource TextBoxStyle}"/>
+                                        <TextBox x:Name="SelectedFolderText" Grid.Column="0" IsReadOnly="True" Style="{StaticResource TextBoxStyle}"/>
+                                        <Button x:Name="SelectFolderButton" Grid.Column="1" Content="Seleccionar carpeta..." Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Click="SelectFolderButton_Click"/>
                                     </Grid>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <Border Background="{StaticResource BgCard}" CornerRadius="8" Padding="6">
+                                            <CheckBox x:Name="FolderLoopCheck" Style="{StaticResource CheckBoxStyle}" ToolTip="Repetir la playlist indefinidamente">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="🔁" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                                                    <TextBlock Text="Loop playlist" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Border>
+
+                                        <Border Background="{StaticResource BgCard}" CornerRadius="8" Padding="6">
+                                            <CheckBox x:Name="FolderRandomCheck" Style="{StaticResource CheckBoxStyle}" ToolTip="Reproducir los archivos en orden aleatorio">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="🔀" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                                                    <TextBlock Text="Randomize playlist" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Border>
+                                    </StackPanel>
                                 </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-                <!-- Sección: Opciones avanzadas -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
-                    <StackPanel>
-                        <TextBlock Text="⚙️ Opciones avanzadas" 
-                                   Style="{StaticResource SectionTitle}"/>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
-                                <CheckBox x:Name="ForceYUV"
-                                          Content="Forzar yuv420p" 
-                                          IsChecked="True"
-                                          Style="{StaticResource CheckBoxStyle}"/>
-                                <CheckBox x:Name="HardwareAccel"
-                                          Content="Hardware acceleration" 
-                                          Style="{StaticResource CheckBoxStyle}"/>
-                                <CheckBox x:Name="LoopInfinite"
-                                          Content="Loop infinito" 
-                                          IsChecked="True"
-                                          Style="{StaticResource CheckBoxStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
-                                <CheckBox x:Name="ShowFFmpegCommand"
-                                          Content="Mostrar comando FFmpeg" 
-                                          Style="{StaticResource CheckBoxStyle}"/>
-                                <CheckBox x:Name="SaveLogs"
-                                          Content="Guardar logs" 
-                                          Style="{StaticResource CheckBoxStyle}"/>
-                                <CheckBox x:Name="Notifications"
-                                          Content="Notificaciones" 
-                                          IsChecked="True"
-                                          Style="{StaticResource CheckBoxStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Duración límite (segundos)" 
-                                           Style="{StaticResource LabelStyle}"/>
-                                <TextBox x:Name="MaxDuration" 
-                                         Text="0" 
-                                         Style="{StaticResource TextBoxStyle}"
-                                         ToolTip="0 = infinito"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- Sección: Favoritos -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <!-- Opciones Avanzadas (right column) -->
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="16" Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="⚙️ Opciones Avanzadas" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+                        <CheckBox x:Name="ForceYUV" Content="Forzar YUV420p" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="HardwareAccel" Content="Hardware Acceleration" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="LoopInfinite" Content="Loop Infinito" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="Notifications" Content="Notificaciones" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="ShowFFmpegCommand" Content="Mostrar Comandos (FFmpeg)" Style="{StaticResource CheckBoxStyle}"/>
+                        <CheckBox x:Name="SaveLogs" Content="Guardar Logs" Style="{StaticResource CheckBoxStyle}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="Duración máx. (seg)" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox x:Name="MaxDuration" Text="0" Style="{StaticResource TextBoxStyle}" Width="60" ToolTip="0 = infinito"/>
+                            <TextBlock Text="∞" Foreground="{StaticResource TextMuted}" FontSize="16" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                </Grid>
+
+                <!-- Row 2: Perfiles de calidad + Action buttons -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="16" Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="⚡ Perfiles de calidad" Style="{StaticResource SectionTitle}"/>
+                            <UniformGrid Columns="6" Margin="0,10,0,0" Rows="1">
+                                <Button x:Name="Profile480p" Style="{StaticResource SecondaryButton}" Content="480p - Bajo" Margin="0,0,6,0" Tag="480p" Click="ProfileButton_Click" FontSize="12"/>
+                                <Button x:Name="Profile720p" Style="{StaticResource SecondaryButton}" Content="720p - Medio" Margin="0,0,6,0" Tag="720p" Click="ProfileButton_Click" FontSize="12"/>
+                                <Button x:Name="Profile1080p" Style="{StaticResource PrimaryButton}" Content="1080p - Alto" Margin="0,0,6,0" Tag="1080p" Click="ProfileButton_Click" FontSize="12"/>
+                                <Button x:Name="Profile1080p60" Style="{StaticResource SecondaryButton}" Content="1080p60 - Fluido" Margin="0,0,6,0" Tag="1080p60" Click="ProfileButton_Click" FontSize="12"/>
+                                <Button x:Name="Profile4k" Style="{StaticResource SecondaryButton}" Content="4K - Ultra" Margin="0,0,6,0" Tag="4k" Click="ProfileButton_Click" FontSize="12"/>
+                                <Button x:Name="ProfileCustom" Style="{StaticResource SecondaryButton}" Content="Personalizado" Margin="0" Click="ProfileCustom_Click" FontSize="12"/>
+                            </UniformGrid>
+
+                            <Border Background="{StaticResource InputBg}" CornerRadius="8" Padding="12" Margin="0,12,0,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
+                                        <TextBlock Text="Video Bitrate" Style="{StaticResource LabelStyle}"/>
+                                        <TextBox x:Name="VideoBitrateManual" Text="4500k" Style="{StaticResource TextBoxStyle}" Width="112"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Style="{StaticResource FieldContainer}" Margin="10,0,10,0">
+                                        <TextBlock Text="Audio Bitrate" Style="{StaticResource LabelStyle}"/>
+                                        <TextBox x:Name="AudioBitrateManual" Text="160k" Style="{StaticResource TextBoxStyle}" Width="100" TextChanged="AudioBitrateManual_TextChanged"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Style="{StaticResource FieldContainer}" Margin="0,0,10,0">
+                                        <TextBlock Text="Preset x264" Style="{StaticResource LabelStyle}"/>
+                                        <ComboBox x:Name="PresetCombo" Style="{StaticResource ComboBoxStyle}" SelectedIndex="4" Foreground="Black" Height="28" SelectionChanged="PresetCombo_SelectionChanged">
+                                            <ComboBoxItem Content="ultrafast"/>
+                                            <ComboBoxItem Content="superfast"/>
+                                            <ComboBoxItem Content="veryfast"/>
+                                            <ComboBoxItem Content="faster"/>
+                                            <ComboBoxItem Content="fast"/>
+                                            <ComboBoxItem Content="medium"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3">
+                                        <TextBlock Text="Resolución/FPS" Style="{StaticResource LabelStyle}" Width="107"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="ResolutionManual" Grid.Column="0" Text="1920x1080" Style="{StaticResource TextBoxStyle}" Grid.ColumnSpan="3" Margin="-2,4,44,4"/>
+                                            <TextBlock Grid.Column="2" Text="@" VerticalAlignment="Center" Margin="19,0,30,0" Foreground="{StaticResource TextSecondary}"/>
+                                            <TextBox x:Name="FPSManual" Grid.Column="2" Text="30" Style="{StaticResource TextBoxStyle}" Margin="20,4,-10,4" TextChanged="FPSManual_TextChanged"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Action buttons column -->
+                    <StackPanel Grid.Column="2" VerticalAlignment="Top">
+                        <Button x:Name="StartBig" Style="{StaticResource BigPrimaryButton}" Content="(•)) Iniciar Stream" Click="StartStream_Click" Width="193" Height="44" Margin="0,0,0,10"/>
+                        <Button x:Name="StopBig" Style="{StaticResource BigDangerButton}" Content="■ Detener" Click="StopStream_Click" IsEnabled="False" Width="196" Height="44" Margin="0,0,0,14"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="⏱" Foreground="{StaticResource TextMuted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="StreamTimeCompact" Text="00:00:00" Foreground="{StaticResource TextSecondary}" FontFamily="{DynamicResource MonoFont}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Ellipse x:Name="VideoHealthIndicator" Width="8" Height="8" Fill="{StaticResource StatusGreen}" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="VideoHealthText" Text="En vivo" Foreground="{StaticResource StatusGreen}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Favoritos -->
+                <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,0,20">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
-                            <TextBlock Text="⭐ Favoritos" 
-                                       Style="{StaticResource SectionTitle}"/>
-
-                            <Button Grid.Column="1" 
-                                    x:Name="SaveFavoriteButton"
-                                    Style="{StaticResource SecondaryButton}"
-                                    Content="Guardar actual"
-                                    Padding="10,5"
-                                    FontSize="11"
-                                    Click="SaveFavorite_Click"/>
+                            <TextBlock Text="⭐ Favoritos" Style="{StaticResource SectionTitle}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="SaveFavoriteButton" Style="{StaticResource SecondaryButton}" Content="Guardar actual" Padding="10,5" FontSize="12" Click="SaveFavorite_Click"/>
+                                <Button x:Name="DeleteFavoriteButton" Style="{StaticResource DangerButton}" Content="Eliminar" Padding="10,5" FontSize="12" Margin="8,0,0,0" Click="DeleteFavorite_Click"/>
+                            </StackPanel>
                         </Grid>
 
-                        <ListBox x:Name="FavoritesList"
-                                 Background="#161B22" 
-                                 BorderThickness="0"
-                                 Height="80"
-                                 Margin="0,0,0,10"
-                                 SelectionChanged="FavoritesList_SelectionChanged" BorderBrush="White" Foreground="White"
-                                 VirtualizingStackPanel.IsVirtualizing="True"
-                                 VirtualizingStackPanel.VirtualizationMode="Recycling"/>
-
-                        <TextBlock Text="📋 Últimos streams" 
-                                   Style="{StaticResource SectionTitle}"
-                                   Margin="0,10,0,10"/>
-
-                        <ListBox x:Name="HistoryList"
-                                 Background="#161B22" 
-                                 BorderThickness="0"
-                                 Height="60" Foreground="White"
-                                 VirtualizingStackPanel.IsVirtualizing="True"
-                                 VirtualizingStackPanel.VirtualizationMode="Recycling"/>
+                        <ListBox x:Name="FavoritesList" Background="{StaticResource InputBg}" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Margin="0,10,0,0" SelectionChanged="FavoritesList_SelectionChanged" Foreground="{StaticResource TextPrimary}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" SelectionMode="Extended" MaxHeight="80" Padding="4"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Últimos streams -->
+                <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="📋 Últimos streams" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <ListBox x:Name="HistoryList" Background="{StaticResource InputBg}" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Foreground="{StaticResource TextPrimary}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" FontFamily="{DynamicResource MonoFont}" MaxHeight="120" FontSize="12" Padding="4"/>
+                    </StackPanel>
+                </Border>
+
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Footer con controles -->
-                <Border Grid.Row="2" 
-                Background="{StaticResource BgCard}"
-                CornerRadius="8" 
-                Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Estado del stream -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Ellipse x:Name="StreamStatus"
-                             Width="12" 
-                             Height="12" 
-                             Fill="{StaticResource DangerRed}" 
-                             Margin="0,0,10,0"/>
-                    <TextBlock x:Name="StreamStatusText" 
-                               Text="Detenido" 
-                               Foreground="{StaticResource DangerRed}"
-                               FontWeight="SemiBold"
-                               Margin="0,0,20,0" Height="18"/>
-
-                    <TextBlock x:Name="StreamTime" 
-                               Text="Tiempo: 00:00:00" 
-                               Foreground="{StaticResource TextSecondary}" Height="17"/>
-                </StackPanel>
-
-                <!-- Botones de control -->
-                <Button Grid.Column="1" 
-                        x:Name="StartButton"
-                        Style="{StaticResource PrimaryButton}"
-                        Content="🎬 Iniciar Stream"
-                        Width="150"
-                        Margin="0,0,10,0"
-                        Click="StartStream_Click"/>
-
-                <Button Grid.Column="2" 
-                        x:Name="StopButton"
-                        Style="{StaticResource DangerButton}"
-                        Content="⏹️ Detener"
-                        Width="100"
-                        IsEnabled="False"
-                        Click="StopStream_Click"/>
-            </Grid>
-        </Border>
-                <!-- Footer credits -->
-                <TextBlock Grid.Row="2" Margin="0,12,0,0" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource TextSecondary}" FontSize="11">
-                    <Run>Desarrollado por Marcos Santiago</Run>
-                    <LineBreak/>
-                    <Run>con la ayuda de GitHub Copilot y ChatGPT</Run>
-                    <LineBreak/>
-                    <Run/>
-                    <Hyperlink NavigateUri="https://corillo.live" RequestNavigate="CorilloLink_RequestNavigate" Foreground="{StaticResource AccentYellow}">corillo.live</Hyperlink>
-                </TextBlock>
-    </Grid>
+    </DockPanel>
 </Window>

@@ -1,0 +1,66 @@
+<Window x:Class="Streamer.CreditsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Creditos - Streamer Pro"
+        Height="560" Width="520"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        FontFamily="{DynamicResource FontFamilyPrimary}"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+
+    <Border Background="#0D1117" CornerRadius="16" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1"
+            Effect="{StaticResource CardShadow}" ClipToBounds="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Scrolling credits -->
+                <RowDefinition Height="*"/>
+                <!-- Footer -->
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header with gradient -->
+            <Border Grid.Row="0" Background="{StaticResource HeaderGradient}" Padding="24,20" CornerRadius="16,16,0,0">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="&#x1F4E1;" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8" FontFamily="Segoe UI Emoji"/>
+                    <TextBlock Text="Streamer Pro" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" HorizontalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                        <Border Background="{StaticResource BadgeBackground}" CornerRadius="8" Padding="8,3">
+                            <TextBlock x:Name="VersionText" Text="v1.7" FontSize="11" FontWeight="Bold" Foreground="Black"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="Streaming profesional simplificado" Foreground="{StaticResource TextMuted}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Scrolling credits area -->
+            <Border Grid.Row="1" Background="#0B0E14" Margin="0">
+                <ScrollViewer x:Name="CreditsScroll" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" Padding="0">
+                    <StackPanel x:Name="CreditsPanel" Margin="32,20,32,20"/>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="{StaticResource BgCard}" Padding="16,12" CornerRadius="0,0,16,16">
+                <Grid>
+                    <TextBlock Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Left" FontStyle="Italic">
+                        <Run Text="Hecho con "/><Run Text="&#x2764;" Foreground="#E25555" FontFamily="Segoe UI Symbol" FontStyle="Normal"/><Run Text=" en Puerto Rico"/>
+                    </TextBlock>
+                    <Button Content="Cerrar" HorizontalAlignment="Right" Style="{StaticResource PrimaryButton}" Padding="16,6" Click="Close_Click" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}" Cursor="Hand">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
