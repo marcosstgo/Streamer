@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/screenshot.jpg" alt="Streamer Pro v2.0.1" width="820"/>
+  <img src="docs/screenshot.jpg" alt="Streamer Pro v2.0.2" width="820"/>
 </p>
 
 # Streamer Pro
@@ -19,7 +19,7 @@ Streamer Pro es una herramienta de escritorio WPF para hacer streaming de video 
 ## Screenshot
 
 <p align="center">
-  <img src="docs/screenshot.jpg" alt="Streamer Pro v2.0.1 - Interfaz principal" width="820"/>
+  <img src="docs/screenshot.jpg" alt="Streamer Pro v2.0.2 - Interfaz principal" width="820"/>
 </p>
 
 ---

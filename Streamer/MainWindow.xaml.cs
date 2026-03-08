@@ -194,7 +194,7 @@ namespace Streamer
                 }
                 else
                 {
-                    VersionBadge.Text = "v2.0.1";
+                    VersionBadge.Text = "v2.0.2";
                 }
             }
             catch { }

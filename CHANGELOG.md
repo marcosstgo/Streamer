@@ -1,6 +1,41 @@
 # Changelog
 
 
+
+
+## [2.0.2] - 2025
+
+### Added
+- Stream Key hidden by default with PasswordBox (OBS-style) + show/hide toggle button (??/??)
+- GPU% metric in status bar using nvidia-smi for real-time GPU utilization
+- Loop Infinito now works in online mode (restarts source when video ends)
+- GPU vendor label shown next to Hardware Acceleration checkbox (NVIDIA/Intel/AMD/No GPU)
+- PasswordBoxStyle for dark theme consistency
+
+### Changed
+- Audio Bitrate standardized to 160k AAC across all quality profiles (Twitch standard)
+- Removed 4K profile (not practical for streaming use case)
+- GPU polling runs on background thread every 2s with cached value (no UI freeze)
+- All threading issues fixed: ConfigureAwait, Dispatcher.Invoke ? BeginInvoke, async init
+- PerformanceCounter and preferences loading moved off UI thread for faster startup
+- DetectHwEncoderAsync drains stdout/stderr with 10s timeout to prevent hangs
+- nvidia-smi query drains stderr and has 2s kill timeout
+
+### Fixed
+- HW Acceleration: removed -hwaccel auto (caused DXVA2 filter incompatibility), GPU only used for encoding
+- HW encoder: auto-detect GPU vendor, vendor-specific presets, fallback to libx264
+- Video filters (-vf scale/pad) now work correctly with HW acceleration
+- Pixel format always yuv420p for maximum compatibility
+- Stream Key encrypted with DPAPI in favorites (was plain text)
+- Favorites loading uses async file IO (was blocking UI thread)
+- Source DisplayText fixed corrupted character
+- Empty event handlers removed from XAML and code-behind
+- History debounced (saves 3s after last change instead of every entry)
+- History shows 100 entries in UI, persists last 20 to disk
+- Logger integrated into FFmpeg flow for diagnostics
+- AppData unified to CorilloStreamer (was split with StreamerPro)
+- Old synchronous ExecuteFFmpeg methods removed
+
 ## [2.0.1] - 2025
 
 ### Added
