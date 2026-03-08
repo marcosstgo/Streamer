@@ -1015,7 +1015,7 @@ namespace Streamer
                                       MessageBoxButton.OK, MessageBoxImage.Information);
                     }
 
-                    // Start ffmpeg with auto-reconnect on failure
+                    // Start ffmpeg with auto-reconnect on failure and optional loop
                     var capturedArgs = args.ToList();
                     var capturedCts = ffmpegCts;
                     _ = Task.Run(async () =>
@@ -1030,6 +1030,16 @@ namespace Streamer
 
                                 if (capturedCts.Token.IsCancellationRequested) break;
 
+                                // Check if Loop Infinito is enabled — if so, restart immediately (no backoff)
+                                bool shouldLoop = await Dispatcher.InvokeAsync(() => FolderLoop || (FolderLoopCheck?.IsChecked == true));
+                                if (shouldLoop)
+                                {
+                                    await Dispatcher.InvokeAsync(() => AddToHistory("Loop: restarting source..."));
+                                    attempt = 0; // reset reconnect counter
+                                    continue;
+                                }
+
+                                // Not looping — treat as unexpected end, reconnect with backoff
                                 attempt++;
                                 if (attempt >= MaxReconnectAttempts)
                                 {
