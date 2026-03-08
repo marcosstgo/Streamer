@@ -2249,7 +2249,10 @@ namespace Streamer
                             await Dispatcher.InvokeAsync(() =>
                             {
                                 if (config.ContainsKey("RtmpBase"))
+                                {
                                     RTMPBase.Text = config["RtmpBase"]?.ToString() ?? "";
+                                    SyncPlatformComboFromUrl();
+                                }
                                 if (config.ContainsKey("StreamKey"))
                                 {
                                     var raw = config["StreamKey"]?.ToString() ?? "";
@@ -2505,7 +2508,38 @@ namespace Streamer
 
         private async void RTMPBase_LostFocus(object sender, RoutedEventArgs e)
         {
+            // Sync platform combo when user manually edits the RTMP URL
+            SyncPlatformComboFromUrl();
             await CheckServerStatusAsync().ConfigureAwait(false);
+        }
+
+        private void PlatformCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_uiReady) return;
+            if (PlatformCombo.SelectedItem is ComboBoxItem item && item.Tag is string url && !string.IsNullOrEmpty(url))
+            {
+                RTMPBase.Text = url;
+                _ = CheckServerStatusAsync();
+            }
+        }
+
+        /// <summary>
+        /// Syncs the platform combo selection to match the current RTMP URL.
+        /// </summary>
+        private void SyncPlatformComboFromUrl()
+        {
+            if (PlatformCombo == null) return;
+            var currentUrl = RTMPBase.Text.Trim();
+            foreach (ComboBoxItem item in PlatformCombo.Items)
+            {
+                if (item.Tag is string tag && !string.IsNullOrEmpty(tag) && currentUrl == tag)
+                {
+                    PlatformCombo.SelectedItem = item;
+                    return;
+                }
+            }
+            // No match — select "Personalizado"
+            PlatformCombo.SelectedIndex = PlatformCombo.Items.Count - 1;
         }
 
         private void DeleteFavorite_Click(object sender, RoutedEventArgs e)

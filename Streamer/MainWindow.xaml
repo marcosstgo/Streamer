@@ -153,8 +153,22 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Servidor RTMP" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" x:Name="RTMPBase" Text="rtmp://corillo.live/live/" Style="{StaticResource TextBoxStyle}" LostFocus="RTMPBase_LostFocus"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Plataforma" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
+                            <Grid Grid.Row="0" Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="PlatformCombo" Grid.Column="0" Style="{StaticResource ComboBoxStyle}" Width="140" Foreground="Black" Height="28" Margin="0,0,8,0" SelectionChanged="PlatformCombo_SelectionChanged" ToolTip="Selecciona una plataforma o usa Personalizado">
+                                    <ComboBoxItem Content="Corillo.live" Tag="rtmp://corillo.live/live/" IsSelected="True"/>
+                                    <ComboBoxItem Content="Twitch" Tag="rtmp://live.twitch.tv/app/"/>
+                                    <ComboBoxItem Content="YouTube" Tag="rtmp://a.rtmp.youtube.com/live2/"/>
+                                    <ComboBoxItem Content="Kick" Tag="rtmps://fa723fc1b171.global-contribute.live-video.net/app/"/>
+                                    <ComboBoxItem Content="Facebook" Tag="rtmps://live-api-s.facebook.com:443/rtmp/"/>
+                                    <ComboBoxItem Content="Personalizado" Tag=""/>
+                                </ComboBox>
+                                <TextBox Grid.Column="1" x:Name="RTMPBase" Text="rtmp://corillo.live/live/" Style="{StaticResource TextBoxStyle}" LostFocus="RTMPBase_LostFocus" ToolTip="URL del servidor RTMP"/>
+                            </Grid>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Stream Key" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                             <Grid Grid.Row="0" Grid.Column="3">
