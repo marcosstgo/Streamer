@@ -391,9 +391,26 @@ namespace Streamer
                 {
                     _detectedHwEncoder = await DetectHwEncoderAsync().ConfigureAwait(false);
                     if (_detectedHwEncoder != null)
-                        await Dispatcher.InvokeAsync(() => AddToHistory($"HW encoder detected: {_detectedHwEncoder}"));
+                    {
+                        var gpuLabel = _detectedHwEncoder switch
+                        {
+                            string e when e.Contains("nvenc") => "NVIDIA",
+                            string e when e.Contains("qsv") => "Intel",
+                            string e when e.Contains("amf") => "AMD",
+                            _ => "GPU"
+                        };
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            HardwareAccel.Content = $"Hardware Acceleration ({gpuLabel})";
+                            AddToHistory($"HW encoder detected: {_detectedHwEncoder} ({gpuLabel})");
+                        });
+                    }
                     else
+                    {
+                        await Dispatcher.InvokeAsync(() =>
+                            HardwareAccel.Content = "Hardware Acceleration (No GPU)");
                         Debug.WriteLine("No HW encoder available, will use libx264.");
+                    }
                 }
                 catch (Exception ex) { Debug.WriteLine($"HW encoder detection failed: {ex.Message}"); }
             });
