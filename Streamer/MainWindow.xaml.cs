@@ -34,6 +34,7 @@ namespace Streamer
         private Source? selectedSource;
         private bool isOnlineMode = true;
         private string? selectedFolderPath;
+        private string? selectedFilePath;
         private bool folderLoop = false;
         private bool folderRandom = false;
 
@@ -217,6 +218,8 @@ namespace Streamer
                     modeOnline.Checked += ModeOnline_Checked;
                 if (FindName("ModeFolder") is System.Windows.Controls.RadioButton modeFolder)
                     modeFolder.Checked += ModeFolder_Checked;
+                if (FindName("ModeFile") is System.Windows.Controls.RadioButton modeFile)
+                    modeFile.Checked += ModeFile_Checked;
             }
             catch { /* ignore if wiring fails */ }
 
@@ -1060,6 +1063,78 @@ namespace Streamer
                     });
 
                     AddToHistory($"Stream iniciado: {sourceObj.Name} - {vBitrate}");
+                }
+                else if (ModeFile.IsChecked == true)
+                {
+                    // File mode - single local file
+                    selectedFilePath = selectedFilePath ?? SelectedFileText.Text;
+                    if (string.IsNullOrWhiteSpace(selectedFilePath) || !File.Exists(selectedFilePath))
+                    {
+                        System.Windows.MessageBox.Show("Selecciona un archivo de video válido.", "Archivo inválido",
+                                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    var args = new List<string>();
+                    bool hwAccelFlagFile = HardwareAccel.IsChecked == true;
+                    string? hwEncoderFile = (hwAccelFlagFile && _detectedHwEncoder != null) ? _detectedHwEncoder : null;
+                    if (hwEncoderFile != null)
+                    {
+                        AddToHistory($"HWAccel: GPU encoding enabled - encoder: {hwEncoderFile}");
+                    }
+
+                    args.AddRange(new[] { "-re", "-i", selectedFilePath });
+                    args.AddRange(BuildEncodingArguments(
+                        sourceUrl: selectedFilePath,
+                        rtmpUrl: rtmpUrl,
+                        preset: preset,
+                        videoBitrate: vBitrate,
+                        audioBitrate: aBitrate,
+                        resolution: resolution,
+                        fps: fps,
+                        forceYuv: ForceYUV.IsChecked == true,
+                        isFolderMode: false,
+                        hwEncoder: hwEncoderFile
+                    ));
+
+                    if (ShowFFmpegCommand.IsChecked == true)
+                    {
+                        string display = string.Join(" ", args.Select(a => a.Contains(' ') ? $"\"{a}\"" : a));
+                        System.Windows.MessageBox.Show(display, "Comando FFmpeg",
+                                      MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+
+                    var capturedArgs = args.ToList();
+                    var capturedCts = ffmpegCts;
+                    var fileName = Path.GetFileName(selectedFilePath);
+                    _ = Task.Run(async () =>
+                    {
+                        await Dispatcher.InvokeAsync(() => { isStreaming = true; streamStartTime = DateTime.Now; timer.Start(); UpdateStreamStatus(true); });
+                        try
+                        {
+                            while (!capturedCts.Token.IsCancellationRequested)
+                            {
+                                await ExecuteFFmpegAsync(capturedArgs, capturedCts.Token).ConfigureAwait(false);
+
+                                if (capturedCts.Token.IsCancellationRequested) break;
+
+                                bool shouldLoop = await Dispatcher.InvokeAsync(() => FolderLoop || (FolderLoopCheck?.IsChecked == true));
+                                if (shouldLoop)
+                                {
+                                    await Dispatcher.InvokeAsync(() => AddToHistory("Loop: restarting file..."));
+                                    continue;
+                                }
+                                break;
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        finally
+                        {
+                            await Dispatcher.InvokeAsync(() => { isStreaming = false; timer.Stop(); UpdateStreamStatus(false); });
+                        }
+                    });
+
+                    AddToHistory($"Stream iniciado: {fileName} - {vBitrate}");
                 }
                 else
                 {
@@ -2333,9 +2408,10 @@ namespace Streamer
             if (!_uiReady) return;
 
             IsOnlineMode = true;
-            // show/hide folder controls
             if (FindName("FolderControls") is FrameworkElement folderControls)
                 folderControls.Visibility = Visibility.Collapsed;
+            if (FindName("FileControls") is FrameworkElement fileControls)
+                fileControls.Visibility = Visibility.Collapsed;
 
             if (FindName("SourceCombo") is System.Windows.Controls.ComboBox sc)
                 sc.IsEnabled = true;
@@ -2348,9 +2424,39 @@ namespace Streamer
             IsOnlineMode = false;
             if (FindName("FolderControls") is FrameworkElement folderControls)
                 folderControls.Visibility = Visibility.Visible;
+            if (FindName("FileControls") is FrameworkElement fileControls)
+                fileControls.Visibility = Visibility.Collapsed;
 
             if (FindName("SourceCombo") is System.Windows.Controls.ComboBox sc)
                 sc.IsEnabled = false;
+        }
+
+        private void ModeFile_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!_uiReady) return;
+
+            IsOnlineMode = false;
+            if (FindName("FolderControls") is FrameworkElement folderControls)
+                folderControls.Visibility = Visibility.Collapsed;
+            if (FindName("FileControls") is FrameworkElement fileControls)
+                fileControls.Visibility = Visibility.Visible;
+
+            if (FindName("SourceCombo") is System.Windows.Controls.ComboBox sc)
+                sc.IsEnabled = false;
+        }
+
+        private void SelectFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Video files|*.mp4;*.mkv;*.mov;*.avi;*.webm|All files|*.*",
+                Title = "Seleccionar archivo de video"
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                selectedFilePath = dlg.FileName;
+                if (SelectedFileText != null) SelectedFileText.Text = selectedFilePath;
+            }
         }
 
         private void SelectFolderButton_Click(object sender, RoutedEventArgs e)

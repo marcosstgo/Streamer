@@ -181,7 +181,8 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Modo de Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
                             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="3">
                                 <RadioButton x:Name="ModeOnline" Content="🌐 Fuentes online" IsChecked="True" Margin="0,0,12,0" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce directamente desde una URL online"/>
-                                <RadioButton x:Name="ModeFolder" Content="📁 Carpeta local (playlist)" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce una carpeta local como playlist"/>
+                                <RadioButton x:Name="ModeFolder" Content="📁 Carpeta local (playlist)" Margin="0,0,12,0" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce una carpeta local como playlist"/>
+                                <RadioButton x:Name="ModeFile" Content="🎬 Archivo local" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce un solo archivo de video local"/>
                             </StackPanel>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Top"/>
@@ -245,6 +246,18 @@
                                             </CheckBox>
                                         </Border>
                                     </StackPanel>
+                                </StackPanel>
+
+                                <!-- File controls -->
+                                <StackPanel Orientation="Vertical" Margin="0,12,0,0" x:Name="FileControls" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeFile}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="SelectedFileText" Grid.Column="0" IsReadOnly="True" Style="{StaticResource TextBoxStyle}" ToolTip="Archivo de video seleccionado"/>
+                                        <Button x:Name="SelectFileButton" Grid.Column="1" Content="Seleccionar archivo..." Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" Click="SelectFileButton_Click"/>
+                                    </Grid>
                                 </StackPanel>
                             </StackPanel>
                         </Grid>
