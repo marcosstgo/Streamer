@@ -228,8 +228,7 @@ namespace Streamer
             // Hook minimize state changed to support minimize-to-tray
             this.StateChanged += MainWindow_StateChanged;
 
-            // Load remembered choice if exists
-            LoadRememberedClosePreference();
+            // Load remembered choice will be done async in InitializeAppDataAndLoadAsync
         }
 
         private async Task InitializeAppDataAndLoadAsync()
@@ -242,6 +241,9 @@ namespace Streamer
                     Directory.CreateDirectory(appDataPath);
                     Directory.CreateDirectory(Path.Combine(appDataPath, "Favorites"));
                 }).ConfigureAwait(false);
+
+                // Load close preference on background thread (file IO)
+                await Task.Run(() => LoadRememberedClosePreference()).ConfigureAwait(false);
 
                 // Then load UI collections (on UI thread)
                 await LoadFavoritesAsync().ConfigureAwait(true);
@@ -375,12 +377,17 @@ namespace Streamer
                 _ = SaveHistoryAsync();
             };
 
-            try
+            // Init PerformanceCounter on background thread (can take 100-500ms)
+            _ = Task.Run(() =>
             {
-                _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-                _cpuCounter.NextValue();
-            }
-            catch { _cpuCounter = null; }
+                try
+                {
+                    var counter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+                    counter.NextValue();
+                    _cpuCounter = counter;
+                }
+                catch { _cpuCounter = null; }
+            });
 
             _lastCpuCheck = DateTime.UtcNow;
             _lastCpuTime = TimeSpan.Zero;
@@ -758,12 +765,18 @@ namespace Streamer
                     Arguments = "--query-gpu=utilization.gpu --format=csv,noheader,nounits",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     CreateNoWindow = true
                 };
                 using var proc = Process.Start(psi);
                 if (proc == null) return -1;
                 var output = proc.StandardOutput.ReadToEnd().Trim();
-                proc.WaitForExit(1000);
+                _ = proc.StandardError.ReadToEnd(); // drain stderr
+                if (!proc.WaitForExit(2000))
+                {
+                    try { proc.Kill(); } catch { }
+                    return -1;
+                }
                 if (double.TryParse(output, System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out var val))
                     return val;
@@ -1359,7 +1372,7 @@ namespace Streamer
             catch (Exception ex)
             {
                 Logger.LogError($"FFmpeg error: {ex}");
-                Dispatcher.Invoke(() =>
+                Dispatcher.BeginInvoke(() =>
                     System.Windows.MessageBox.Show($"Error en FFmpeg: {ex.Message}", "Error",
                                     MessageBoxButton.OK, MessageBoxImage.Error));
             }
@@ -1402,7 +1415,11 @@ namespace Streamer
                     psi.ArgumentList.Add("-");
                     using var p = Process.Start(psi);
                     if (p == null) continue;
-                    await p.WaitForExitAsync().ConfigureAwait(false);
+                    // Drain stdout/stderr to prevent buffer deadlock
+                    _ = p.StandardOutput.ReadToEndAsync();
+                    _ = p.StandardError.ReadToEndAsync();
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                    await p.WaitForExitAsync(cts.Token).ConfigureAwait(false);
                     if (p.ExitCode == 0) return enc;
                 }
                 catch { }
@@ -2339,12 +2356,13 @@ namespace Streamer
         {
             try
             {
-                // Run initialization tasks that require the UI
-                await LoadAndValidateSourcesAsync().ConfigureAwait(false);
+                // Run initialization tasks - do NOT use ConfigureAwait(false) here
+                // because EnsureWindowVisible and _uiReady must run on UI thread
+                await LoadAndValidateSourcesAsync();
                 CheckFFmpeg();
-                await CheckServerStatusAsync().ConfigureAwait(false);
+                await CheckServerStatusAsync();
 
-                // Ensure window is on-screen and visible
+                // Ensure window is on-screen and visible (must be on UI thread)
                 EnsureWindowVisible();
             }
             catch (Exception ex)
