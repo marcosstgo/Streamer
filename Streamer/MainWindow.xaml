@@ -145,6 +145,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="110"/>
@@ -154,21 +155,14 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Plataforma" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
-                            <Grid Grid.Row="0" Grid.Column="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <ComboBox x:Name="PlatformCombo" Grid.Column="0" Style="{StaticResource ComboBoxStyle}" Width="140" Foreground="Black" Height="28" Margin="0,0,8,0" SelectionChanged="PlatformCombo_SelectionChanged" ToolTip="Selecciona una plataforma o usa Personalizado">
-                                    <ComboBoxItem Content="Corillo.live" Tag="rtmp://corillo.live/live/" IsSelected="True"/>
-                                    <ComboBoxItem Content="Twitch" Tag="rtmp://live.twitch.tv/app/"/>
-                                    <ComboBoxItem Content="YouTube" Tag="rtmp://a.rtmp.youtube.com/live2/"/>
-                                    <ComboBoxItem Content="Kick" Tag="" ToolTip="Pega tu URL de ingest desde kick.com/dashboard/settings/stream"/>
-                                    <ComboBoxItem Content="Facebook" Tag="rtmps://live-api-s.facebook.com:443/rtmp/"/>
-                                    <ComboBoxItem Content="Personalizado" Tag=""/>
-                                </ComboBox>
-                                <TextBox Grid.Column="1" x:Name="RTMPBase" Text="rtmp://corillo.live/live/" Style="{StaticResource TextBoxStyle}" LostFocus="RTMPBase_LostFocus" ToolTip="URL del servidor RTMP"/>
-                            </Grid>
+                            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="PlatformCombo" Style="{StaticResource ComboBoxStyle}" Foreground="Black" Height="28" SelectionChanged="PlatformCombo_SelectionChanged" ToolTip="Selecciona una plataforma o usa Personalizado">
+                                <ComboBoxItem Content="Corillo.live" Tag="rtmp://corillo.live/live/" IsSelected="True"/>
+                                <ComboBoxItem Content="Twitch" Tag="rtmp://live.twitch.tv/app/"/>
+                                <ComboBoxItem Content="YouTube" Tag="rtmp://a.rtmp.youtube.com/live2/"/>
+                                <ComboBoxItem Content="Kick" Tag="" ToolTip="Pega tu URL de ingest desde kick.com/dashboard/settings/stream"/>
+                                <ComboBoxItem Content="Facebook" Tag="rtmps://live-api-s.facebook.com:443/rtmp/"/>
+                                <ComboBoxItem Content="Personalizado" Tag=""/>
+                            </ComboBox>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Stream Key" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                             <Grid Grid.Row="0" Grid.Column="3">
@@ -181,14 +175,17 @@
                                 <Button x:Name="ToggleKeyBtn" Grid.Column="1" Content="👁" Width="30" Height="28" Margin="4,0,0,0" Cursor="Hand" Click="ToggleStreamKey_Click" ToolTip="Mostrar/Ocultar Stream Key" Background="Transparent" Foreground="{StaticResource TextMuted}" BorderThickness="0" FontSize="14"/>
                             </Grid>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Modo de Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
-                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="3">
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Servidor RTMP" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" x:Name="RTMPBase" Text="rtmp://corillo.live/live/" Style="{StaticResource TextBoxStyle}" LostFocus="RTMPBase_LostFocus" ToolTip="URL del servidor RTMP"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Modo de Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="3">
                                 <RadioButton x:Name="ModeOnline" Content="🌐 Fuentes online" IsChecked="True" Margin="0,0,12,0" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce directamente desde una URL online"/>
                                 <RadioButton x:Name="ModeFolder" Content="📁 Carpeta local (playlist)" Style="{StaticResource RadioButtonStyle}" ToolTip="Reproduce una carpeta local como playlist"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Top"/>
-                            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" Grid.ColumnSpan="3">
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Fuente" Style="{StaticResource LabelStyle}" VerticalAlignment="Top"/>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Vertical" Grid.ColumnSpan="3">
                                 <ComboBox x:Name="SourceCombo" Style="{StaticResource ComboBoxStyle}" ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource, Mode=TwoWay}" IsSynchronizedWithCurrentItem="True" Height="34" IsEnabled="{Binding IsOnlineMode}" DisplayMemberPath="DisplayText" HorizontalAlignment="Stretch" Foreground="Black">
                                     <ComboBox.ItemContainerStyle>
                                         <Style TargetType="{x:Type ComboBoxItem}">
