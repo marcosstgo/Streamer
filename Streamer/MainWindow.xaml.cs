@@ -157,6 +157,9 @@ namespace Streamer
         private const int MaxReconnectAttempts = 5;
         private static readonly int[] ReconnectDelaysMs = { 2000, 4000, 8000, 16000, 30000 };
 
+        // Detected hardware encoder (cached at startup). null = not available or not detected yet.
+        private string? _detectedHwEncoder = null;
+
         private enum CloseAction
         {
             Ask = 0,
@@ -370,6 +373,19 @@ namespace Streamer
         {
             // Delegate to the async checker which uses bundled ffmpeg
             _ = CheckFFmpegAsync();
+            // Detect available HW encoder in background
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    _detectedHwEncoder = await DetectHwEncoderAsync().ConfigureAwait(false);
+                    if (_detectedHwEncoder != null)
+                        await Dispatcher.InvokeAsync(() => AddToHistory($"HW encoder detected: {_detectedHwEncoder}"));
+                    else
+                        Debug.WriteLine("No HW encoder available, will use libx264.");
+                }
+                catch (Exception ex) { Debug.WriteLine($"HW encoder detection failed: {ex.Message}"); }
+            });
         }
 
         private string GetFfmpegPath()
@@ -844,13 +860,20 @@ namespace Streamer
                     // Build argument list safely and efficiently for online (single source) mode
                     var args = new List<string>();
                     bool hwAccelFlagOnline = HardwareAccel.IsChecked == true;
+                    string? hwEncoder = null;
                     if (hwAccelFlagOnline)
                     {
-                        AddToHistory("HWAccel: enabled (online mode)");
-                        args.AddRange(new[] { "-hwaccel", "auto" });
+                        if (_detectedHwEncoder != null)
+                        {
+                            hwEncoder = _detectedHwEncoder;
+                            AddToHistory($"HWAccel: enabled (online mode) - encoder: {hwEncoder}");
+                            args.AddRange(new[] { "-hwaccel", "auto" });
+                        }
+                        else
+                        {
+                            AddToHistory("HWAccel: no compatible GPU encoder found, using libx264");
+                        }
                     }
-                    // Store HW flag for encoder selection in BuildEncodingArguments
-                    bool useHwEncoder = hwAccelFlagOnline;
 
                     args.AddRange(new[] { "-re", "-i", sourceUrl });
                     args.AddRange(BuildEncodingArguments(
@@ -863,7 +886,7 @@ namespace Streamer
                         fps: fps,
                         forceYuv: ForceYUV.IsChecked == true,
                         isFolderMode: false,
-                        useHwEncoder: useHwEncoder
+                        hwEncoder: hwEncoder
                     ));
 
                     if (ShowFFmpegCommand.IsChecked == true)
@@ -942,6 +965,7 @@ namespace Streamer
                     // Capture UI flags that will be needed after awaits to avoid cross-thread access
                     bool forceYuvFlag = ForceYUV.IsChecked == true;
                     bool hwAccelFlag = HardwareAccel.IsChecked == true;
+                    string? hwEncoderFolder = (hwAccelFlag && _detectedHwEncoder != null) ? _detectedHwEncoder : null;
 
                     // Validate files with ffprobe asynchronously and build final list
                     var validationTasks = vids.Select(async v =>
@@ -1004,9 +1028,9 @@ namespace Streamer
 
                     // build args for concat (folder) mode
                     var args = new List<string>();
-                    if (hwAccelFlag)
+                    if (hwEncoderFolder != null)
                     {
-                        AddToHistory("HWAccel: enabled (folder mode)");
+                        AddToHistory($"HWAccel: enabled (folder mode) - encoder: {hwEncoderFolder}");
                         args.AddRange(new[] { "-hwaccel", "auto" });
                     }
 
@@ -1029,7 +1053,7 @@ namespace Streamer
                         fps: fps,
                         forceYuv: forceYuvFlag,
                         isFolderMode: true,
-                        useHwEncoder: hwAccelFlag
+                        hwEncoder: hwEncoderFolder
                     ));
 
                     // Start a background loop to run ffmpeg and optionally restart
@@ -1734,26 +1758,54 @@ namespace Streamer
             string fps,
             bool forceYuv,
             bool isFolderMode,
-            bool useHwEncoder = false)
+            string? hwEncoder = null)
         {
             var args = new List<string>(24);
+            bool isHw = !string.IsNullOrEmpty(hwEncoder);
 
-            // video encoding - select encoder based on HW acceleration flag
+            // video encoding - select encoder based on detected HW encoder
             args.Add("-c:v");
-            if (useHwEncoder)
+            if (isHw)
             {
-                // Try NVENC first (most common), encoder availability is validated by FFmpeg at runtime
-                args.Add("h264_nvenc");
+                args.Add(hwEncoder!);
                 args.Add("-preset");
-                // NVENC presets differ from x264: map common ones
-                var nvPreset = preset switch
+
+                if (hwEncoder!.Contains("nvenc"))
                 {
-                    "ultrafast" or "superfast" or "veryfast" => "p1",
-                    "faster" or "fast" => "p4",
-                    "medium" => "p5",
-                    _ => "p4"
-                };
-                args.Add(nvPreset);
+                    // NVENC presets: p1 (fastest) to p7 (slowest)
+                    var nvPreset = preset switch
+                    {
+                        "ultrafast" or "superfast" or "veryfast" => "p1",
+                        "faster" => "p3",
+                        "fast" => "p4",
+                        "medium" => "p5",
+                        _ => "p4"
+                    };
+                    args.Add(nvPreset);
+                }
+                else if (hwEncoder.Contains("qsv"))
+                {
+                    // QSV presets: veryfast, faster, fast, medium, slow, veryslow
+                    args.Add(string.IsNullOrWhiteSpace(preset) ? "fast" : preset);
+                }
+                else if (hwEncoder.Contains("amf"))
+                {
+                    // AMF uses -quality instead of -preset
+                    args.RemoveAt(args.Count - 1); // remove "-preset" we just added
+                    args.Add("-quality");
+                    var amfQuality = preset switch
+                    {
+                        "ultrafast" or "superfast" or "veryfast" => "speed",
+                        "faster" or "fast" => "balanced",
+                        "medium" => "quality",
+                        _ => "balanced"
+                    };
+                    args.Add(amfQuality);
+                }
+                else
+                {
+                    args.Add(string.IsNullOrWhiteSpace(preset) ? "fast" : preset);
+                }
             }
             else
             {
@@ -1794,13 +1846,15 @@ namespace Streamer
                     var parts = resolution.Split(sep);
                     if (parts.Length == 2 && int.TryParse(parts[0].Trim(), out w) && int.TryParse(parts[1].Trim(), out h))
                     {
-                        var vf = $"scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1";
+                        // When using HW decoding, frames are in GPU memory.
+                        // We need hwdownload,format=nv12 before CPU-based scale filter.
+                        var vfPrefix = isHw ? "hwdownload,format=nv12," : "";
+                        var vf = $"{vfPrefix}scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1";
                         args.Add("-vf");
                         args.Add(vf);
                     }
                     else
                     {
-                        // fallback to simple size flag
                         args.Add("-s");
                         args.Add(resolution);
                     }
@@ -1825,9 +1879,9 @@ namespace Streamer
                 }
             }
 
-            // Keep yuv420p as default pixel format for broad compatibility
+            // Pixel format: nv12 for HW encoders, yuv420p for software (broad compatibility)
             args.Add("-pix_fmt");
-            args.Add("yuv420p");
+            args.Add(isHw ? "nv12" : "yuv420p");
 
             // audio encoding
             args.Add("-c:a");
