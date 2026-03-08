@@ -682,6 +682,14 @@ namespace Streamer
                             MetricMem.Text = $"{memMb:F1} MB";
                         }
                         catch { }
+
+                        // GPU usage (system-wide GPU engine utilization)
+                        try
+                        {
+                            var gpuUsage = GetGpuUsage();
+                            MetricGpu.Text = gpuUsage >= 0 ? $"{gpuUsage:F1}%" : "--";
+                        }
+                        catch { MetricGpu.Text = "--"; }
                     }
                     else if (_cpuCounter != null)
                     {
@@ -690,6 +698,41 @@ namespace Streamer
                     }
                 }
                 catch { }
+            }
+        }
+
+        /// <summary>
+        /// Gets total GPU utilization percentage using Windows Performance Counters (GPU Engine category).
+        /// Returns -1 if not available.
+        /// </summary>
+        private double GetGpuUsage()
+        {
+            try
+            {
+                var category = new PerformanceCounterCategory("GPU Engine");
+                var instanceNames = category.GetInstanceNames();
+                double total = 0;
+                foreach (var name in instanceNames)
+                {
+                    // Only look at "engtype_3D" or "engtype_VideoDecode" or "engtype_VideoEncode" instances
+                    if (!name.Contains("engtype_3D") && !name.Contains("engtype_Video"))
+                        continue;
+
+                    var counters = category.GetCounters(name);
+                    foreach (var counter in counters)
+                    {
+                        if (counter.CounterName == "Utilization Percentage")
+                        {
+                            total += counter.NextValue();
+                        }
+                        counter.Dispose();
+                    }
+                }
+                return total;
+            }
+            catch
+            {
+                return -1;
             }
         }
 
@@ -1863,6 +1906,7 @@ namespace Streamer
                 MetricSpeed.Text = "--";
                 MetricFps.Text = "--";
                 MetricCpu.Text = "--";
+                try { MetricGpu.Text = "--"; } catch { }
             }
             else
             {
@@ -1879,6 +1923,7 @@ namespace Streamer
                 MetricSpeed.Text = "--";
                 MetricFps.Text = "--";
                 MetricCpu.Text = "--";
+                try { MetricGpu.Text = "--"; } catch { }
             }
         }
 

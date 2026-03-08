@@ -65,6 +65,8 @@
                     <TextBlock x:Name="MetricCpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock Text="MEM:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
                     <TextBlock x:Name="MetricMem" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="GPU:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="MetricGpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock Text="Speed:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
                     <TextBlock x:Name="MetricSpeed" Text="--" Foreground="{StaticResource SparklineCPU}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
                 </StackPanel>
