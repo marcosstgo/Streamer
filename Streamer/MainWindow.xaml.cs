@@ -877,8 +877,7 @@ namespace Streamer
                         if (_detectedHwEncoder != null)
                         {
                             hwEncoder = _detectedHwEncoder;
-                            AddToHistory($"HWAccel: enabled (online mode) - encoder: {hwEncoder}");
-                            args.AddRange(new[] { "-hwaccel", "auto" });
+                            AddToHistory($"HWAccel: GPU encoding enabled - encoder: {hwEncoder}");
                         }
                         else
                         {
@@ -1041,8 +1040,7 @@ namespace Streamer
                     var args = new List<string>();
                     if (hwEncoderFolder != null)
                     {
-                        AddToHistory($"HWAccel: enabled (folder mode) - encoder: {hwEncoderFolder}");
-                        args.AddRange(new[] { "-hwaccel", "auto" });
+                        AddToHistory($"HWAccel: GPU encoding enabled - encoder: {hwEncoderFolder}");
                     }
 
                     // Stabilize timestamps and concat demuxer behavior for heterogeneous inputs
@@ -1773,10 +1771,7 @@ namespace Streamer
                     var parts = resolution.Split(sep);
                     if (parts.Length == 2 && int.TryParse(parts[0].Trim(), out w) && int.TryParse(parts[1].Trim(), out h))
                     {
-                        // When using HW decoding, frames are in GPU memory.
-                        // We need hwdownload,format=nv12 before CPU-based scale filter.
-                        var vfPrefix = isHw ? "hwdownload,format=nv12," : "";
-                        var vf = $"{vfPrefix}scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1";
+                        var vf = $"scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1";
                         args.Add("-vf");
                         args.Add(vf);
                     }
@@ -1806,9 +1801,9 @@ namespace Streamer
                 }
             }
 
-            // Pixel format: nv12 for HW encoders, yuv420p for software (broad compatibility)
+            // Pixel format: yuv420p for broad compatibility (HW encoders accept and auto-convert)
             args.Add("-pix_fmt");
-            args.Add(isHw ? "nv12" : "yuv420p");
+            args.Add("yuv420p");
 
             // audio encoding
             args.Add("-c:a");
