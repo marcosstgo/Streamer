@@ -101,7 +101,7 @@
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock x:Name="TitleText" Text="Streamer Pro" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
                                     <Border Style="{StaticResource BadgeStyle}" Margin="10,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock x:Name="VersionBadge" Text="v1.8" FontWeight="Bold" Foreground="Black" FontSize="11"/>
+                                        <TextBlock x:Name="VersionBadge" Text="v2.0.1" FontWeight="Bold" Foreground="Black" FontSize="11"/>
                                     </Border>
                                 </StackPanel>
                                 <TextBlock Text="Streaming profesional simplificado" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,3,0,0"/>

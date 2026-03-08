@@ -188,11 +188,13 @@ namespace Streamer
                 var version = Assembly.GetExecutingAssembly().GetName().Version;
                 if (version != null)
                 {
-                    VersionBadge.Text = $"v{version.Major}.{version.Minor}";
+                    VersionBadge.Text = version.Build > 0
+                        ? $"v{version.Major}.{version.Minor}.{version.Build}"
+                        : $"v{version.Major}.{version.Minor}";
                 }
                 else
                 {
-                    VersionBadge.Text = "v1.8";
+                    VersionBadge.Text = "v2.0.1";
                 }
             }
             catch { }

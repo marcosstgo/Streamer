@@ -1,7 +1,7 @@
 # Changelog
 
 
-## [1.8] - 2025
+## [2.0.1] - 2025
 
 ### Added
 - Complete UI redesign: dark premium dashboard matching professional mockup
