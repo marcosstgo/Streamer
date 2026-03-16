@@ -54,10 +54,10 @@ namespace Streamer
 
         private async Task DownloadAndApplyAsync(CancellationToken ct)
         {
-            // Determine paths
-            var currentExe = Process.GetCurrentProcess().MainModule?.FileName
+            // Determine paths — Environment.ProcessPath is reliable for single-file apps
+            var currentExe = Environment.ProcessPath
+                ?? Process.GetCurrentProcess().MainModule?.FileName
                 ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Streamer Pro.exe");
-            var exeDir = Path.GetDirectoryName(currentExe) ?? AppDomain.CurrentDomain.BaseDirectory;
             var tempExe = Path.Combine(Path.GetTempPath(), $"StreamerPro-update-{_newVersion}.exe");
 
             // Download
@@ -108,8 +108,10 @@ namespace Streamer
             var batchPath = Path.Combine(Path.GetTempPath(), "streamerpro_update.bat");
             File.WriteAllText(batchPath,
                 $"@echo off\r\n" +
-                $"ping 127.0.0.1 -n 3 > nul\r\n" +
+                $"ping 127.0.0.1 -n 6 > nul\r\n" +
+                $":retry\r\n" +
                 $"move /Y \"{tempExe}\" \"{currentExe}\"\r\n" +
+                $"if errorlevel 1 (ping 127.0.0.1 -n 3 > nul & goto retry)\r\n" +
                 $"start \"\" \"{currentExe}\"\r\n" +
                 $"del \"%~f0\"\r\n");
 
