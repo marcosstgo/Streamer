@@ -755,6 +755,73 @@ namespace Streamer
             }
         }
 
+        // ── Auto-update ───────────────────────────────────────────────────────
+        private static readonly HttpClient _updateHttp = new() { Timeout = TimeSpan.FromSeconds(15) };
+        private string? _latestVersion;
+        private string? _latestDownloadUrl;
+
+        private async Task CheckForUpdateAsync()
+        {
+            try
+            {
+                const string apiUrl = "https://api.github.com/repos/marcosstgo/Streamer/releases/latest";
+                using var req = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                req.Headers.UserAgent.ParseAdd("StreamerPro/2.1.0");
+                using var resp = await _updateHttp.SendAsync(req).ConfigureAwait(false);
+                if (!resp.IsSuccessStatusCode) return;
+
+                var json = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                var tagName = root.GetProperty("tag_name").GetString() ?? "";
+                var latestVersion = tagName.TrimStart('v');
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+
+                // Find exe asset
+                string? downloadUrl = null;
+                if (root.TryGetProperty("assets", out var assets))
+                {
+                    foreach (var asset in assets.EnumerateArray())
+                    {
+                        var name = asset.GetProperty("name").GetString() ?? "";
+                        if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        {
+                            downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                            break;
+                        }
+                    }
+                }
+
+                if (Version.TryParse(latestVersion, out var latest) &&
+                    Version.TryParse(currentVersion, out var current) &&
+                    latest > current &&
+                    downloadUrl != null)
+                {
+                    _latestVersion = latestVersion;
+                    _latestDownloadUrl = downloadUrl;
+
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        UpdateBadgeText.Text = $"v{latestVersion} disponible";
+                        UpdateBadge.Visibility = Visibility.Visible;
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CheckForUpdateAsync error: {ex}");
+            }
+        }
+
+        private void UpdateBadge_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (_latestDownloadUrl == null) return;
+            var win = new UpdateWindow(_latestVersion!, _latestDownloadUrl) { Owner = this };
+            win.ShowDialog();
+        }
+        // ──────────────────────────────────────────────────────────────────────
+
         private async Task CheckServerStatusAsync()
         {
             try
@@ -3830,6 +3897,7 @@ namespace Streamer
                 await LoadAndValidateSourcesAsync();
                 CheckFFmpeg();
                 await CheckServerStatusAsync();
+                _ = CheckForUpdateAsync();
 
                 // Ensure window is on-screen and visible (must be on UI thread)
                 EnsureWindowVisible();

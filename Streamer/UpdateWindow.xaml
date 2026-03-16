@@ -1,0 +1,142 @@
+<Window x:Class="Streamer.UpdateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Actualización disponible"
+        Width="440" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#0F1720"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" Text="Nueva versión disponible" FontSize="18" FontWeight="SemiBold"
+                   Foreground="#E6EDF3" Margin="0,0,0,8"/>
+
+        <!-- Version info -->
+        <Border Grid.Row="1" Background="#141C26" CornerRadius="8" Padding="12,10" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Current -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="VERSIÓN ACTUAL" FontSize="9" Foreground="#6B7683"
+                               FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="CurrentVersionText" Text="v0.0.0" FontSize="16" FontWeight="Bold"
+                               Foreground="#9CA6B2" FontFamily="Consolas" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Arrow -->
+                <TextBlock Grid.Column="1" Text="→" FontSize="20" Foreground="#F5B72E"
+                           VerticalAlignment="Center" Margin="16,0"/>
+
+                <!-- New -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="NUEVA VERSIÓN" FontSize="9" Foreground="#6B7683"
+                               FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="NewVersionText" Text="v0.0.0" FontSize="16" FontWeight="Bold"
+                               Foreground="#F5B72E" FontFamily="Consolas" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Status text -->
+        <TextBlock x:Name="StatusText" Grid.Row="2" Text="Listo para actualizar."
+                   FontSize="12" Foreground="#9CA6B2" VerticalAlignment="Center" Margin="0,0,0,8"/>
+
+        <!-- Success banner -->
+        <Border x:Name="SuccessBanner" Grid.Row="2" Background="#0D2B1A" CornerRadius="8"
+                Padding="12,10" Visibility="Collapsed" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="✓" FontSize="16" FontWeight="Bold" Foreground="#05FF74"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <StackPanel>
+                    <TextBlock Text="Descarga completa" FontSize="13" FontWeight="SemiBold" Foreground="#05FF74"/>
+                    <TextBlock Text="La aplicación se reiniciará automáticamente." FontSize="11"
+                               Foreground="#6B7683" Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Progress bar -->
+        <ProgressBar x:Name="DownloadProgress" Grid.Row="3"
+                     Height="8" Minimum="0" Maximum="100" Value="0"
+                     Margin="0,0,0,20"
+                     Background="#141C26" BorderThickness="0">
+            <ProgressBar.Foreground>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#F5B72E" Offset="0"/>
+                    <GradientStop Color="#FFD060" Offset="1"/>
+                </LinearGradientBrush>
+            </ProgressBar.Foreground>
+            <ProgressBar.Template>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                        <Border x:Name="PART_Track">
+                            <Border x:Name="PART_Indicator"
+                                    HorizontalAlignment="Left"
+                                    Background="{TemplateBinding Foreground}"
+                                    CornerRadius="4"/>
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </ProgressBar.Template>
+        </ProgressBar>
+
+        <!-- Note -->
+        <TextBlock Grid.Row="4" Text="La app se reiniciará automáticamente después de actualizar."
+                   FontSize="11" Foreground="#4A5568" TextWrapping="Wrap" Margin="0,0,0,20"/>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="CancelBtn" Content="Cancelar" Width="90" Height="32"
+                    Margin="0,0,10,0" Click="CancelBtn_Click"
+                    Background="Transparent" Foreground="#9CA6B2"
+                    BorderBrush="#2A3441" BorderThickness="1" Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button x:Name="UpdateBtn" Content="Actualizar y reiniciar" Width="160" Height="32"
+                    Click="UpdateBtn_Click" Cursor="Hand"
+                    Background="#F5B72E" Foreground="Black"
+                    BorderThickness="0" FontWeight="SemiBold">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FFC94A"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
