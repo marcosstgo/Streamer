@@ -677,7 +677,7 @@ namespace Streamer
                     {
                         UpdateFFmpegStatus(false);
                         StartButton.IsEnabled = false;
-                        System.Windows.MessageBox.Show("No se encontró ffmpeg.exe en la carpeta de la aplicación. Vuelve a instalar o copia ffmpeg.exe junto al .exe.", "FFmpeg no encontrado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show("FFmpeg no está instalado.\n\nHaz click en el indicador de FFmpeg en la barra superior para descargarlo automáticamente.", "FFmpeg no encontrado", MessageBoxButton.OK, MessageBoxImage.Warning);
                     });
                     return;
                 }
