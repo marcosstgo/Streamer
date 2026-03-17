@@ -9,9 +9,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Streamer Pro</AssemblyName>
     <Product>Streamer Pro</Product>
-    <Version>2.1.2</Version>
-    <AssemblyVersion>2.1.2.0</AssemblyVersion>
-    <FileVersion>2.1.2.0</FileVersion>
+    <Version>2.2.0</Version>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
     <ApplicationIcon>streamer.ico</ApplicationIcon>
     <PackageIcon></PackageIcon>
   </PropertyGroup>
@@ -30,12 +30,7 @@
     <Content Include="ffprobe.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="streamer.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="streamerpro.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Resource Include="streamer.ico" />
     <Resource Include="streamerpro.png" />
     <Content Include="streamerpro.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -49,11 +44,5 @@
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="streamer.ico">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
 
 </Project>

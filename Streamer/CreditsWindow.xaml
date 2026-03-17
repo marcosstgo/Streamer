@@ -33,7 +33,7 @@
                             <TextBlock x:Name="VersionText" Text="v1.7" FontSize="11" FontWeight="Bold" Foreground="Black"/>
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="Streaming profesional simplificado" Foreground="{StaticResource TextMuted}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" FontStyle="Italic"/>
+                    <TextBlock Text="{DynamicResource str_credits_tagline}" Foreground="{StaticResource TextMuted}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" FontStyle="Italic"/>
                 </StackPanel>
             </Border>
 
@@ -47,10 +47,8 @@
             <!-- Footer -->
             <Border Grid.Row="2" Background="{StaticResource BgCard}" Padding="16,12" CornerRadius="0,0,16,16">
                 <Grid>
-                    <TextBlock Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Left" FontStyle="Italic">
-                        <Run Text="Hecho con "/><Run Text="&#x2764;" Foreground="#E25555" FontFamily="Segoe UI Symbol" FontStyle="Normal"/><Run Text=" en Puerto Rico"/>
-                    </TextBlock>
-                    <Button Content="Cerrar" HorizontalAlignment="Right" Style="{StaticResource PrimaryButton}" Padding="16,6" Click="Close_Click" Cursor="Hand">
+                    <TextBlock x:Name="CreditsFooterText" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Left" FontStyle="Italic" Text="{DynamicResource str_credits_footer}"/>
+                    <Button Content="{DynamicResource str_close}" HorizontalAlignment="Right" Style="{StaticResource PrimaryButton}" Padding="16,6" Click="Close_Click" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}" Cursor="Hand">

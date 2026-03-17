@@ -1,7 +1,7 @@
 <Window x:Class="Streamer.UpdateWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Actualización disponible"
+        Title="{DynamicResource str_update_win_title}"
         Width="440" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- Title -->
-        <TextBlock Grid.Row="0" Text="Nueva versión disponible" FontSize="18" FontWeight="SemiBold"
+        <TextBlock Grid.Row="0" Text="{DynamicResource str_update_available}" FontSize="18" FontWeight="SemiBold"
                    Foreground="#E6EDF3" Margin="0,0,0,8"/>
 
         <!-- Version info -->
@@ -33,7 +33,7 @@
 
                 <!-- Current -->
                 <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                    <TextBlock Text="VERSIÓN ACTUAL" FontSize="9" Foreground="#6B7683"
+                    <TextBlock Text="{DynamicResource str_current_version}" FontSize="9" Foreground="#6B7683"
                                FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <TextBlock x:Name="CurrentVersionText" Text="v0.0.0" FontSize="16" FontWeight="Bold"
                                Foreground="#9CA6B2" FontFamily="Consolas" HorizontalAlignment="Center"/>
@@ -45,7 +45,7 @@
 
                 <!-- New -->
                 <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                    <TextBlock Text="NUEVA VERSIÓN" FontSize="9" Foreground="#6B7683"
+                    <TextBlock Text="{DynamicResource str_new_version}" FontSize="9" Foreground="#6B7683"
                                FontFamily="Consolas" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                     <TextBlock x:Name="NewVersionText" Text="v0.0.0" FontSize="16" FontWeight="Bold"
                                Foreground="#F5B72E" FontFamily="Consolas" HorizontalAlignment="Center"/>
@@ -54,7 +54,7 @@
         </Border>
 
         <!-- Status text -->
-        <TextBlock x:Name="StatusText" Grid.Row="2" Text="Listo para actualizar."
+        <TextBlock x:Name="StatusText" Grid.Row="2" Text="{DynamicResource str_update_ready}"
                    FontSize="12" Foreground="#9CA6B2" VerticalAlignment="Center" Margin="0,0,0,8"/>
 
         <!-- Success banner -->
@@ -64,8 +64,8 @@
                 <TextBlock Text="✓" FontSize="16" FontWeight="Bold" Foreground="#05FF74"
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel>
-                    <TextBlock Text="Descarga completa" FontSize="13" FontWeight="SemiBold" Foreground="#05FF74"/>
-                    <TextBlock Text="La aplicación se reiniciará automáticamente." FontSize="11"
+                    <TextBlock Text="{DynamicResource str_update_complete}" FontSize="13" FontWeight="SemiBold" Foreground="#05FF74"/>
+                    <TextBlock Text="{DynamicResource str_update_restarting}" FontSize="11"
                                Foreground="#6B7683" Margin="0,2,0,0"/>
                 </StackPanel>
             </StackPanel>
@@ -97,12 +97,12 @@
         </ProgressBar>
 
         <!-- Note -->
-        <TextBlock Grid.Row="4" Text="La app se reiniciará automáticamente después de actualizar."
+        <TextBlock Grid.Row="4" Text="{DynamicResource str_update_note}"
                    FontSize="11" Foreground="#4A5568" TextWrapping="Wrap" Margin="0,0,0,20"/>
 
         <!-- Buttons -->
         <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="CancelBtn" Content="Cancelar" Width="90" Height="32"
+            <Button x:Name="CancelBtn" Content="{DynamicResource str_cancel}" Width="90" Height="32"
                     Margin="0,0,10,0" Click="CancelBtn_Click"
                     Background="Transparent" Foreground="#9CA6B2"
                     BorderBrush="#2A3441" BorderThickness="1" Cursor="Hand">
@@ -117,7 +117,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button x:Name="UpdateBtn" Content="Actualizar y reiniciar" Width="160" Height="32"
+            <Button x:Name="UpdateBtn" Content="{DynamicResource str_update_and_restart}" Width="160" Height="32"
                     Click="UpdateBtn_Click" Cursor="Hand"
                     Background="#F5B72E" Foreground="Black"
                     BorderThickness="0" FontWeight="SemiBold">

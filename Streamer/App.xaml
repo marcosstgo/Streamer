@@ -4,6 +4,11 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Strings.es.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
         <!-- Palette tokens — all referenced as DynamicResource so theme switching works -->
         <SolidColorBrush x:Key="BgPrimary" Color="#0F1720"/>
         <SolidColorBrush x:Key="BgPanel" Color="#141C26"/>
@@ -634,5 +639,6 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushToken}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

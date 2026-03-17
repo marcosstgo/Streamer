@@ -52,34 +52,34 @@ namespace Streamer
             var borderBrush = (Brush)FindResource("BorderBrushToken");
 
             // --- Development section ---
-            AddSectionHeader("\U0001F468\u200D\U0001F4BB", "Desarrollo", accentBrush);
-            AddCreditCard("Marcos Santiago", "Desarrollo & arquitectura", "\U0001F9D1\u200D\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("GitHub Copilot", "Asistencia de codigo & pair programming", "\U0001F916", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("ChatGPT", "Asistencia de diseno, UX & texto", "\U0001F4AC", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("DeepSeek", "Investigacion & recursos", "\U0001F50D", cardBg, borderBrush, textPrimary, textSecondary);
+            AddSectionHeader("\U0001F468\u200D\U0001F4BB", Str.G("str_credits_dev_section"), accentBrush);
+            AddCreditCard("Marcos Santiago", Str.G("str_credits_dev_arch"), "\U0001F9D1\u200D\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard("GitHub Copilot", Str.G("str_credits_ai_code"), "\U0001F916", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard("ChatGPT", Str.G("str_credits_ai_design"), "\U0001F4AC", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard("DeepSeek", Str.G("str_credits_ai_research"), "\U0001F50D", cardBg, borderBrush, textPrimary, textSecondary);
             AddSpacer();
 
             // --- Technology section ---
-            AddSectionHeader("\u26A1", "Tecnologias", accentBrush);
-            AddCreditCard("FFmpeg", "Motor de procesamiento de audio/video", "\U0001F3A5", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard(".NET 8 / WPF", "Framework de aplicacion", "\U0001F3D7\uFE0F", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("Visual Studio 2022", "Entorno de desarrollo (Community Edition)", "\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary);
+            AddSectionHeader("\u26A1", Str.G("str_credits_tech_section"), accentBrush);
+            AddCreditCard("FFmpeg", Str.G("str_credits_ffmpeg_role"), "\U0001F3A5", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard(".NET 8 / WPF", Str.G("str_credits_dotnet_role"), "\U0001F3D7\uFE0F", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard("Visual Studio 2022", Str.G("str_credits_vs_role"), "\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary);
             AddSpacer();
 
             // --- Libraries section ---
-            AddSectionHeader("\U0001F4E6", "Librerias", accentBrush);
+            AddSectionHeader("\U0001F4E6", Str.G("str_credits_libs_section"), accentBrush);
             AddPillRow(new[] { "System.Text.Json", "Microsoft.VisualBasic", "System.Security.Cryptography" }, accentBrush);
             AddSpacer();
 
             // --- Licenses section ---
-            AddSectionHeader("\U0001F4C4", "Licencias", accentBrush);
-            AddWrappedText("FFmpeg es software independiente distribuido bajo su propia licencia (LGPL/GPL). Consulta ffmpeg.org para detalles.", textMuted);
-            AddWrappedText("Al usar componentes de terceros, asegurate de cumplir sus respectivas licencias.", textMuted);
+            AddSectionHeader("\U0001F4C4", Str.G("str_credits_license_section"), accentBrush);
+            AddWrappedText(Str.G("str_credits_license_text"), textMuted);
+            AddWrappedText(Str.G("str_credits_license_text2"), textMuted);
             AddSpacer();
 
             // --- Thanks section ---
-            AddSectionHeader("\U0001F64F", "Agradecimientos", accentBrush);
-            AddWrappedText("A la comunidad de software libre, a todos los que contribuyen al ecosistema open source, y a los streamers que hacen posible la creacion de contenido.", textSecondary);
+            AddSectionHeader("\U0001F64F", Str.G("str_credits_thanks_section"), accentBrush);
+            AddWrappedText(Str.G("str_credits_thanks_text"), textSecondary);
             AddSpacer();
             AddSpacer();
 

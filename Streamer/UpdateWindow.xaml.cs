@@ -39,7 +39,7 @@ namespace Streamer
             }
             catch (OperationCanceledException)
             {
-                StatusText.Text = "Actualización cancelada.";
+                StatusText.Text = Str.G("str_update_cancelled");
                 DownloadProgress.Value = 0;
                 UpdateBtn.IsEnabled = true;
                 CancelBtn.IsEnabled = true;
@@ -61,7 +61,7 @@ namespace Streamer
             var tempExe = Path.Combine(Path.GetTempPath(), $"StreamerPro-update-{_newVersion}.exe");
 
             // Download
-            StatusText.Text = "Conectando con GitHub...";
+            StatusText.Text = Str.G("str_update_connecting");
             using var req = new HttpRequestMessage(HttpMethod.Get, _downloadUrl);
             req.Headers.UserAgent.ParseAdd("StreamerPro/updater");
             using var response = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
@@ -88,7 +88,7 @@ namespace Streamer
                         Dispatcher.Invoke(() =>
                         {
                             DownloadProgress.Value = pct;
-                            StatusText.Text = $"Descargando... {mb:F1} MB / {totalMb:F1} MB";
+                            StatusText.Text = string.Format(Str.G("str_update_downloading_fmt"), mb, totalMb);
                         });
                     }
                 }

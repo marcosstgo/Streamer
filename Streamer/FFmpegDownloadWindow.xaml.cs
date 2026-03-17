@@ -35,14 +35,14 @@ namespace Streamer
                 var version = (await _http.GetStringAsync(VersionUrl)).Trim();
                 VersionText.Text = version;
                 DownloadBtn.IsEnabled = true;
-                StatusText.Text = "Listo para descargar.";
+                StatusText.Text = Str.G("str_ffmpeg_ready");
             }
             catch
             {
-                VersionText.Text = "No se pudo verificar";
+                VersionText.Text = Str.G("str_ffmpeg_no_version");
                 VersionText.Foreground = System.Windows.Media.Brushes.OrangeRed;
                 DownloadBtn.IsEnabled = true;
-                StatusText.Text = "No se pudo obtener la versión. Puedes continuar de todas formas.";
+                StatusText.Text = Str.G("str_ffmpeg_no_version_msg");
             }
         }
 
@@ -59,11 +59,11 @@ namespace Streamer
                 SuccessBanner.Visibility = System.Windows.Visibility.Visible;
                 DownloadProgress.Value = 100;
                 DownloadBtn.IsEnabled = false;
-                CancelBtn.Content = "Cerrar";
+                CancelBtn.Content = Str.G("str_close");
             }
             catch (OperationCanceledException)
             {
-                StatusText.Text = "Descarga cancelada.";
+                StatusText.Text = Str.G("str_ffmpeg_cancelled");
                 DownloadProgress.Value = 0;
                 DownloadBtn.IsEnabled = true;
             }
@@ -80,7 +80,7 @@ namespace Streamer
             var zipPath = Path.Combine(Path.GetTempPath(), "ffmpeg-essentials.zip");
 
             // Download with progress
-            StatusText.Text = "Conectando con gyan.dev...";
+            StatusText.Text = Str.G("str_ffmpeg_connecting");
 
             using var response = await _http.GetAsync(DownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct);
             response.EnsureSuccessStatusCode();
@@ -106,7 +106,7 @@ namespace Streamer
                         Dispatcher.Invoke(() =>
                         {
                             DownloadProgress.Value = pct;
-                            StatusText.Text = $"Descargando... {mb:F1} MB / {totalMb:F1} MB";
+                            StatusText.Text = string.Format(Str.G("str_ffmpeg_downloading_fmt"), mb, totalMb);
                         });
                     }
                 }
@@ -115,7 +115,7 @@ namespace Streamer
             // Extract
             Dispatcher.Invoke(() =>
             {
-                StatusText.Text = "Extrayendo ffmpeg.exe y ffprobe.exe...";
+                StatusText.Text = Str.G("str_ffmpeg_extracting");
                 DownloadProgress.Value = 99;
             });
 

@@ -1,7 +1,7 @@
 <Window x:Class="Streamer.FFmpegDownloadWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Descargar FFmpeg"
+        Title="{DynamicResource str_ffmpeg_win_title}"
         Width="480" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -20,19 +20,19 @@
         </Grid.RowDefinitions>
 
         <!-- Title -->
-        <TextBlock Grid.Row="0" Text="FFmpeg requerido" FontSize="18" FontWeight="SemiBold"
+        <TextBlock Grid.Row="0" Text="{DynamicResource str_ffmpeg_required}" FontSize="18" FontWeight="SemiBold"
                    Foreground="#E6EDF3" Margin="0,0,0,8"/>
 
         <!-- Description -->
         <TextBlock Grid.Row="1" TextWrapping="Wrap" FontSize="12" Foreground="#9CA6B2"
                    Margin="0,0,0,12"
-                   Text="FFmpeg es necesario para que Streamer Pro funcione. Se descargará ffmpeg.exe y ffprobe.exe y se colocarán automáticamente junto al programa."/>
+                   Text="{DynamicResource str_ffmpeg_desc}"/>
 
         <!-- Version info -->
         <Border Grid.Row="2" Background="#141C26" CornerRadius="8" Padding="12,8" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Versión a instalar:" FontSize="12" Foreground="#6B7683" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                <TextBlock x:Name="VersionText" Text="Verificando..." FontSize="12"
+                <TextBlock Text="{DynamicResource str_ffmpeg_version_label}" FontSize="12" Foreground="#6B7683" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock x:Name="VersionText" Text="{DynamicResource str_ffmpeg_checking}" FontSize="12"
                            Foreground="#F5B72E" FontWeight="SemiBold" VerticalAlignment="Center"
                            FontFamily="Consolas"/>
                 <TextBlock Text=" · fuente: gyan.dev" FontSize="11" Foreground="#4A3045"
@@ -41,7 +41,7 @@
         </Border>
 
         <!-- Status text -->
-        <TextBlock x:Name="StatusText" Grid.Row="3" Text="Listo para descargar."
+        <TextBlock x:Name="StatusText" Grid.Row="3" Text="{DynamicResource str_ffmpeg_ready}"
                    FontSize="12" Foreground="#9CA6B2" VerticalAlignment="Center"/>
 
         <!-- Success banner (hidden until complete) -->
@@ -51,9 +51,9 @@
                 <TextBlock Text="✓" FontSize="16" FontWeight="Bold" Foreground="#05FF74"
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel>
-                    <TextBlock Text="FFmpeg instalado correctamente" FontSize="13"
+                    <TextBlock Text="{DynamicResource str_ffmpeg_installed}" FontSize="13"
                                FontWeight="SemiBold" Foreground="#05FF74"/>
-                    <TextBlock Text="Streamer Pro está listo para usar." FontSize="11"
+                    <TextBlock Text="{DynamicResource str_ffmpeg_ready_use}" FontSize="11"
                                Foreground="#6B7683" Margin="0,2,0,0"/>
                 </StackPanel>
             </StackPanel>
@@ -86,7 +86,7 @@
 
         <!-- Buttons -->
         <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="CancelBtn" Content="Cancelar" Width="90" Height="32"
+            <Button x:Name="CancelBtn" Content="{DynamicResource str_cancel}" Width="90" Height="32"
                     Margin="0,0,10,0" Click="CancelBtn_Click"
                     Background="Transparent" Foreground="#9CA6B2"
                     BorderBrush="#2A3441" BorderThickness="1" Cursor="Hand">
@@ -101,7 +101,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button x:Name="DownloadBtn" Content="Descargar" Width="110" Height="32"
+            <Button x:Name="DownloadBtn" Content="{DynamicResource str_download}" Width="110" Height="32"
                     Click="DownloadBtn_Click" Cursor="Hand" IsEnabled="False"
                     Background="#F5B72E" Foreground="Black"
                     BorderThickness="0" FontWeight="SemiBold">

@@ -345,6 +345,14 @@ namespace Streamer
         {
             InitializeComponent();
 
+            // Set window icon from embedded resource
+            try
+            {
+                Icon = new System.Windows.Media.Imaging.BitmapImage(
+                    new Uri("pack://application:,,,/streamer.ico"));
+            }
+            catch { }
+
             // DataContext for bindings
             DataContext = this;
 
@@ -377,6 +385,7 @@ namespace Streamer
             _ = InitializeAppDataAndLoadAsync();
             InitializeComponents();
             LoadThemeEarly();
+            LoadLanguagePreference();
 
             // Wire UI events after InitializeComponent to avoid being called before controls are ready
             try
@@ -677,7 +686,7 @@ namespace Streamer
                     {
                         UpdateFFmpegStatus(false);
                         StartButton.IsEnabled = false;
-                        System.Windows.MessageBox.Show("FFmpeg no está instalado.\n\nHaz click en el indicador de FFmpeg en la barra superior para descargarlo automáticamente.", "FFmpeg no encontrado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show(Str.G("str_msg_ffmpeg_body").Replace("\\n", "\n"), Str.G("str_msg_ffmpeg_title"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     });
                     return;
                 }
@@ -730,16 +739,16 @@ namespace Streamer
             if (detected)
             {
                 FFmpegIndicator.Fill = (SolidColorBrush)FindResource("Success");
-                FFmpegStatusText.Text = "FFmpeg: Detectado";
+                FFmpegStatusText.Text = Str.G("str_ffmpeg_detected");
                 FFmpegPill.Cursor = System.Windows.Input.Cursors.Arrow;
                 FFmpegPill.ToolTip = null;
             }
             else
             {
                 FFmpegIndicator.Fill = (SolidColorBrush)FindResource("Danger");
-                FFmpegStatusText.Text = "FFmpeg: No encontrado — click para descargar";
+                FFmpegStatusText.Text = Str.G("str_ffmpeg_not_found");
                 FFmpegPill.Cursor = System.Windows.Input.Cursors.Hand;
-                FFmpegPill.ToolTip = "Haz click para descargar FFmpeg automáticamente";
+                FFmpegPill.ToolTip = Str.G("str_ffmpeg_tooltip_dl");
             }
         }
 
@@ -853,7 +862,7 @@ namespace Streamer
                     await Dispatcher.InvokeAsync(() =>
                     {
                         ServerIndicator.Fill = (SolidColorBrush)FindResource("TextMuted");
-                        ServerStatusText.Text = "Servidor: --";
+                        ServerStatusText.Text = Str.G("str_server_default");
                         ServerLatencyText.Text = "--";
                     });
                     return;
@@ -904,7 +913,7 @@ namespace Streamer
                     else
                     {
                         ServerIndicator.Fill = (SolidColorBrush)FindResource("Danger");
-                        ServerLatencyText.Text = "Offline";
+                        ServerLatencyText.Text = Str.G("str_server_offline");
                         ServerLatencyText.Foreground = (SolidColorBrush)FindResource("Danger");
                     }
                 });
@@ -915,7 +924,7 @@ namespace Streamer
                 await Dispatcher.InvokeAsync(() =>
                 {
                     ServerIndicator.Fill = (SolidColorBrush)FindResource("Danger");
-                    ServerStatusText.Text = "Servidor: Error";
+                    ServerStatusText.Text = Str.G("str_server_error");
                     ServerLatencyText.Text = "--";
                 });
             }
@@ -1106,25 +1115,25 @@ namespace Streamer
                 {
                     // Startup / connecting — no frames yet, completely normal
                     VideoHealthIndicator.Fill = warning;
-                    VideoHealthText.Text = "Conectando";
+                    VideoHealthText.Text = Str.G("str_status_connecting");
                     VideoHealthText.Foreground = warning;
                 }
                 else if (staleSec < 5)
                 {
                     VideoHealthIndicator.Fill = success;
-                    VideoHealthText.Text = "En vivo";
+                    VideoHealthText.Text = Str.G("str_status_live");
                     VideoHealthText.Foreground = success;
                 }
                 else if (staleSec < WatchdogStallSeconds)
                 {
                     VideoHealthIndicator.Fill = warning;
-                    VideoHealthText.Text = "Inestable";
+                    VideoHealthText.Text = Str.G("str_status_unstable");
                     VideoHealthText.Foreground = warning;
                 }
                 else
                 {
                     VideoHealthIndicator.Fill = danger;
-                    VideoHealthText.Text = "Congelado";
+                    VideoHealthText.Text = Str.G("str_status_frozen");
                     VideoHealthText.Foreground = danger;
                 }
 
@@ -1175,7 +1184,7 @@ namespace Streamer
             {
                 var path = SourcesRepository.GetSourcesPath();
 
-                await Dispatcher.InvokeAsync(() => SourceStatusText.Text = "Cargando fuentes...");
+                await Dispatcher.InvokeAsync(() => SourceStatusText.Text = Str.G("str_loading_sources"));
 
                 try
                 {
@@ -1201,7 +1210,7 @@ namespace Streamer
                     list = SourcesRepository.GetDefaultSources();
                 }
 
-                await Dispatcher.InvokeAsync(() => SourceStatusText.Text = "Validando fuentes...");
+                await Dispatcher.InvokeAsync(() => SourceStatusText.Text = Str.G("str_validating_sources"));
 
                 var availability = await ValidateSourcesAsync(list).ConfigureAwait(false);
 
@@ -1222,7 +1231,7 @@ namespace Streamer
                     // select first available or first - ensure we assign the instance from Sources so binding shows DisplayText
                     var firstAvailable = Sources.FirstOrDefault(x => x.IsAvailable) ?? Sources.FirstOrDefault();
                     SelectedSource = firstAvailable;
-                    SourceStatusText.Text = "Listo";
+                    SourceStatusText.Text = Str.G("str_sources_ready");
                 });
             }
             catch (Exception ex)
@@ -1279,7 +1288,7 @@ namespace Streamer
             {
                 if (string.IsNullOrWhiteSpace(GetStreamKeyText()))
                 {
-                    System.Windows.MessageBox.Show("Stream key es requerido", "Error",
+                    System.Windows.MessageBox.Show(Str.G("str_msg_streamkey_required"), Str.G("str_msg_error"),
                                   MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -1312,14 +1321,14 @@ namespace Streamer
                     var sourceObj = SelectedSource;
                     if (sourceObj == null)
                     {
-                        System.Windows.MessageBox.Show("Selecciona una fuente de video", "Error",
+                        System.Windows.MessageBox.Show(Str.G("str_msg_select_source"), Str.G("str_msg_error"),
                                         MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
                     if (!sourceObj.IsAvailable)
                     {
-                        System.Windows.MessageBox.Show("La fuente seleccionada no está disponible. Elige otra o recarga las fuentes.", "Fuente no disponible",
+                        System.Windows.MessageBox.Show(Str.G("str_msg_source_unavailable"), Str.G("str_msg_source_unavailable_title"),
                                         MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -1419,7 +1428,7 @@ namespace Streamer
                     selectedFilePath = selectedFilePath ?? SelectedFileText.Text;
                     if (string.IsNullOrWhiteSpace(selectedFilePath) || !File.Exists(selectedFilePath))
                     {
-                        System.Windows.MessageBox.Show("Selecciona un archivo de video válido.", "Archivo inválido",
+                        System.Windows.MessageBox.Show(Str.G("str_msg_select_valid_file"), Str.G("str_msg_invalid_file_title"),
                                         MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -1511,7 +1520,7 @@ namespace Streamer
                     var monitorItem = CaptureMonitorCombo.SelectedItem as CaptureMonitorItem;
                     if (monitorItem == null)
                     {
-                        System.Windows.MessageBox.Show("Selecciona un monitor.", "Monitor requerido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show(Str.G("str_msg_select_monitor"), Str.G("str_msg_monitor_required_title"), MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
                     int captureMonitorIdx = monitorItem.Index;
@@ -1570,7 +1579,7 @@ namespace Streamer
                         // En Highlights mode, las carpetas extra son suficientes
                         if (!isHighlightsMode || _hlExtraFolders.Count == 0)
                         {
-                            System.Windows.MessageBox.Show("Selecciona una carpeta válida con archivos de video.", "Carpeta inválida",
+                            System.Windows.MessageBox.Show(Str.G("str_msg_select_valid_folder"), Str.G("str_msg_invalid_folder_title"),
                                             MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
@@ -1854,7 +1863,7 @@ namespace Streamer
 
                     if (vids.Count == 0 && !capturedWaitMode)
                     {
-                        System.Windows.MessageBox.Show("La carpeta no contiene archivos de video soportados.", "Sin videos",
+                        System.Windows.MessageBox.Show(Str.G("str_msg_no_videos"), Str.G("str_msg_no_videos_title"),
                                         MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -1888,7 +1897,7 @@ namespace Streamer
 
                     if (validVids.Count == 0 && !capturedWaitMode)
                     {
-                        await Dispatcher.InvokeAsync(() => System.Windows.MessageBox.Show("No valid videos found in the selected folder.", "Sin videos válidos", MessageBoxButton.OK, MessageBoxImage.Warning));
+                        await Dispatcher.InvokeAsync(() => System.Windows.MessageBox.Show(Str.G("str_msg_no_videos"), Str.G("str_msg_no_videos_title"), MessageBoxButton.OK, MessageBoxImage.Warning));
                         return;
                     }
 
@@ -2356,6 +2365,50 @@ namespace Streamer
             catch { }
         }
 
+        // ── Language methods ───────────────────────────────────────────────────
+
+        private string _currentLang = "es";
+
+        private void LoadLanguagePreference()
+        {
+            try
+            {
+                if (File.Exists(prefsPath))
+                {
+                    var json = File.ReadAllText(prefsPath);
+                    using var doc = JsonDocument.Parse(json);
+                    if (doc.RootElement.TryGetProperty("Language", out var lp))
+                    {
+                        var l = lp.GetString();
+                        if (l == "es" || l == "en") { ApplyLanguage(l); return; }
+                    }
+                }
+            }
+            catch { }
+            // default: Spanish (already loaded via App.xaml)
+            _currentLang = "es";
+        }
+
+        private void ApplyLanguage(string lang)
+        {
+            _currentLang = lang;
+            var dicts = System.Windows.Application.Current.Resources.MergedDictionaries;
+            var existing = dicts.FirstOrDefault(d =>
+                d.Source?.OriginalString?.StartsWith("Strings.") == true);
+            if (existing != null) dicts.Remove(existing);
+            dicts.Insert(0, new System.Windows.ResourceDictionary
+            {
+                Source = new Uri($"Strings.{lang}.xaml", UriKind.Relative)
+            });
+        }
+
+        private void LangToggleBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var next = _currentLang == "es" ? "en" : "es";
+            ApplyLanguage(next);
+            try { WritePrefsField("Language", next); } catch { }
+        }
+
         // ── Theme methods ──────────────────────────────────────────────────────
 
         private void LoadThemeEarly()
@@ -2625,7 +2678,7 @@ namespace Streamer
                 {
                     try
                     {
-                        System.Windows.MessageBox.Show("No se pudo inicializar el icono de la bandeja del sistema. Streamer Pro permanecerá visible.", "Error al inicializar la bandeja", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show(Str.G("str_msg_tray_error"), Str.G("str_msg_tray_error_title"), MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     catch { }
                     return; // do not hide the window
@@ -2733,26 +2786,17 @@ namespace Streamer
 
                 _trayIcon = new Forms.NotifyIcon();
 
-                // Try load custom icon, fall back to SystemIcons.Application
+                // Load icon from embedded resource
                 try
                 {
-                    var icoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "streamerpro.ico");
-                    if (!File.Exists(icoPath))
-                    {
-                        // fallback file name used previously
-                        icoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? string.Empty, "streamer.ico");
-                    }
-
-                    if (File.Exists(icoPath))
-                    {
-                        _trayIcon.Icon = new System.Drawing.Icon(icoPath);
-                    }
+                    var sri = System.Windows.Application.GetResourceStream(
+                        new Uri("pack://application:,,,/streamer.ico"));
+                    if (sri != null)
+                        _trayIcon.Icon = new System.Drawing.Icon(sri.Stream);
                     else
-                    {
                         _trayIcon.Icon = System.Drawing.SystemIcons.Application;
-                    }
                 }
-                catch (Exception)
+                catch
                 {
                     _trayIcon.Icon = System.Drawing.SystemIcons.Application;
                 }
@@ -3111,7 +3155,7 @@ namespace Streamer
              if (streaming)
             {
                 StreamStatus.Fill = (SolidColorBrush)FindResource("Success");
-                StreamStatusText.Text = "Transmitiendo";
+                StreamStatusText.Text = Str.G("str_status_streaming");
                 StreamStatusText.Foreground = (SolidColorBrush)FindResource("Success");
                 StartButton.IsEnabled = false;
                 StopButton.IsEnabled = true;
@@ -3123,7 +3167,7 @@ namespace Streamer
                 try
                 {
                     VideoHealthIndicator.Fill = (SolidColorBrush)FindResource("Warning");
-                    VideoHealthText.Text = "Conectando";
+                    VideoHealthText.Text = Str.G("str_status_connecting");
                     VideoHealthText.Foreground = (SolidColorBrush)FindResource("Warning");
                 }
                 catch { }
@@ -3137,7 +3181,7 @@ namespace Streamer
             else
             {
                 StreamStatus.Fill = (SolidColorBrush)FindResource("Danger");
-                StreamStatusText.Text = "Detenido";
+                StreamStatusText.Text = Str.G("str_status_stopped");
                 StreamStatusText.Foreground = (SolidColorBrush)FindResource("Danger");
                 StartButton.IsEnabled = true;
                 StopButton.IsEnabled = false;
@@ -3160,7 +3204,7 @@ namespace Streamer
         private void UpdateStreamStatusWaiting()
         {
             StreamStatus.Fill = (SolidColorBrush)FindResource("Warning");
-            StreamStatusText.Text = "Esperando";
+            StreamStatusText.Text = Str.G("str_status_waiting");
             StreamStatusText.Foreground = (SolidColorBrush)FindResource("Warning");
             StartButton.IsEnabled = false;
             StopButton.IsEnabled = true;
@@ -3172,7 +3216,7 @@ namespace Streamer
             try
             {
                 VideoHealthIndicator.Fill = (SolidColorBrush)FindResource("Warning");
-                VideoHealthText.Text = "Esperando";
+                VideoHealthText.Text = Str.G("str_status_waiting");
                 VideoHealthText.Foreground = (SolidColorBrush)FindResource("Warning");
             }
             catch { }
@@ -3302,7 +3346,7 @@ namespace Streamer
                 File.WriteAllText(favPath, json);
 
                 _ = LoadFavoritesAsync();
-                MessageBox.Show("Configuración guardada", "Éxito",
+                MessageBox.Show(Str.G("str_msg_config_saved"), Str.G("str_msg_success"),
                               MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -3455,14 +3499,14 @@ namespace Streamer
                         }
 
                         await Dispatcher.InvokeAsync(() =>
-                            MessageBox.Show($"Configuraci\u00f3n '{name}' cargada", "\u00c9xito",
+                            MessageBox.Show(string.Format(Str.G("str_msg_config_loaded_fmt"), name), Str.G("str_msg_success"),
                                           MessageBoxButton.OK, MessageBoxImage.Information));
                     }
                 }
                 catch (Exception ex)
                 {
                     await Dispatcher.InvokeAsync(() =>
-                        MessageBox.Show($"Error cargando configuraci\u00f3n: {ex.Message}", "Error",
+                        MessageBox.Show($"{Str.G("str_msg_error")}: {ex.Message}", Str.G("str_msg_error"),
                                       MessageBoxButton.OK, MessageBoxImage.Error));
                 }
             }
@@ -3495,7 +3539,7 @@ namespace Streamer
         private void OpenSourcesButton_Click(object sender, RoutedEventArgs e)
         {
             var folder = SourcesRepository.GetAppFolder();
-            try { Process.Start(new ProcessStartInfo { FileName = folder, UseShellExecute = true }); } catch (Exception ex) { MessageBox.Show($"No se pudo abrir la carpeta: {ex.Message}"); }
+            try { Process.Start(new ProcessStartInfo { FileName = folder, UseShellExecute = true }); } catch (Exception ex) { MessageBox.Show(string.Format(Str.G("str_msg_open_folder_err_fmt"), ex.Message)); }
         }
 
         private void ModeOnline_Checked(object sender, RoutedEventArgs e)
@@ -3566,7 +3610,7 @@ namespace Streamer
                 Width = 28,
                 Height = 28,
                 Margin = new Thickness(6, 0, 0, 0),
-                ToolTip = "Quitar carpeta"
+                ToolTip = Str.G("str_tooltip_remove_folder")
             };
             btn.Click += HlRemoveFolderButton_Click;
 
@@ -3736,7 +3780,7 @@ namespace Streamer
             if (monitorItem == null) return;
 
             CapturePreviewBtn.IsEnabled = false;
-            CapturePreviewBtn.Content = "⏳ Capturando...";
+            CapturePreviewBtn.Content = Str.G("str_capture_preview_btn");
 
             try
             {
@@ -3781,7 +3825,7 @@ namespace Streamer
                         var img = new System.Windows.Controls.Image { Source = bmp, Stretch = System.Windows.Media.Stretch.Uniform };
                         var win = new Window
                         {
-                            Title = $"Vista previa — {monitorItem.Label}",
+                            Title = $"{Str.G("str_msg_preview_title")} — {monitorItem.Label}",
                             Width = 960, Height = 560,
                             WindowStartupLocation = WindowStartupLocation.CenterScreen,
                             Background = System.Windows.Media.Brushes.Black,
@@ -3793,20 +3837,20 @@ namespace Streamer
                 else
                 {
                     await Dispatcher.InvokeAsync(() =>
-                        System.Windows.MessageBox.Show("No se pudo capturar el frame. Verifica que el monitor esté activo.", "Vista previa", MessageBoxButton.OK, MessageBoxImage.Warning));
+                        System.Windows.MessageBox.Show(Str.G("str_msg_preview_fail"), Str.G("str_msg_preview_title"), MessageBoxButton.OK, MessageBoxImage.Warning));
                 }
             }
             catch (Exception ex)
             {
                 await Dispatcher.InvokeAsync(() =>
-                    System.Windows.MessageBox.Show($"Error: {ex.Message}", "Vista previa", MessageBoxButton.OK, MessageBoxImage.Warning));
+                    System.Windows.MessageBox.Show($"Error: {ex.Message}", Str.G("str_msg_preview_title"), MessageBoxButton.OK, MessageBoxImage.Warning));
             }
             finally
             {
                 await Dispatcher.InvokeAsync(() =>
                 {
                     CapturePreviewBtn.IsEnabled = true;
-                    CapturePreviewBtn.Content = "👁 Vista previa";
+                    CapturePreviewBtn.Content = Str.G("str_preview_btn");
                 });
             }
         }
