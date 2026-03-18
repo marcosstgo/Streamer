@@ -3759,9 +3759,15 @@ namespace Streamer
             if (captureAudio)
                 args.AddRange(new[] { "-map", "0:a" });
 
-            // Video encode
-            if (isHwEnc)
+            // Video encode — encoder-specific params (preset names differ per vendor)
+            if (hwEncoder.Contains("nvenc"))
                 args.AddRange(new[] { "-c:v", hwEncoder, "-b:v", vBitrate, "-maxrate", vBitrate, "-preset", "p4", "-rc", "cbr" });
+            else if (hwEncoder.Contains("amf"))
+                args.AddRange(new[] { "-c:v", hwEncoder, "-b:v", vBitrate, "-maxrate", vBitrate, "-quality", "balanced", "-rc", "cbr" });
+            else if (hwEncoder.Contains("qsv"))
+                args.AddRange(new[] { "-c:v", hwEncoder, "-b:v", vBitrate, "-maxrate", vBitrate, "-preset", "fast" });
+            else if (isHwEnc)
+                args.AddRange(new[] { "-c:v", hwEncoder, "-b:v", vBitrate, "-maxrate", vBitrate });
             else
                 args.AddRange(new[] { "-c:v", "libx264", "-b:v", vBitrate, "-preset", "veryfast", "-tune", "zerolatency" });
 
