@@ -3009,6 +3009,18 @@ namespace Streamer
                 args.Add("-forced-idr");
                 args.Add("1");
             }
+            else if (hwEncoder.Contains("amf"))
+            {
+                // AMF: enforce CBR mode explicitly (default is VBR)
+                args.Add("-rc");
+                args.Add("cbr");
+            }
+            else if (hwEncoder.Contains("qsv"))
+            {
+                // QSV: disable look-ahead for low-latency live streaming
+                args.Add("-look_ahead");
+                args.Add("0");
+            }
 
             // Force keyframes at exact 2s intervals (critical for concat/playlist mode)
             if (isFolderMode)
