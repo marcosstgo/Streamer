@@ -6,6 +6,10 @@
   <img src="docs/arc-mode.jpg" alt="Streamer Pro ARC Mode" width="860"/>
 </p>
 
+<p align="center">
+  <img src="docs/credits.jpg" alt="Streamer Pro Credits Window" width="520"/>
+</p>
+
 # Streamer Pro
 
 **Advanced Windows streaming engine powered by FFmpeg**
