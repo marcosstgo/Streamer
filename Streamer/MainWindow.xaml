@@ -34,7 +34,7 @@
 
 
         <!-- Footer / Status bar -->
-        <Border DockPanel.Dock="Bottom" Background="{StaticResource BgPanel}" CornerRadius="10" Padding="14,10" Margin="0,0,0,6" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+        <Border DockPanel.Dock="Bottom" Background="#101925" CornerRadius="16" Padding="14,10" Margin="0,0,0,6" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -53,27 +53,51 @@
                 </Border>
 
                 <!-- Live metrics inline -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Bitrate:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBlock x:Name="MetricBitrate" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="FPS:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBlock x:Name="MetricFps" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="CPU:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBlock x:Name="MetricCpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="MEM:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBlock x:Name="MetricMem" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="GPU:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBlock x:Name="MetricGpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="Speed:" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBlock x:Name="MetricSpeed" Text="--" Foreground="{StaticResource SparklineCPU}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
-                </StackPanel>
+                <WrapPanel Grid.Column="1" VerticalAlignment="Center">
+                    <Border Background="#0B131D" CornerRadius="10" Padding="8,6" Margin="0,0,8,0" BorderBrush="#27384A" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="BITRATE" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="MetricBitrate" Text="--" Foreground="{StaticResource AccentYellow}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#0B131D" CornerRadius="10" Padding="8,6" Margin="0,0,8,0" BorderBrush="#27384A" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="FPS" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="MetricFps" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#0B131D" CornerRadius="10" Padding="8,6" Margin="0,0,8,0" BorderBrush="#27384A" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="CPU" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="MetricCpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#0B131D" CornerRadius="10" Padding="8,6" Margin="0,0,8,0" BorderBrush="#27384A" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="MEM" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="MetricMem" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#0B131D" CornerRadius="10" Padding="8,6" Margin="0,0,8,0" BorderBrush="#27384A" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="GPU" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="MetricGpu" Text="--" Foreground="{StaticResource TextPrimary}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#0B131D" CornerRadius="10" Padding="8,6" BorderBrush="#27384A" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="SPEED" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="MetricSpeed" Text="--" Foreground="{StaticResource SparklineCPU}" FontSize="12" FontWeight="SemiBold" FontFamily="{DynamicResource MonoFont}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
 
                 <!-- Stream time -->
-                <TextBlock Grid.Column="2" x:Name="StreamTime" Text="00:00:00" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{DynamicResource MonoFont}" FontSize="13"/>
+                <TextBlock Grid.Column="2" x:Name="StreamTime" Text="00:00:00" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{DynamicResource MonoFont}" FontSize="12.5"/>
 
                 <!-- Right action buttons -->
-                <Button Grid.Column="3" x:Name="StartButton" Style="{StaticResource PrimaryButton}" Content="{DynamicResource str_btn_start}" Padding="12,6" FontSize="12" Margin="0,0,6,0" Click="StartStream_Click"/>
-                <Button Grid.Column="4" x:Name="StopButton" Style="{StaticResource DangerButton}" Content="{DynamicResource str_btn_stop}" Padding="12,6" FontSize="12" Margin="0,0,6,0" Click="StopStream_Click" IsEnabled="False"/>
+                <Button Grid.Column="3" x:Name="StartButton" Style="{StaticResource PrimaryButton}" Content="▶ Start" Padding="10,5" FontSize="11" Margin="0,0,6,0" Opacity="0.82" Click="StartStream_Click"/>
+                <Button Grid.Column="4" x:Name="StopButton" Style="{StaticResource DangerButton}" Content="■ Stop" Padding="10,5" FontSize="11" Margin="0,0,6,0" Opacity="0.82" Click="StopStream_Click" IsEnabled="False"/>
             </Grid>
         </Border>
 
@@ -83,7 +107,7 @@
             <StackPanel>
 
                 <!-- Header / Topbar -->
-                <Border Background="{StaticResource BgPanel}" CornerRadius="10" Padding="16,14" Margin="0,0,0,20" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                <Border Background="{StaticResource HeaderGradient}" CornerRadius="18" Padding="18,16" Margin="0,0,0,16" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -92,20 +116,23 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
-                            <Image Source="/streamerpro.png" Width="52" Height="52" Margin="0,0,16,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased"/>
+                            <Border Width="58" Height="58" CornerRadius="15" Background="#0D1621" BorderBrush="#33465E" BorderThickness="1" Margin="0,0,16,0">
+                                <Image Source="/streamerpro.png" Width="40" Height="40" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased"/>
+                            </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock x:Name="TitleText" Text="Streamer Pro" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                                    <TextBlock x:Name="TitleText" Text="Streamer Pro" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
                                     <Border Style="{StaticResource BadgeStyle}" Margin="10,0,0,0" VerticalAlignment="Center">
                                         <TextBlock x:Name="VersionBadge" Text="v2.0.2" FontWeight="Bold" Foreground="Black" FontSize="11"/>
                                     </Border>
                                 </StackPanel>
-                                <TextBlock Text="{DynamicResource str_tagline}" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock Text="{DynamicResource str_tagline}" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,3,0,0"/>
+                                <TextBlock Text="Control room for live, local and capture streaming." Foreground="{StaticResource TextMuted}" FontSize="10.5" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="{StaticResource InputBg}" CornerRadius="16" Padding="10,6" Margin="0,0,10,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                            <Border Background="#0D1621" CornerRadius="18" Padding="12,8" Margin="0,0,10,0" BorderBrush="#324256" BorderThickness="1">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse x:Name="ServerIndicator" Width="10" Height="10" Fill="{StaticResource TextMuted}" Margin="0,0,6,0"/>
                                     <TextBlock x:Name="ServerStatusText" Text="Servidor: --" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" FontSize="11"/>
@@ -113,7 +140,7 @@
                                     <TextBlock x:Name="ServerLatencyText" Text="--" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" FontSize="11"/>
                                 </StackPanel>
                             </Border>
-                            <Border x:Name="FFmpegPill" Background="{StaticResource InputBg}" CornerRadius="16" Padding="10,6" Margin="0,0,10,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" MouseLeftButtonUp="FFmpegPill_Click">
+                            <Border x:Name="FFmpegPill" Background="#0D1621" CornerRadius="18" Padding="12,8" Margin="0,0,10,0" BorderBrush="#324256" BorderThickness="1" MouseLeftButtonUp="FFmpegPill_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse x:Name="FFmpegIndicator" Width="10" Height="10" Fill="{StaticResource StatusGreen}" Margin="0,0,8,0"/>
                                     <TextBlock x:Name="FFmpegStatusText" Text="FFmpeg: Detectado" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12"/>
@@ -131,12 +158,12 @@
                             <!-- Theme toggle button -->
                             <Button x:Name="ThemeToggleBtn"
                                     Margin="10,0,0,0"
-                                    Padding="10,6"
+                                    Padding="12,8"
                                     Click="ThemeToggleBtn_Click"
                                     Cursor="Hand"
                                     ToolTip="{DynamicResource str_theme_tooltip}"
-                                    Background="#141C26"
-                                    BorderBrush="#2A3441">
+                                    Background="#0D1621"
+                                    BorderBrush="#324256">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="Bd" CornerRadius="16"
@@ -174,12 +201,12 @@
                             <!-- Language toggle button -->
                             <Button x:Name="LangToggleBtn"
                                     Margin="6,0,0,0"
-                                    Padding="10,6"
+                                    Padding="12,8"
                                     Click="LangToggleBtn_Click"
                                     Cursor="Hand"
                                     ToolTip="{DynamicResource str_lang_tooltip}"
-                                    Background="#141C26"
-                                    BorderBrush="#2A3441">
+                                    Background="#0D1621"
+                                    BorderBrush="#324256">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="Bd" CornerRadius="16"
@@ -209,11 +236,11 @@
                 </Border>
 
                 <!-- Row 1: Config + Advanced options side by side -->
-                <Grid Margin="0,0,0,20">
+                <Grid Margin="0,0,0,14">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.9*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="0.95*"/>
                     </Grid.ColumnDefinitions>
 
                 <!-- Configuración de Transmisión -->
@@ -262,23 +289,27 @@
 
                         <!-- FUENTE -->
                         <TextBlock Text="{DynamicResource str_label_source}" Style="{StaticResource SectionLabel}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Border Background="#0E1823" CornerRadius="16" BorderBrush="#2A3B4E" BorderThickness="1" Padding="8" Margin="0,2,0,8">
+                        <UniformGrid Columns="4">
                             <RadioButton x:Name="ModeOnline" IsChecked="True" Style="{StaticResource ModeCardButton}" ToolTip="{DynamicResource str_tooltip_online}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="🌐" FontSize="15" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Online" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    <TextBlock Text="🌐" FontSize="17" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Online" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    <TextBlock Text="Live sources" FontSize="9.5" Foreground="{DynamicResource TextMuted}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton x:Name="ModeFolder" Style="{StaticResource ModeCardButton}" ToolTip="{DynamicResource str_tooltip_folder}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="📁" FontSize="15" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{DynamicResource str_mode_folder}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    <TextBlock Text="📁" FontSize="17" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource str_mode_folder}" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    <TextBlock Text="Playlist folders" FontSize="9.5" Foreground="{DynamicResource TextMuted}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton x:Name="ModeFile" Style="{StaticResource ModeCardButton}" ToolTip="{DynamicResource str_tooltip_file}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="🎬" FontSize="15" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{DynamicResource str_mode_file}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    <TextBlock Text="🎬" FontSize="17" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource str_mode_file}" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    <TextBlock Text="Single clip" FontSize="9.5" Foreground="{DynamicResource TextMuted}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton x:Name="ModeCapture" Style="{StaticResource ModeCardButton}" ToolTip="{DynamicResource str_tooltip_capture}" Checked="ModeCapture_Checked" Margin="0">
@@ -289,12 +320,14 @@
                                         <TextBlock Text="BETA" FontSize="8" FontWeight="Bold" Foreground="Black"/>
                                     </Border>
                                     <StackPanel HorizontalAlignment="Center" Margin="0,4,0,0">
-                                        <TextBlock Text="🎮" FontSize="15" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="{DynamicResource str_mode_capture}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                        <TextBlock Text="🎮" FontSize="17" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource str_mode_capture}" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                        <TextBlock Text="Display capture" FontSize="9.5" Foreground="{DynamicResource TextMuted}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                                     </StackPanel>
                                 </Grid>
                             </RadioButton>
-                        </StackPanel>
+                        </UniformGrid>
+                        </Border>
 
                         <!-- Dynamic source controls -->
                         <StackPanel>
@@ -311,11 +344,22 @@
                                     </Style>
                                 </ComboBox.ItemContainerStyle>
                             </ComboBox>
-                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeOnline}">
-                                <TextBlock x:Name="SourceStatusText" Text="{DynamicResource str_loading_sources}" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                                <Button x:Name="OpenSourcesButton" Content="{DynamicResource str_open_sources}" Style="{StaticResource SecondaryButton}" Margin="12,0,6,0" Padding="8,4" Click="OpenSourcesButton_Click"/>
-                                <Button x:Name="ReloadSourcesButton" Content="{DynamicResource str_reload_sources}" Style="{StaticResource SecondaryButton}" Padding="8,4" Click="ReloadSourcesButton_Click"/>
-                            </StackPanel>
+                            <Border Background="#0E1823" CornerRadius="12" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Padding="10,8" Margin="0,6,0,0" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeOnline}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="8" Height="8" Fill="{StaticResource StatusGreen}" Margin="0,0,8,0"/>
+                                        <TextBlock x:Name="SourceStatusText" Text="{DynamicResource str_loading_sources}" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button x:Name="OpenSourcesButton" Content="{DynamicResource str_open_sources}" Style="{StaticResource SecondaryButton}" Margin="12,0,6,0" Padding="8,4" Click="OpenSourcesButton_Click"/>
+                                        <Button x:Name="ReloadSourcesButton" Content="{DynamicResource str_reload_sources}" Style="{StaticResource SecondaryButton}" Padding="8,4" Click="ReloadSourcesButton_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
                             <!-- Folder controls -->
                             <StackPanel x:Name="FolderControls" Visibility="{Binding IsChecked, Converter={StaticResource BoolToVis}, ElementName=ModeFolder}">
@@ -419,49 +463,63 @@
                 </Border>
 
                 <!-- Opciones Avanzadas (right column) -->
-                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="16" Margin="0">
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="15" Margin="0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource str_section_advanced}" Style="{StaticResource SectionTitle}" Margin="0,0,0,6"/>
+                        <TextBlock Text="Engine and runtime behavior for streams." Foreground="{StaticResource TextMuted}" FontSize="10.5" Margin="0,0,0,10"/>
 
                         <!-- VIDEO -->
                         <TextBlock Text="VIDEO" Style="{StaticResource SectionLabel}" Margin="0,8,0,4"/>
-                        <CheckBox x:Name="ForceYUV" Content="{DynamicResource str_force_yuv}" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
-                        <CheckBox x:Name="HardwareAccel" Content="Hardware Acceleration" Style="{StaticResource CheckBoxStyle}"/>
+                        <Border Background="#0E1823" CornerRadius="12" Padding="9" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                            <StackPanel>
+                                <CheckBox x:Name="ForceYUV" Content="{DynamicResource str_force_yuv}" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                                <CheckBox x:Name="HardwareAccel" Content="Hardware Acceleration" Style="{StaticResource CheckBoxStyle}"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- STREAM -->
                         <TextBlock Text="STREAM" Style="{StaticResource SectionLabel}"/>
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox x:Name="LoopInfinite" Content="{DynamicResource str_loop_infinite}" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
-                            <TextBlock Text="{DynamicResource str_loop_local_note}" Foreground="{DynamicResource TextMuted}" FontSize="11" VerticalAlignment="Center" Margin="2,0,0,0"/>
-                        </StackPanel>
-                        <CheckBox x:Name="Notifications" Content="{DynamicResource str_notifications}" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="{DynamicResource str_max_duration}" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox x:Name="MaxDuration" Text="0" Style="{StaticResource TextBoxStyle}" Width="60" ToolTip="{DynamicResource str_tooltip_duration}"/>
-                            <TextBlock Text="∞" Foreground="{StaticResource TextMuted}" FontSize="16" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                        </StackPanel>
+                        <Border Background="#0E1823" CornerRadius="12" Padding="9" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox x:Name="LoopInfinite" Content="{DynamicResource str_loop_infinite}" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                                    <TextBlock Text="{DynamicResource str_loop_local_note}" Foreground="{DynamicResource TextMuted}" FontSize="11" VerticalAlignment="Center" Margin="2,0,0,0"/>
+                                </StackPanel>
+                                <CheckBox x:Name="Notifications" Content="{DynamicResource str_notifications}" IsChecked="True" Style="{StaticResource CheckBoxStyle}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                    <TextBlock Text="{DynamicResource str_max_duration}" Style="{StaticResource LabelStyle}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox x:Name="MaxDuration" Text="0" Style="{StaticResource TextBoxStyle}" Width="60" ToolTip="{DynamicResource str_tooltip_duration}"/>
+                                    <TextBlock Text="∞" Foreground="{StaticResource TextMuted}" FontSize="16" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
                         <!-- DEPURACIÓN -->
                         <TextBlock Text="{DynamicResource str_label_debug}" Style="{StaticResource SectionLabel}"/>
-                        <CheckBox x:Name="ShowFFmpegCommand" Content="{DynamicResource str_show_ffmpeg_cmd}" Style="{StaticResource CheckBoxStyle}"/>
-                        <CheckBox x:Name="SaveLogs" Content="{DynamicResource str_save_logs}" Style="{StaticResource CheckBoxStyle}"/>
+                        <Border Background="#0E1823" CornerRadius="12" Padding="9" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                            <StackPanel>
+                                <CheckBox x:Name="ShowFFmpegCommand" Content="{DynamicResource str_show_ffmpeg_cmd}" Style="{StaticResource CheckBoxStyle}"/>
+                                <CheckBox x:Name="SaveLogs" Content="{DynamicResource str_save_logs}" Style="{StaticResource CheckBoxStyle}"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Border>
 
                 </Grid>
 
                 <!-- Row 2: Perfiles de calidad + Action buttons -->
-                <Grid Margin="0,0,0,20">
+                <Grid Margin="0,0,0,14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="198"/>
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="16" Margin="0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource str_section_quality}" Style="{StaticResource SectionTitle}"/>
-                            <UniformGrid Columns="5" Margin="0,10,0,0" Rows="1">
+                            <TextBlock Text="Choose a launch profile, then fine-tune the stream envelope below." Foreground="{StaticResource TextMuted}" FontSize="10.5" Margin="0,3,0,10"/>
+                            <UniformGrid Columns="5" Margin="0,2,0,0" Rows="1">
                                 <Button x:Name="Profile480p" Style="{StaticResource ProfileCardButton}" Tag="480p" Click="ProfileButton_Click">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="480p" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource TextPrimary}" HorizontalAlignment="Center"/>
@@ -494,7 +552,7 @@
                                 </Button>
                             </UniformGrid>
 
-                            <Border Background="{StaticResource InputBg}" CornerRadius="8" Padding="12" Margin="0,12,0,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                            <Border Background="#0E1823" CornerRadius="14" Padding="12" Margin="0,12,0,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -541,20 +599,29 @@
                     </Border>
 
                     <!-- Action buttons column -->
-                    <StackPanel Grid.Column="2" VerticalAlignment="Top">
-                        <Button x:Name="StartBig" Style="{StaticResource BigPrimaryButton}" Content="{DynamicResource str_start_stream}" Click="StartStream_Click" Width="193" Height="44" Margin="0,0,0,10"/>
-                        <Button x:Name="StopBig" Style="{StaticResource BigDangerButton}" Content="{DynamicResource str_btn_stop}" Click="StopStream_Click" IsEnabled="False" Width="196" Height="44" Margin="0,0,0,14"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="⏱" Foreground="{StaticResource TextMuted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock x:Name="StreamTimeCompact" Text="00:00:00" Foreground="{StaticResource TextSecondary}" FontFamily="{DynamicResource MonoFont}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <Ellipse x:Name="VideoHealthIndicator" Width="8" Height="8" Fill="{StaticResource StatusGreen}" Margin="0,0,6,0" Visibility="Hidden"/>
-                            <TextBlock x:Name="VideoHealthText" Text="{DynamicResource str_status_live}" Foreground="{StaticResource StatusGreen}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="Hidden"/>
+                    <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="14" Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="Launch" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Start the configured stream or stop the current session." Foreground="{StaticResource TextMuted}" FontSize="10" Margin="0,3,0,10" TextWrapping="Wrap"/>
+                            <Button x:Name="StartBig" Style="{StaticResource BigPrimaryButton}" Content="{DynamicResource str_start_stream}" Click="StartStream_Click" Width="Auto" Height="44" Margin="0,0,0,8"/>
+                            <Button x:Name="StopBig" Style="{StaticResource BigDangerButton}" Content="{DynamicResource str_btn_stop}" Click="StopStream_Click" IsEnabled="False" Width="Auto" Height="44" Margin="0,0,0,10"/>
+                            <Border Background="#0E1823" CornerRadius="14" Padding="9" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Session" Foreground="{StaticResource TextMuted}" FontSize="10" FontFamily="{DynamicResource MonoFont}"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Left">
+                                        <TextBlock Text="⏱" Foreground="{StaticResource TextMuted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock x:Name="StreamTimeCompact" Text="00:00:00" Foreground="{StaticResource TextSecondary}" FontFamily="{DynamicResource MonoFont}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <Ellipse x:Name="VideoHealthIndicator" Width="8" Height="8" Fill="{StaticResource StatusGreen}" Margin="0,0,6,0" Visibility="Hidden"/>
+                                        <TextBlock x:Name="VideoHealthText" Text="{DynamicResource str_status_live}" Foreground="{StaticResource StatusGreen}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="Hidden"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </StackPanel>
+                    </Border>
                 </Grid>
 
                 <!-- Overlay + Favoritos side by side -->
-                <Grid Margin="0,0,0,20">
+                <Grid Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*"/>
                         <ColumnDefinition Width="16"/>
@@ -565,6 +632,7 @@
                     <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="16">
                         <StackPanel>
                             <TextBlock Text="🖼️ Overlay / Logo" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+                            <TextBlock Text="Brand the output with a logo and keep its placement predictable." Foreground="{StaticResource TextMuted}" FontSize="10.5" Margin="0,0,0,10"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="60"/>
@@ -597,7 +665,7 @@
                                         <ComboBoxItem Content="{DynamicResource str_size_large}" Tag="200"/>
                                     </ComboBox>
                                 </StackPanel>
-                                <Border Grid.Column="1" x:Name="OverlayPreviewBorder" Background="{StaticResource InputBg}" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" CornerRadius="6" Width="70" Height="70" Margin="12,0,0,0" Visibility="Collapsed" ToolTip="{DynamicResource str_tooltip_logo_preview}">
+                                <Border Grid.Column="1" x:Name="OverlayPreviewBorder" Background="#0D1621" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" CornerRadius="12" Width="76" Height="76" Margin="12,0,0,0" Visibility="Collapsed" ToolTip="{DynamicResource str_tooltip_logo_preview}">
                                     <Image x:Name="OverlayPreviewImage" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" Margin="4"/>
                                 </Border>
                             </Grid>
@@ -618,7 +686,8 @@
                                     <Button x:Name="DeleteFavoriteButton" Style="{StaticResource DangerButton}" Content="{DynamicResource str_delete}" Padding="8,4" FontSize="12" Margin="6,0,0,0" Click="DeleteFavorite_Click"/>
                                 </StackPanel>
                             </Grid>
-                            <ListBox x:Name="FavoritesList" Background="{StaticResource InputBg}" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Margin="0,10,0,0" SelectionChanged="FavoritesList_SelectionChanged" Foreground="{StaticResource TextPrimary}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" SelectionMode="Extended" MaxHeight="120" Padding="4"/>
+                            <TextBlock Text="Store reusable stream setups and load them quickly before going live." Foreground="{StaticResource TextMuted}" FontSize="10.5" Margin="0,6,0,8"/>
+                            <ListBox x:Name="FavoritesList" Background="#0D1621" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Margin="0,10,0,0" SelectionChanged="FavoritesList_SelectionChanged" Foreground="{StaticResource TextPrimary}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" SelectionMode="Extended" MaxHeight="120" Padding="8"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -627,7 +696,8 @@
                 <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource str_section_history}" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
-                        <ListBox x:Name="HistoryList" Background="{StaticResource InputBg}" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Foreground="{StaticResource TextPrimary}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" FontFamily="{DynamicResource MonoFont}" MaxHeight="120" FontSize="12" Padding="4"/>
+                        <TextBlock Text="Recent sessions stay visible here for quick context and troubleshooting." Foreground="{StaticResource TextMuted}" FontSize="10.5" Margin="0,0,0,8"/>
+                        <ListBox x:Name="HistoryList" Background="#0D1621" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1" Foreground="{StaticResource TextPrimary}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" FontFamily="{DynamicResource MonoFont}" MaxHeight="120" FontSize="12" Padding="8"/>
                     </StackPanel>
                 </Border>
 

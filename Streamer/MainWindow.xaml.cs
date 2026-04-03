@@ -153,32 +153,32 @@ namespace Streamer
 
         private static readonly (string Key, System.Windows.Media.Color Pro, System.Windows.Media.Color Arc)[] _themeColors =
         {
-            ("BgPrimary",        C(0x0F,0x17,0x20), C(0x13,0x08,0x10)),
-            ("BgPanel",          C(0x14,0x1C,0x26), C(0x1A,0x0B,0x17)),
-            ("BgPanelSecondary", C(0x1B,0x24,0x30), C(0x20,0x0E,0x1C)),
-            ("TextPrimary",      C(0xE6,0xED,0xF3), C(0xF0,0xF0,0xFF)),
-            ("TextSecondary",    C(0x9C,0xA6,0xB2), C(0x00,0xE5,0xFF)),
-            ("TextMuted",        C(0x6B,0x76,0x83), C(0x4A,0x30,0x45)),
-            ("AccentYellow",     C(0xF5,0xB7,0x2E), C(0x00,0xFF,0xFF)),
-            ("AccentYellowHover",C(0xFF,0xC9,0x4A), C(0x40,0xFF,0xFF)),
-            ("DangerRed",        C(0xC6,0x3D,0x3D), C(0xFF,0x17,0x44)),
-            ("DangerRedHover",   C(0xE3,0x4D,0x4D), C(0xFF,0x4D,0x6A)),
-            ("StatusGreen",      C(0x2E,0xCC,0x71), C(0x05,0xFF,0x74)),
-            ("StatusGreenBright",C(0x36,0xE0,0x7F), C(0x40,0xFF,0x90)),
-            ("InputBg",          C(0x0C,0x12,0x18), C(0x0D,0x06,0x0B)),
-            ("BadgeBackground",  C(0xF5,0xB7,0x2E), C(0x5F,0xFF,0xFF)),
-            ("BgCard",           C(0x14,0x1C,0x26), C(0x1A,0x0B,0x17)),
-            ("BgCardHover",      C(0x17,0x20,0x29), C(0x22,0x0F,0x1F)),
-            ("BgCardActive",     C(0x20,0x2A,0x34), C(0x2A,0x12,0x27)),
-            ("Success",          C(0x2E,0xCC,0x71), C(0x05,0xFF,0x74)),
-            ("Danger",           C(0xC6,0x3D,0x3D), C(0xFF,0x17,0x44)),
-            ("Warning",          C(0xF5,0xB7,0x2E), C(0xFF,0xEA,0x00)),
-            ("BgPanelHover",     C(0x17,0x20,0x29), C(0x22,0x0F,0x1F)),
-            ("BgPanelActive",    C(0x20,0x2A,0x34), C(0x2A,0x12,0x27)),
-            ("FocusBlue",        C(0x2D,0x9C,0xDB), C(0x5F,0xFF,0xFF)),
-            ("SparklineBitrate", C(0xF5,0xB7,0x2E), C(0xFF,0xEA,0x00)),
-            ("SparklineCPU",     C(0x36,0xE0,0x7F), C(0x05,0xFF,0x74)),
-            ("SparklineBg",      C(0x17,0x1A,0x20), C(0x0D,0x06,0x0B)),
+            ("BgPrimary",        C(0x0F,0x17,0x20), C(0x0E,0x0E,0x18)),
+            ("BgPanel",          C(0x14,0x1C,0x26), C(0x15,0x16,0x22)),
+            ("BgPanelSecondary", C(0x1B,0x24,0x30), C(0x1A,0x1B,0x28)),
+            ("TextPrimary",      C(0xE6,0xED,0xF3), C(0xF0,0xF3,0xFF)),
+            ("TextSecondary",    C(0x9C,0xA6,0xB2), C(0xA8,0xB4,0xC6)),
+            ("TextMuted",        C(0x6B,0x76,0x83), C(0x74,0x7B,0x92)),
+            ("AccentYellow",     C(0xF5,0xB7,0x2E), C(0x38,0xE6,0xF5)),
+            ("AccentYellowHover",C(0xFF,0xC9,0x4A), C(0x63,0xF1,0xFF)),
+            ("DangerRed",        C(0xC6,0x3D,0x3D), C(0xFF,0x4C,0x6E)),
+            ("DangerRedHover",   C(0xE3,0x4D,0x4D), C(0xFF,0x6A,0x86)),
+            ("StatusGreen",      C(0x2E,0xCC,0x71), C(0x34,0xE8,0xA1)),
+            ("StatusGreenBright",C(0x36,0xE0,0x7F), C(0x5A,0xF2,0xB8)),
+            ("InputBg",          C(0x0C,0x12,0x18), C(0x10,0x10,0x18)),
+            ("BadgeBackground",  C(0xF5,0xB7,0x2E), C(0x38,0xE6,0xF5)),
+            ("BgCard",           C(0x14,0x1C,0x26), C(0x17,0x17,0x24)),
+            ("BgCardHover",      C(0x17,0x20,0x29), C(0x1C,0x1D,0x2B)),
+            ("BgCardActive",     C(0x20,0x2A,0x34), C(0x22,0x24,0x34)),
+            ("Success",          C(0x2E,0xCC,0x71), C(0x34,0xE8,0xA1)),
+            ("Danger",           C(0xC6,0x3D,0x3D), C(0xFF,0x4C,0x6E)),
+            ("Warning",          C(0xF5,0xB7,0x2E), C(0x38,0xE6,0xF5)),
+            ("BgPanelHover",     C(0x17,0x20,0x29), C(0x1C,0x1D,0x2B)),
+            ("BgPanelActive",    C(0x20,0x2A,0x34), C(0x22,0x24,0x34)),
+            ("FocusBlue",        C(0x2D,0x9C,0xDB), C(0x63,0xF1,0xFF)),
+            ("SparklineBitrate", C(0xF5,0xB7,0x2E), C(0x63,0xF1,0xFF)),
+            ("SparklineCPU",     C(0x36,0xE0,0x7F), C(0x34,0xE8,0xA1)),
+            ("SparklineBg",      C(0x17,0x1A,0x20), C(0x10,0x10,0x18)),
         };
 
         // FFmpeg progress parsing
@@ -460,15 +460,98 @@ namespace Streamer
                 try
                 {
                     using var doc = JsonDocument.Parse(json);
-                    if (doc.RootElement.TryGetProperty("StreamKey", out var sk))
+                    var root = doc.RootElement;
+                    await Dispatcher.InvokeAsync(() =>
                     {
-                        var encrypted = sk.GetString() ?? string.Empty;
-                        var key = DecryptString(encrypted);
-                        await Dispatcher.InvokeAsync(() =>
+                        try
                         {
-                            try { if (StreamKey != null) SetStreamKeyText(key); } catch { }
-                        });
-                    }
+                            if (root.TryGetProperty("StreamKey", out var sk))
+                            {
+                                var encrypted = sk.GetString() ?? string.Empty;
+                                var key = DecryptString(encrypted);
+                                if (StreamKey != null) SetStreamKeyText(key);
+                            }
+
+                            if (root.TryGetProperty("RtmpBase", out var rtmpBase))
+                            {
+                                RTMPBase.Text = rtmpBase.GetString() ?? string.Empty;
+                                SyncPlatformComboFromUrl();
+                            }
+
+                            if (root.TryGetProperty("VBitrate", out var vBitrate))
+                                VideoBitrateManual.Text = vBitrate.GetString() ?? VideoBitrateManual.Text;
+                            if (root.TryGetProperty("ABitrate", out var aBitrate))
+                                AudioBitrateManual.Text = aBitrate.GetString() ?? AudioBitrateManual.Text;
+                            if (root.TryGetProperty("Resolution", out var resolution))
+                                ResolutionManual.Text = resolution.GetString() ?? ResolutionManual.Text;
+                            if (root.TryGetProperty("FPS", out var fps))
+                                FPSManual.Text = fps.GetString() ?? FPSManual.Text;
+
+                            if (root.TryGetProperty("ForceYUV", out var forceYuv) && forceYuv.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                                ForceYUV.IsChecked = forceYuv.GetBoolean();
+                            if (root.TryGetProperty("LoopInfinite", out var loopInfinite) && loopInfinite.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                                LoopInfinite.IsChecked = loopInfinite.GetBoolean();
+                            if (root.TryGetProperty("SaveLogs", out var saveLogs) && saveLogs.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                                SaveLogs.IsChecked = saveLogs.GetBoolean();
+                            if (root.TryGetProperty("HardwareAccel", out var hwAccel) && hwAccel.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                                HardwareAccel.IsChecked = hwAccel.GetBoolean();
+
+                            if (root.TryGetProperty("Preset", out var preset) && PresetCombo.Items.Count > 0)
+                                SelectPreset(preset.GetString() ?? "veryfast");
+
+                            if (root.TryGetProperty("SelectedFilePath", out var selectedFile))
+                            {
+                                var path = selectedFile.GetString() ?? string.Empty;
+                                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                                {
+                                    selectedFilePath = path;
+                                    if (SelectedFileText != null) SelectedFileText.Text = path;
+                                }
+                            }
+
+                            if (root.TryGetProperty("SelectedFolderPath", out var selectedFolder))
+                            {
+                                var path = selectedFolder.GetString() ?? string.Empty;
+                                if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path))
+                                {
+                                    SelectedFolderPath = path;
+                                    if (SelectedFolderText != null) SelectedFolderText.Text = path;
+                                }
+                            }
+
+                            if (root.TryGetProperty("OverlayPath", out var overlayPath))
+                            {
+                                var path = overlayPath.GetString() ?? string.Empty;
+                                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                                {
+                                    _overlayPath = path;
+                                    OverlayPathText.Text = path;
+                                }
+                            }
+
+                            if (root.TryGetProperty("Mode", out var mode))
+                            {
+                                switch ((mode.GetString() ?? string.Empty).ToLowerInvariant())
+                                {
+                                    case "file":
+                                        ModeFile.IsChecked = true;
+                                        break;
+                                    case "folder":
+                                        ModeFolder.IsChecked = true;
+                                        break;
+                                    case "capture":
+                                        ModeCapture.IsChecked = true;
+                                        break;
+                                    default:
+                                        ModeOnline.IsChecked = true;
+                                        break;
+                                }
+                            }
+
+                            UpdateLoggerSettings();
+                        }
+                        catch { }
+                    });
                 }
                 catch { /* ignore malformed config */ }
             }
@@ -484,7 +567,27 @@ namespace Streamer
             {
                 var toSave = GetStreamKeyText();
                 var encrypted = EncryptString(toSave);
-                var cfg = new { StreamKey = encrypted };
+                var cfg = new
+                {
+                    StreamKey = encrypted,
+                    RtmpBase = RTMPBase.Text,
+                    VBitrate = VideoBitrateManual.Text,
+                    ABitrate = AudioBitrateManual.Text,
+                    Preset = (PresetCombo.SelectedItem as ComboBoxItem)?.Content?.ToString(),
+                    Resolution = ResolutionManual.Text,
+                    FPS = FPSManual.Text,
+                    ForceYUV = ForceYUV.IsChecked == true,
+                    LoopInfinite = LoopInfinite.IsChecked == true,
+                    SaveLogs = SaveLogs?.IsChecked == true,
+                    HardwareAccel = HardwareAccel.IsChecked == true,
+                    Mode = ModeCapture.IsChecked == true ? "capture"
+                        : ModeFile.IsChecked == true ? "file"
+                        : ModeFolder.IsChecked == true ? "folder"
+                        : "online",
+                    SelectedFilePath = selectedFilePath,
+                    SelectedFolderPath = SelectedFolderPath,
+                    OverlayPath = !string.IsNullOrWhiteSpace(_overlayPath) && File.Exists(_overlayPath) ? _overlayPath : string.Empty
+                };
                 var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions { WriteIndented = true });
                 var path = GetConfigPath();
                 await File.WriteAllTextAsync(path, json).ConfigureAwait(false);
@@ -2685,15 +2788,13 @@ namespace Streamer
             foreach (var (key, pro, arc) in _themeColors)
                 res[key] = new SolidColorBrush(isArc ? arc : pro);
 
-            // BorderBrushToken: 4-stripe Arc gradient or solid Pro color
+            // Global borders in ARC should be subtle. Reserve the rainbow stripes for the toggle.
             res["BorderBrushToken"] = isArc
-                ? (System.Windows.Media.Brush)MakeArcStripeGradient()
+                ? (System.Windows.Media.Brush)new SolidColorBrush(C(0x33,0x3A,0x4A))
                 : new SolidColorBrush(C(0x2A,0x34,0x41));
 
-            // Card borders: top-only in Arc (less is more), all sides in Pro
-            var cardThickness = isArc
-                ? new System.Windows.Thickness(0, 2, 0, 0)
-                : new System.Windows.Thickness(1);
+            // Keep cards stable in both themes. ARC relies on accent and contrast, not border tricks.
+            var cardThickness = new System.Windows.Thickness(1);
             ApplyCardBorderThickness(this, cardThickness);
 
             // StartButtonGradient
@@ -2703,15 +2804,17 @@ namespace Streamer
                 sg.GradientStops[1].Color = isArc ? C(0x00,0xCC,0xDD) : C(0xFF,0xB0,0x00);
             }
 
-            // HeaderGradient — dark purple in Arc
+            // HeaderGradient — softer night palette in ARC
             if (res["HeaderGradient"] is LinearGradientBrush hg && !hg.IsFrozen)
             {
-                hg.GradientStops[0].Color = isArc ? C(0x13,0x08,0x10) : C(0x0F,0x13,0x17);
-                hg.GradientStops[1].Color = isArc ? C(0x1A,0x0B,0x17) : C(0x14,0x17,0x1B);
+                hg.GradientStops[0].Color = isArc ? C(0x14,0x12,0x1C) : C(0x0F,0x13,0x17);
+                hg.GradientStops[1].Color = isArc ? C(0x15,0x16,0x22) : C(0x14,0x17,0x1B);
+                if (hg.GradientStops.Count > 2)
+                    hg.GradientStops[2].Color = isArc ? C(0x10,0x10,0x18) : C(0x0E,0x15,0x20);
             }
 
             // Window background
-            Background = new SolidColorBrush(isArc ? C(0x13,0x08,0x10) : C(0x0F,0x17,0x20));
+            Background = new SolidColorBrush(isArc ? C(0x0E,0x0E,0x18) : C(0x0F,0x17,0x20));
 
             // Theme toggle button
             try
@@ -2719,13 +2822,13 @@ namespace Streamer
                 if (isArc)
                 {
                     ArcStripes.Visibility      = Visibility.Visible;
-                    ThemeToggleBtn.Background  = new SolidColorBrush(C(0x1E,0x0D,0x1D));
+                    ThemeToggleBtn.Background  = new SolidColorBrush(C(0x17,0x17,0x24));
                     ThemeToggleBtn.BorderBrush = MakeArcStripeGradient();
                     ThemeToggleBtn.Effect      = new System.Windows.Media.Effects.DropShadowEffect
                     {
                         Color       = C(0x5F,0xFF,0xFF),
-                        BlurRadius  = 14,
-                        Opacity     = 0.55,
+                        BlurRadius  = 10,
+                        Opacity     = 0.35,
                         ShadowDepth = 0
                     };
                     ThemeToggleText.Text       = "PRO";
@@ -3553,32 +3656,42 @@ namespace Streamer
 
             if (!string.IsNullOrEmpty(name))
             {
-                var config = new
+                try
                 {
-                    Name = name,
-                    RtmpBase = RTMPBase.Text,
-                    StreamKey = EncryptString(GetStreamKeyText()),
-                    Source = SelectedSource?.Name,
-                    VBitrate = VideoBitrateManual.Text,
-                    ABitrate = AudioBitrateManual.Text,
-                    Preset = (PresetCombo.SelectedItem as ComboBoxItem)?.Content?.ToString(),
-                    Resolution = ResolutionManual.Text,
-                    FPS = FPSManual.Text,
-                    ForceYUV = ForceYUV.IsChecked,
-                    DateSaved = DateTime.Now
-                };
+                    var config = new
+                    {
+                        Name = name,
+                        RtmpBase = RTMPBase.Text,
+                        StreamKey = EncryptString(GetStreamKeyText()),
+                        Source = SelectedSource?.Name,
+                        VBitrate = VideoBitrateManual.Text,
+                        ABitrate = AudioBitrateManual.Text,
+                        Preset = (PresetCombo.SelectedItem as ComboBoxItem)?.Content?.ToString(),
+                        Resolution = ResolutionManual.Text,
+                        FPS = FPSManual.Text,
+                        ForceYUV = ForceYUV.IsChecked,
+                        DateSaved = DateTime.Now
+                    };
 
-                string json = JsonSerializer.Serialize(config, new JsonSerializerOptions
+                    string json = JsonSerializer.Serialize(config, new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    });
+
+                    string favDir = Path.Combine(appDataPath, "Favorites");
+                    Directory.CreateDirectory(favDir);
+                    string favPath = Path.Combine(favDir, $"{SanitizeFileName(name)}.json");
+                    File.WriteAllText(favPath, json);
+
+                    _ = LoadFavoritesAsync();
+                    MessageBox.Show(Str.G("str_msg_config_saved"), Str.G("str_msg_success"),
+                                  MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
                 {
-                    WriteIndented = true
-                });
-
-                string favPath = Path.Combine(appDataPath, "Favorites", $"{SanitizeFileName(name)}.json");
-                File.WriteAllText(favPath, json);
-
-                _ = LoadFavoritesAsync();
-                MessageBox.Show(Str.G("str_msg_config_saved"), Str.G("str_msg_success"),
-                              MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"{Str.G("str_msg_error")}: {ex.Message}", Str.G("str_msg_error"),
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

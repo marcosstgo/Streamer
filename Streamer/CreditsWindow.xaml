@@ -11,7 +11,7 @@
         FontFamily="{DynamicResource FontFamilyPrimary}"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
 
-    <Border Background="#0D1117" CornerRadius="16" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1"
+        <Border Background="#0B121B" CornerRadius="18" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1"
             Effect="{StaticResource CardShadow}" ClipToBounds="True">
         <Grid>
             <Grid.RowDefinitions>
@@ -24,28 +24,33 @@
             </Grid.RowDefinitions>
 
             <!-- Header with gradient -->
-            <Border Grid.Row="0" Background="{StaticResource HeaderGradient}" Padding="24,20" CornerRadius="16,16,0,0">
+            <Border Grid.Row="0" Background="{StaticResource HeaderGradient}" Padding="24,22" CornerRadius="18,18,0,0">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="&#x1F4E1;" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8" FontFamily="Segoe UI Emoji"/>
-                    <TextBlock Text="Streamer Pro" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" HorizontalAlignment="Center"/>
+                    <Border Width="74" Height="74" CornerRadius="18" Background="#0D1621" BorderBrush="#324256" BorderThickness="1" HorizontalAlignment="Center" Margin="0,0,0,10">
+                        <Grid>
+                            <TextBlock Text="&#x1F4E1;" FontSize="34" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI Emoji" Foreground="{StaticResource AccentYellow}"/>
+                        </Grid>
+                    </Border>
+                    <TextBlock Text="Streamer Pro" FontSize="26" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" HorizontalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
-                        <Border Background="{StaticResource BadgeBackground}" CornerRadius="8" Padding="8,3">
+                        <Border Background="{StaticResource BadgeBackground}" CornerRadius="10" Padding="9,4">
                             <TextBlock x:Name="VersionText" Text="v1.7" FontSize="11" FontWeight="Bold" Foreground="Black"/>
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="{DynamicResource str_credits_tagline}" Foreground="{StaticResource TextMuted}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" FontStyle="Italic"/>
+                    <TextBlock Text="{DynamicResource str_credits_tagline}" Foreground="{StaticResource TextSecondary}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" FontStyle="Italic"/>
+                    <TextBlock Text="Built with community tools, open tech and a lot of iteration." Foreground="{StaticResource TextMuted}" FontSize="11" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
             <!-- Scrolling credits area -->
-            <Border Grid.Row="1" Background="#0B0E14" Margin="0">
+            <Border Grid.Row="1" Background="#0A1018" Margin="0">
                 <ScrollViewer x:Name="CreditsScroll" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" Padding="0">
-                    <StackPanel x:Name="CreditsPanel" Margin="32,20,32,20"/>
+                    <StackPanel x:Name="CreditsPanel" Margin="30,18,30,22"/>
                 </ScrollViewer>
             </Border>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="{StaticResource BgCard}" Padding="16,12" CornerRadius="0,0,16,16">
+            <Border Grid.Row="2" Background="#101925" Padding="16,12" CornerRadius="0,0,18,18">
                 <Grid>
                     <TextBlock x:Name="CreditsFooterText" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Left" FontStyle="Italic" Text="{DynamicResource str_credits_footer}"/>
                     <Button Content="{DynamicResource str_close}" HorizontalAlignment="Right" Style="{StaticResource PrimaryButton}" Padding="16,6" Click="Close_Click" Cursor="Hand">

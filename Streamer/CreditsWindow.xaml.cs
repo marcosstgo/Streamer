@@ -50,20 +50,21 @@ namespace Streamer
             var textMuted = (Brush)FindResource("TextMuted");
             var cardBg = (Brush)FindResource("BgCard");
             var borderBrush = (Brush)FindResource("BorderBrushToken");
+            var successBrush = (Brush)FindResource("StatusGreen");
 
             // --- Development section ---
             AddSectionHeader("\U0001F468\u200D\U0001F4BB", Str.G("str_credits_dev_section"), accentBrush);
-            AddCreditCard("Marcos Santiago", Str.G("str_credits_dev_arch"), "\U0001F9D1\u200D\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("GitHub Copilot", Str.G("str_credits_ai_code"), "\U0001F916", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("ChatGPT", Str.G("str_credits_ai_design"), "\U0001F4AC", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("DeepSeek", Str.G("str_credits_ai_research"), "\U0001F50D", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard("Marcos Santiago", Str.G("str_credits_dev_arch"), "\U0001F9D1\u200D\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
+            AddCreditCard("GitHub Copilot", Str.G("str_credits_ai_code"), "\U0001F916", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
+            AddCreditCard("ChatGPT", Str.G("str_credits_ai_design"), "\U0001F4AC", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
+            AddCreditCard("DeepSeek", Str.G("str_credits_ai_research"), "\U0001F50D", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
             AddSpacer();
 
             // --- Technology section ---
             AddSectionHeader("\u26A1", Str.G("str_credits_tech_section"), accentBrush);
-            AddCreditCard("FFmpeg", Str.G("str_credits_ffmpeg_role"), "\U0001F3A5", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard(".NET 8 / WPF", Str.G("str_credits_dotnet_role"), "\U0001F3D7\uFE0F", cardBg, borderBrush, textPrimary, textSecondary);
-            AddCreditCard("Visual Studio 2022", Str.G("str_credits_vs_role"), "\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary);
+            AddCreditCard("FFmpeg", Str.G("str_credits_ffmpeg_role"), "\U0001F3A5", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
+            AddCreditCard(".NET 8 / WPF", Str.G("str_credits_dotnet_role"), "\U0001F3D7\uFE0F", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
+            AddCreditCard("Visual Studio 2022", Str.G("str_credits_vs_role"), "\U0001F4BB", cardBg, borderBrush, textPrimary, textSecondary, successBrush);
             AddSpacer();
 
             // --- Libraries section ---
@@ -108,8 +109,10 @@ namespace Streamer
             {
                 Text = icon,
                 FontSize = 18,
+                Foreground = accentBrush,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, 8, 0)
+                Margin = new Thickness(0, 0, 8, 0),
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji")
             });
 
             sp.Children.Add(new TextBlock
@@ -133,16 +136,16 @@ namespace Streamer
             });
         }
 
-        private void AddCreditCard(string name, string role, string icon, Brush cardBg, Brush borderBrush, Brush textPrimary, Brush textSecondary)
+        private void AddCreditCard(string name, string role, string icon, Brush cardBg, Brush borderBrush, Brush textPrimary, Brush textSecondary, Brush iconBrush)
         {
             var border = new Border
             {
                 Background = cardBg,
-                CornerRadius = new CornerRadius(10),
+                CornerRadius = new CornerRadius(14),
                 BorderBrush = borderBrush,
                 BorderThickness = new Thickness(1),
-                Padding = new Thickness(14, 10, 14, 10),
-                Margin = new Thickness(0, 3, 0, 3),
+                Padding = new Thickness(14, 12, 14, 12),
+                Margin = new Thickness(0, 4, 0, 4),
                 SnapsToDevicePixels = true
             };
 
@@ -154,8 +157,10 @@ namespace Streamer
             {
                 Text = icon,
                 FontSize = 20,
+                Foreground = iconBrush,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji")
             };
             Grid.SetColumn(iconBlock, 0);
             grid.Children.Add(iconBlock);

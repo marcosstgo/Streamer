@@ -10,30 +10,30 @@
             </ResourceDictionary.MergedDictionaries>
 
         <!-- Palette tokens — all referenced as DynamicResource so theme switching works -->
-        <SolidColorBrush x:Key="BgPrimary" Color="#0F1720"/>
-        <SolidColorBrush x:Key="BgPanel" Color="#141C26"/>
-        <SolidColorBrush x:Key="BgPanelSecondary" Color="#1B2430"/>
-        <SolidColorBrush x:Key="BorderBrushToken" Color="#2A3441"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#E6EDF3"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#9CA6B2"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#6B7683"/>
-        <SolidColorBrush x:Key="AccentYellow" Color="#F5B72E"/>
-        <SolidColorBrush x:Key="AccentYellowHover" Color="#FFC94A"/>
-        <SolidColorBrush x:Key="DangerRed" Color="#C63D3D"/>
-        <SolidColorBrush x:Key="DangerRedHover" Color="#E34D4D"/>
-        <SolidColorBrush x:Key="StatusGreen" Color="#2ECC71"/>
-        <SolidColorBrush x:Key="StatusGreenBright" Color="#36E07F"/>
-        <SolidColorBrush x:Key="InputBg" Color="#0C1218"/>
-        <SolidColorBrush x:Key="BadgeBackground" Color="#F5B72E"/>
-        <SolidColorBrush x:Key="BgCard" Color="#141C26"/>
-        <SolidColorBrush x:Key="BgCardHover" Color="#172029"/>
-        <SolidColorBrush x:Key="BgCardActive" Color="#202A34"/>
+        <SolidColorBrush x:Key="BgPrimary" Color="#09111B"/>
+        <SolidColorBrush x:Key="BgPanel" Color="#121C28"/>
+        <SolidColorBrush x:Key="BgPanelSecondary" Color="#182435"/>
+        <SolidColorBrush x:Key="BorderBrushToken" Color="#2A3A4F"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#F3F7FB"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#AAB7C7"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#708198"/>
+        <SolidColorBrush x:Key="AccentYellow" Color="#FFBE3B"/>
+        <SolidColorBrush x:Key="AccentYellowHover" Color="#FFD065"/>
+        <SolidColorBrush x:Key="DangerRed" Color="#D84D57"/>
+        <SolidColorBrush x:Key="DangerRedHover" Color="#F06772"/>
+        <SolidColorBrush x:Key="StatusGreen" Color="#3ED598"/>
+        <SolidColorBrush x:Key="StatusGreenBright" Color="#56E6A9"/>
+        <SolidColorBrush x:Key="InputBg" Color="#0D1621"/>
+        <SolidColorBrush x:Key="BadgeBackground" Color="#FFBE3B"/>
+        <SolidColorBrush x:Key="BgCard" Color="#162131"/>
+        <SolidColorBrush x:Key="BgCardHover" Color="#1B2A3E"/>
+        <SolidColorBrush x:Key="BgCardActive" Color="#21334A"/>
         <SolidColorBrush x:Key="Success" Color="#2ECC71"/>
         <SolidColorBrush x:Key="Danger" Color="#C63D3D"/>
         <SolidColorBrush x:Key="Warning" Color="#F5B72E"/>
-        <SolidColorBrush x:Key="BgPanelHover" Color="#172029"/>
-        <SolidColorBrush x:Key="BgPanelActive" Color="#202A34"/>
-        <SolidColorBrush x:Key="FocusBlue" Color="#2D9CDB"/>
+        <SolidColorBrush x:Key="BgPanelHover" Color="#192636"/>
+        <SolidColorBrush x:Key="BgPanelActive" Color="#213247"/>
+        <SolidColorBrush x:Key="FocusBlue" Color="#55C2FF"/>
         <SolidColorBrush x:Key="SparklineBitrate" Color="#F5B72E"/>
         <SolidColorBrush x:Key="SparklineCPU" Color="#36E07F"/>
         <SolidColorBrush x:Key="SparklineBg" Color="#171A20"/>
@@ -51,12 +51,13 @@
         <sys:Double x:Key="MetaFontSize">13</sys:Double>
 
         <!-- Header and elevation -->
-        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#0F1317" Offset="0"/>
-            <GradientStop Color="#14171B" Offset="1"/>
+        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#17283C" Offset="0"/>
+            <GradientStop Color="#121C28" Offset="0.45"/>
+            <GradientStop Color="#0E1520" Offset="1"/>
         </LinearGradientBrush>
 
-        <DropShadowEffect x:Key="CardShadow" Color="#000000" BlurRadius="20" Opacity="0.45" Direction="270" ShadowDepth="4"/>
+        <DropShadowEffect x:Key="CardShadow" Color="#000000" BlurRadius="26" Opacity="0.32" Direction="270" ShadowDepth="8"/>
 
         <!-- Button gradients for polished look -->
         <LinearGradientBrush x:Key="StartButtonGradient" StartPoint="0,0" EndPoint="0,1">
@@ -70,12 +71,13 @@
 
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource BgPanel}"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="16"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="18"/>
             <Setter Property="Margin" Value="0,0,0,20"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushToken}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect" Value="{DynamicResource CardShadow}"/>
         </Style>
 
         <Style x:Key="SectionTitle" TargetType="TextBlock">
@@ -357,7 +359,7 @@
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushToken}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Padding" Value="16,14"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -367,13 +369,14 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
+                                CornerRadius="14"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BgCardHover}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource FocusBlue}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BgCardActive}"/>
@@ -392,7 +395,7 @@
             <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushToken}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="Padding" Value="10,10"/>
+            <Setter Property="Padding" Value="12,14"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -401,7 +404,7 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
+                                CornerRadius="14"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -626,15 +629,15 @@
         <!-- Small badge style used in header -->
         <Style x:Key="BadgeStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource BadgeBackground}"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="9,4"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
         <!-- Status pill style (e.g. Transmitting) -->
         <Style x:Key="StatusPill" TargetType="Border">
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Background" Value="{DynamicResource BgCard}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushToken}"/>
             <Setter Property="BorderThickness" Value="1"/>
