@@ -584,7 +584,7 @@ namespace Streamer
             _lastCpuTime = TimeSpan.Zero;
         }
 
-        private async void CheckFFmpeg()
+        private void CheckFFmpeg()
         {
             // Delegate to the async checker which uses bundled ffmpeg
             _ = CheckFFmpegAsync();
@@ -1060,7 +1060,7 @@ namespace Streamer
             return false;
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object? sender, EventArgs e)
         {
             bool isStreaming = System.Threading.Interlocked.CompareExchange(ref isStreamingInt, 0, 0) != 0;
             if (isStreaming)
@@ -2255,7 +2255,7 @@ namespace Streamer
             }
         }
 
-        private async void StopStream_Click(object sender, RoutedEventArgs e)
+        private void StopStream_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -2434,7 +2434,7 @@ namespace Streamer
             catch (Exception ex)
             {
                 Logger.LogError($"FFmpeg error: {ex}");
-                Dispatcher.BeginInvoke(() =>
+                _ = Dispatcher.BeginInvoke(() =>
                     System.Windows.MessageBox.Show($"Error en FFmpeg: {ex.Message}", "Error",
                                     MessageBoxButton.OK, MessageBoxImage.Error));
             }
