@@ -30,9 +30,12 @@ Stream to Corillo, Twitch, Kick, YouTube, or any custom RTMP endpoint — from l
 
 1. Download `Streamer Pro.exe` from [Releases](https://github.com/marcosstgo/Streamer/releases/latest)
 2. Place it in a dedicated folder (recommended: `C:\streamerpro`)
-3. Run it — FFmpeg downloads automatically on first launch
+3. Run it from that folder
+4. If `ffmpeg.exe` and `ffprobe.exe` are missing, Streamer Pro will offer to download them automatically into the same folder
 
-**Requirements:** Windows 10/11 · [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) · NVIDIA GPU (optional, for Capture mode)
+**Requirements:** Windows 10/11 · NVIDIA GPU (optional, for Capture mode)
+
+FFmpeg is required for streaming, but it is not bundled in the main GitHub Release asset because the binaries are large. The app handles downloading them on demand.
 
 ---
 
@@ -42,7 +45,10 @@ Stream to Corillo, Twitch, Kick, YouTube, or any custom RTMP endpoint — from l
 git clone https://github.com/marcosstgo/Streamer.git
 cd Streamer
 dotnet build Streamer/Streamer.csproj -c Release
+dotnet publish Streamer/Streamer.csproj /p:PublishProfile="Properties\PublishProfiles\Release-win-x64.pubxml"
 ```
+
+For the full release process, asset upload, and auto-update validation, see [`RELEASE.md`](RELEASE.md).
 
 ---
 

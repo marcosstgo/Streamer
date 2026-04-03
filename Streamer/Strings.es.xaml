@@ -124,6 +124,11 @@
     <sys:String x:Key="str_msg_invalid_file_title">Archivo inválido</sys:String>
     <sys:String x:Key="str_msg_select_monitor">Selecciona un monitor.</sys:String>
     <sys:String x:Key="str_msg_monitor_required_title">Monitor requerido</sys:String>
+    <sys:String x:Key="str_msg_select_capture_audio">Selecciona un dispositivo de audio o desactiva el audio de captura.</sys:String>
+    <sys:String x:Key="str_msg_capture_unsupported_title">Captura no disponible</sys:String>
+    <sys:String x:Key="str_msg_capture_unsupported_fmt">El modo Capture no está disponible en este sistema en este momento.
+
+Detalle: {0}</sys:String>
     <sys:String x:Key="str_msg_select_valid_folder">Selecciona una carpeta válida con archivos de video.</sys:String>
     <sys:String x:Key="str_msg_invalid_folder_title">Carpeta inválida</sys:String>
     <sys:String x:Key="str_msg_no_videos">La carpeta no contiene archivos de video soportados.</sys:String>

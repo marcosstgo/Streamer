@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.2.6] - 2026-04-03
+
+### Changed
+- Windows distribution now uses a self-contained single-file publish profile so users can run Streamer Pro without installing the .NET Desktop Runtime separately.
+- Release and contributor docs now describe the real distribution model: `Streamer Pro.exe` is the main asset, while FFmpeg binaries are downloaded into the same folder when needed.
+
+### Fixed
+- FFmpeg detection now requires both `ffmpeg.exe` and `ffprobe.exe`, keeping the top-bar status aligned with the app's real dependency state.
+- Capture mode now refreshes its monitor/audio device lists after installing FFmpeg, validates audio device selection before start, and performs a capture preflight before launching the stream.
+
 ## [2.2.5] - 2026-04-03
 
 ### Changed

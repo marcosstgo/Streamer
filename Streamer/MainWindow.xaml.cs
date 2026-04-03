@@ -686,8 +686,9 @@ namespace Streamer
             try
             {
                 string ffmpegPath = GetFfmpegPath();
+                string ffprobePath = GetFFprobePath();
 
-                if (!File.Exists(ffmpegPath))
+                if (!File.Exists(ffmpegPath) || !File.Exists(ffprobePath))
                 {
                     await Dispatcher.InvokeAsync(() =>
                     {
@@ -767,7 +768,10 @@ namespace Streamer
                 var win = new FFmpegDownloadWindow { Owner = this };
                 win.ShowDialog();
                 if (win.DownloadCompleted)
+                {
+                    PopulateCaptureMonitors();
                     _ = CheckFFmpegAsync();
+                }
             }
         }
 
@@ -1632,6 +1636,23 @@ namespace Streamer
                     int captureFps = CaptureFps60.IsChecked == true ? 60 : 30;
                     bool captureAudio = CaptureAudioCheck.IsChecked == true;
                     string captureAudioDevice = CaptureAudioDeviceCombo.SelectedItem as string ?? "";
+                    if (captureAudio && string.IsNullOrWhiteSpace(captureAudioDevice))
+                    {
+                        System.Windows.MessageBox.Show(Str.G("str_msg_select_capture_audio"), Str.G("str_msg_error"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    var (captureSupported, captureError) = await CheckCaptureSupportAsync(captureMonitorIdx);
+                    if (!captureSupported)
+                    {
+                        System.Windows.MessageBox.Show(
+                            string.Format(Str.G("str_msg_capture_unsupported_fmt"), captureError),
+                            Str.G("str_msg_capture_unsupported_title"),
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
+
                     bool captureHw = HardwareAccel.IsChecked == true && _detectedHwEncoder != null;
                     string captureEncoder = captureHw ? _detectedHwEncoder! : "libx264";
                     // Downscale to profile resolution (e.g. 1920x1080) — same as OBS canvas output
@@ -3871,6 +3892,8 @@ namespace Streamer
                 // Auto-select best device: prefer "stream" virtual device, then "system", then first
                 if (audioDevices.Count > 0)
                 {
+                    CaptureAudioCheck.IsEnabled = true;
+                    CaptureAudioDeviceCombo.IsEnabled = true;
                     var preferred = audioDevices.FirstOrDefault(d =>
                         d.IndexOf("stream", StringComparison.OrdinalIgnoreCase) >= 0 &&
                         d.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -3887,6 +3910,57 @@ namespace Streamer
                 }
             }
             catch { }
+        }
+
+        private async Task<(bool supported, string error)> CheckCaptureSupportAsync(int monitorIdx)
+        {
+            try
+            {
+                var ffmpegPath = GetFfmpegPath();
+                using var proc = new Process();
+                proc.StartInfo = new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                };
+
+                proc.StartInfo.ArgumentList.Add("-hide_banner");
+                proc.StartInfo.ArgumentList.Add("-init_hw_device");
+                proc.StartInfo.ArgumentList.Add("d3d11va=dda:0");
+                proc.StartInfo.ArgumentList.Add("-filter_complex");
+                proc.StartInfo.ArgumentList.Add($"ddagrab=output_idx={monitorIdx}:framerate=1:draw_mouse=1[cap]");
+                proc.StartInfo.ArgumentList.Add("-map");
+                proc.StartInfo.ArgumentList.Add("[cap]");
+                proc.StartInfo.ArgumentList.Add("-frames:v");
+                proc.StartInfo.ArgumentList.Add("1");
+                proc.StartInfo.ArgumentList.Add("-f");
+                proc.StartInfo.ArgumentList.Add("null");
+                proc.StartInfo.ArgumentList.Add("-");
+
+                proc.Start();
+                var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+                var stderrTask = proc.StandardError.ReadToEndAsync();
+                await proc.WaitForExitAsync().ConfigureAwait(false);
+                var stderr = await stderrTask.ConfigureAwait(false);
+                await stdoutTask.ConfigureAwait(false);
+
+                if (proc.ExitCode == 0)
+                    return (true, string.Empty);
+
+                var errorLine = stderr
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .LastOrDefault(l => !l.StartsWith("["))
+                    ?? "Unknown FFmpeg capture error";
+
+                return (false, errorLine);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
         }
 
         private List<string> BuildCaptureArgs(int monitorIdx, int fps, bool captureAudio, string captureAudioDevice, string scale, string rtmpUrl, string vBitrate, string aBitrate, string hwEncoder)

@@ -124,6 +124,11 @@
     <sys:String x:Key="str_msg_invalid_file_title">Invalid file</sys:String>
     <sys:String x:Key="str_msg_select_monitor">Select a monitor.</sys:String>
     <sys:String x:Key="str_msg_monitor_required_title">Monitor required</sys:String>
+    <sys:String x:Key="str_msg_select_capture_audio">Select an audio device or disable capture audio.</sys:String>
+    <sys:String x:Key="str_msg_capture_unsupported_title">Capture unavailable</sys:String>
+    <sys:String x:Key="str_msg_capture_unsupported_fmt">Capture mode is not available on this system right now.
+
+Details: {0}</sys:String>
     <sys:String x:Key="str_msg_select_valid_folder">Select a valid folder with video files.</sys:String>
     <sys:String x:Key="str_msg_invalid_folder_title">Invalid folder</sys:String>
     <sys:String x:Key="str_msg_no_videos">The folder contains no supported video files.</sys:String>
