@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.2.7] - 2026-04-03
+
+### Changed
+- GitHub Releases now build and attach the self-contained `Streamer.Pro.exe` asset automatically from GitHub Actions when a version tag is pushed.
+
+### Fixed
+- Added a common startup preflight so invalid RTMP URLs, missing FFmpeg binaries, missing stream key, and missing overlay files are caught before FFmpeg launches.
+- Cleaned the remaining build warnings so the project now compiles with `0 warnings` and `0 errors`.
+
 ## [2.2.6] - 2026-04-03
 
 ### Changed
