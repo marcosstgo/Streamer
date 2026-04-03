@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0] - 2026-04-03
+
+### Added
+- Added Scheduled Start so Streamer Pro can automatically begin a stream at a chosen local date and time while the app remains open or minimized to tray.
+
+### Changed
+- Elevated the app's overall presentation with a refreshed control-room layout, improved hierarchy, refined ARC mode, and a polished Credits window.
+
+### Fixed
+- Scheduled start now uses its own countdown timer and avoids cross-thread config save issues when the scheduled launch triggers.
+
 ## [2.2.8] - 2026-04-03
 
 ### Changed
