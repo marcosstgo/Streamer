@@ -17,9 +17,10 @@
     <sys:String x:Key="str_btn_start">▶ Iniciar</sys:String>
     <sys:String x:Key="str_btn_stop">■ Detener</sys:String>
     <sys:String x:Key="str_schedule_title">Inicio Programado</sys:String>
-    <sys:String x:Key="str_schedule_hint">Deja Streamer Pro abierto o minimizado en la bandeja y arrancará a la hora local programada.</sys:String>
-    <sys:String x:Key="str_schedule_date">Fecha (AAAA-MM-DD)</sys:String>
-    <sys:String x:Key="str_schedule_time">Hora (HH:mm)</sys:String>
+    <sys:String x:Key="str_schedule_hint">Comienza automáticamente mientras la app siga abierta o en la bandeja.</sys:String>
+    <sys:String x:Key="str_schedule_date">Fecha</sys:String>
+    <sys:String x:Key="str_schedule_time">Hora</sys:String>
+    <sys:String x:Key="str_schedule_state_label">Estado</sys:String>
     <sys:String x:Key="str_schedule_set">Programar</sys:String>
     <sys:String x:Key="str_schedule_cancel">Cancelar</sys:String>
     <sys:String x:Key="str_schedule_none">Sin inicio programado</sys:String>

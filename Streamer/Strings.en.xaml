@@ -17,9 +17,10 @@
     <sys:String x:Key="str_btn_start">▶ Start</sys:String>
     <sys:String x:Key="str_btn_stop">■ Stop</sys:String>
     <sys:String x:Key="str_schedule_title">Scheduled Start</sys:String>
-    <sys:String x:Key="str_schedule_hint">Keep Streamer Pro open or minimized to tray and it will start at the scheduled local time.</sys:String>
-    <sys:String x:Key="str_schedule_date">Date (YYYY-MM-DD)</sys:String>
-    <sys:String x:Key="str_schedule_time">Time (HH:mm)</sys:String>
+    <sys:String x:Key="str_schedule_hint">Starts automatically while the app stays open or in tray.</sys:String>
+    <sys:String x:Key="str_schedule_date">Date</sys:String>
+    <sys:String x:Key="str_schedule_time">Time</sys:String>
+    <sys:String x:Key="str_schedule_state_label">Status</sys:String>
     <sys:String x:Key="str_schedule_set">Schedule</sys:String>
     <sys:String x:Key="str_schedule_cancel">Cancel</sys:String>
     <sys:String x:Key="str_schedule_none">No scheduled start</sys:String>

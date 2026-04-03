@@ -623,8 +623,9 @@
                                         <Button Grid.Column="6" x:Name="ScheduleCancelBtn" Style="{StaticResource DangerButton}" Content="{DynamicResource str_schedule_cancel}" Padding="10,6" Margin="0,20,0,0" Click="ScheduleCancelBtn_Click"/>
                                         <Border Grid.Column="7" Background="#101925" CornerRadius="12" Padding="10,8" Margin="14,0,0,0" BorderBrush="{StaticResource BorderBrushToken}" BorderThickness="1">
                                             <StackPanel>
-                                                <TextBlock x:Name="ScheduleStatusText" Text="{DynamicResource str_schedule_none}" Foreground="{StaticResource TextSecondary}" FontSize="10.5"/>
-                                                <TextBlock x:Name="ScheduleCountdownText" Text="" Foreground="{StaticResource AccentYellow}" FontSize="10.5" FontFamily="{DynamicResource MonoFont}" Margin="0,3,0,0"/>
+                                                <TextBlock Text="{DynamicResource str_schedule_state_label}" Foreground="{StaticResource TextMuted}" FontSize="9.5" FontFamily="{DynamicResource MonoFont}"/>
+                                                <TextBlock x:Name="ScheduleStatusText" Text="{DynamicResource str_schedule_none}" Foreground="{StaticResource TextSecondary}" FontSize="10.5" FontWeight="SemiBold" Margin="0,3,0,0"/>
+                                                <TextBlock x:Name="ScheduleCountdownText" Text="" Foreground="{StaticResource AccentYellow}" FontSize="10.5" FontFamily="{DynamicResource MonoFont}" Margin="0,4,0,0"/>
                                             </StackPanel>
                                         </Border>
                                     </Grid>
