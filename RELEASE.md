@@ -34,7 +34,7 @@ Fallback:
 
 1. Update `Streamer/Streamer.csproj` version numbers
 2. Add the new section at the top of `CHANGELOG.md`
-3. Build and publish locally:
+3. Build and publish locally for validation:
 
 ```powershell
 dotnet build "Streamer/Streamer.csproj" -c Release
@@ -59,12 +59,7 @@ git push origin "vX.Y.Z"
 8. Wait for these workflows to finish successfully:
    - `Create Release Draft`
    - `Verify FFmpeg Checksums`
-9. Upload the published executable to the release draft:
-
-```powershell
-gh release upload vX.Y.Z "Streamer\bin\Release\publish-selfcontained\Streamer Pro.exe#Streamer.Pro.exe" --clobber -R marcosstgo/Streamer
-```
-
+9. Confirm the draft release already contains `Streamer.Pro.exe`
 10. Publish the release:
 
 ```powershell
@@ -109,4 +104,4 @@ When `-AllowMissing` is used, missing binaries are treated as expected for the r
 
 ## Known Follow-Up
 
-The release draft is automated, but the executable upload is still manual. A future improvement would be extending GitHub Actions to publish `Streamer.Pro.exe` automatically from the self-contained publish profile.
+The draft release and the self-contained executable upload are automated. Publishing the draft as a public release is still a manual final step.

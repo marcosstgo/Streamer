@@ -59,3 +59,27 @@ jobs:
             --title "${{ github.ref_name }}" \
             --draft \
             --notes "$RELEASE_BODY"
+
+  build_and_upload_asset:
+    runs-on: windows-latest
+    needs: create_release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish self-contained executable
+        shell: pwsh
+        run: |
+          dotnet publish "Streamer/Streamer.csproj" /p:PublishProfile="Properties\PublishProfiles\Release-win-x64.pubxml"
+
+      - name: Upload release asset
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN != '' && secrets.RELEASE_TOKEN || github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" "Streamer\bin\Release\publish-selfcontained\Streamer Pro.exe#Streamer.Pro.exe" --clobber --repo "${{ github.repository }}"
