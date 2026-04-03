@@ -16,6 +16,20 @@ namespace Streamer
         private static string GetLogPath()
         {
             if (_logPath != null) return _logPath;
+            var baseDir = AppContext.BaseDirectory;
+            try
+            {
+                Directory.CreateDirectory(baseDir);
+                var localPath = Path.Combine(baseDir, "streamer.log");
+                using (File.Open(localPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) { }
+                _logPath = localPath;
+                return _logPath;
+            }
+            catch
+            {
+                // Fallback for locations that are not writable.
+            }
+
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var folder = Path.Combine(appData, "CorilloStreamer");
             try { Directory.CreateDirectory(folder); } catch { }

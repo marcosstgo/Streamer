@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1] - 2026-04-03
+
+### Changed
+- Reworked `Folder` mode around a Persistent Streamer Pipeline so clip rotation no longer depends on a fragile concat playlist timeline.
+- Documented the new `Folder` architecture and linked it from the project documentation.
+
+### Fixed
+- Improved folder stability by keeping a persistent RTMP streamer alive while per-clip suppliers feed MPEG-TS into it.
+- Fixed folder selection so the active visible folder is the one actually used at stream start.
+- Fixed false FFmpeg popups caused by benign lag warnings and recoverable EOF-style muxer messages.
+- Improved local logging so publish-folder builds can write a `streamer.log` next to the executable when possible.
+
 ## [3.0.0] - 2026-04-03
 
 ### Added

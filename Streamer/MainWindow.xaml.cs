@@ -199,6 +199,8 @@ namespace Streamer
         // Only fires after at least one frame has been produced (never during startup/connecting).
         private int _lastFrameCount = -1;
         private DateTime _lastFrameAdvancedUtc = DateTime.MinValue;
+        private DateTime _lastProgressUtc = DateTime.MinValue;
+        private string _lastVideoHealthState = "init";
         private int _lastFfmpegExitCode = -1;
 
         // Circular buffer size for stderr/stdout to prevent unbounded memory growth
@@ -1425,11 +1427,17 @@ namespace Streamer
 
                 var mSpeed = _regexSpeed.Match(line);
                 if (mSpeed.Success)
+                {
+                    _lastProgressUtc = DateTime.UtcNow;
                     Dispatcher.BeginInvoke(() => MetricSpeed.Text = $"{mSpeed.Groups[1].Value}x");
+                }
 
                 var mFps = _regexFps.Match(line);
                 if (mFps.Success)
+                {
+                    _lastProgressUtc = DateTime.UtcNow;
                     Dispatcher.BeginInvoke(() => MetricFps.Text = mFps.Groups[1].Value);
+                }
 
                 // Frame count is the watchdog's heartbeat signal.
                 // Only update when the frame counter actually advances — this guarantees:
@@ -1440,6 +1448,7 @@ namespace Streamer
                 {
                     _lastFrameCount = fc;
                     _lastFrameAdvancedUtc = DateTime.UtcNow;
+                    _lastProgressUtc = _lastFrameAdvancedUtc;
                 }
             }
             catch { }
@@ -1449,12 +1458,43 @@ namespace Streamer
         {
             _lastFrameCount = -1;
             _lastFrameAdvancedUtc = DateTime.MinValue;
+            _lastProgressUtc = DateTime.MinValue;
             _watchdogKilledAt = DateTime.MinValue;
+            _lastVideoHealthState = "init";
         }
 
         // Seconds without a new frame before the watchdog kills and restarts FFmpeg
-        private const int WatchdogStallSeconds = 20;
+        private const int WatchdogStallSeconds = 35;
+        private const int WatchdogCooldownSeconds = 45;
         private DateTime _watchdogKilledAt = DateTime.MinValue;
+
+        private void LogWatchdogSnapshot(string state, double staleSec, bool recentProgress, string? extra = null)
+        {
+            try
+            {
+                string mode = ModeCapture.IsChecked == true ? "capture"
+                    : ModeFile.IsChecked == true ? "file"
+                    : ModeFolder.IsChecked == true ? "folder"
+                    : "online";
+
+                string target = mode switch
+                {
+                    "folder" => SelectedFolderPath ?? "(none)",
+                    "file" => selectedFilePath ?? "(none)",
+                    "online" => SelectedSource?.Name ?? "(none)",
+                    _ => (CaptureMonitorCombo?.SelectedItem as CaptureMonitorItem)?.ToString() ?? "(none)"
+                };
+
+                string speed = string.Empty;
+                string fps = string.Empty;
+                try { speed = MetricSpeed.Text; } catch { }
+                try { fps = MetricFps.Text; } catch { }
+
+                Logger.LogError(
+                    $"WATCHDOG state={state}; mode={mode}; target={target}; staleSec={staleSec:F1}; recentProgress={recentProgress}; lastFrame={_lastFrameCount}; lastExit={_lastFfmpegExitCode}; fps={fps}; speed={speed}; extra={extra ?? string.Empty}");
+            }
+            catch { }
+        }
 
         private void UpdateVideoHealthIndicator()
         {
@@ -1467,10 +1507,13 @@ namespace Streamer
 
                 bool everSeenFrames = _lastFrameAdvancedUtc != DateTime.MinValue;
                 double staleSec = everSeenFrames ? (now - _lastFrameAdvancedUtc).TotalSeconds : double.MaxValue;
+                bool recentProgress = _lastProgressUtc != DateTime.MinValue && (now - _lastProgressUtc).TotalSeconds < 12;
+                string healthState;
 
                 // UI indicator
                 if (!everSeenFrames)
                 {
+                    healthState = "connecting";
                     // Startup / connecting — no frames yet, completely normal
                     VideoHealthIndicator.Fill = warning;
                     VideoHealthText.Text = Str.G("str_status_connecting");
@@ -1478,33 +1521,42 @@ namespace Streamer
                 }
                 else if (staleSec < 5)
                 {
+                    healthState = "live";
                     VideoHealthIndicator.Fill = success;
                     VideoHealthText.Text = Str.G("str_status_live");
                     VideoHealthText.Foreground = success;
                 }
-                else if (staleSec < WatchdogStallSeconds)
+                else if (staleSec < WatchdogStallSeconds || recentProgress)
                 {
+                    healthState = "unstable";
                     VideoHealthIndicator.Fill = warning;
                     VideoHealthText.Text = Str.G("str_status_unstable");
                     VideoHealthText.Foreground = warning;
                 }
                 else
                 {
+                    healthState = "frozen";
                     VideoHealthIndicator.Fill = danger;
                     VideoHealthText.Text = Str.G("str_status_frozen");
                     VideoHealthText.Foreground = danger;
                 }
 
+                if (_lastVideoHealthState != healthState && (healthState == "unstable" || healthState == "frozen"))
+                    LogWatchdogSnapshot(healthState, staleSec, recentProgress);
+                _lastVideoHealthState = healthState;
+
                 // Watchdog: only fires once real frames were seen and then stalled.
                 // The cooldown prevents repeated kills faster than one per WatchdogStallSeconds.
                 if (everSeenFrames
                     && staleSec >= WatchdogStallSeconds
-                    && (now - _watchdogKilledAt).TotalSeconds > WatchdogStallSeconds)
+                    && !recentProgress
+                    && (now - _watchdogKilledAt).TotalSeconds > WatchdogCooldownSeconds)
                 {
                     var proc = ffmpegProcess;
                     if (proc != null && !proc.HasExited)
                     {
                         _watchdogKilledAt = now;
+                        LogWatchdogSnapshot("kill", staleSec, recentProgress, "process killed by watchdog");
                         Dispatcher.BeginInvoke(() => AddToHistory("⚠ Watchdog: stream congelado — reiniciando FFmpeg..."));
                         try { proc.Kill(entireProcessTree: true); } catch { try { proc.Kill(); } catch { } }
                     }
@@ -1524,6 +1576,18 @@ namespace Streamer
             return trimmed.StartsWith("frame=", StringComparison.Ordinal)
                 || trimmed.StartsWith("size=", StringComparison.Ordinal)
                 || (trimmed.Contains("bitrate=") && trimmed.Contains("speed="));
+        }
+
+        private static bool IsBenignFFmpegWarning(string line)
+        {
+            if (string.IsNullOrWhiteSpace(line)) return true;
+
+            return line.Contains("Resumed reading at pts", StringComparison.OrdinalIgnoreCase)
+                || line.Contains("after a lag of", StringComparison.OrdinalIgnoreCase)
+                || line.Contains("non monotonically increasing dts", StringComparison.OrdinalIgnoreCase)
+                || line.Contains("Past duration", StringComparison.OrdinalIgnoreCase)
+                || line.Contains("Thread message queue blocking", StringComparison.OrdinalIgnoreCase)
+                || line.Contains("deprecated pixel format used", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -1638,6 +1702,27 @@ namespace Streamer
                 results[url] = ok;
 
             return results;
+        }
+
+        private async Task<(List<string> validFiles, List<string> messages)> ValidatePlayableFilesAsync(IEnumerable<string> files)
+        {
+            var fileList = files.ToList();
+            var validationTasks = fileList.Select(async v =>
+            {
+                var res = await ValidateVideoWithFFprobeAsync(v).ConfigureAwait(false);
+                return (path: v, result: res);
+            }).ToList();
+
+            var validationResults = await Task.WhenAll(validationTasks).ConfigureAwait(false);
+            var validFiles = new List<string>();
+            var messages = new List<string>();
+            foreach (var vr in validationResults)
+            {
+                if (vr.result.ok) validFiles.Add(vr.path);
+                if (!string.IsNullOrEmpty(vr.result.message)) messages.Add(vr.result.message!);
+            }
+
+            return (validFiles, messages);
         }
 
         private async void StartStream_Click(object sender, RoutedEventArgs e)
@@ -1962,7 +2047,12 @@ namespace Streamer
                 else
                 {
                     // Folder mode
-                    SelectedFolderPath = SelectedFolderPath ?? SelectedFolderText.Text;
+                    var visibleFolderPath = SelectedFolderText.Text?.Trim();
+                    if (!string.IsNullOrWhiteSpace(visibleFolderPath) && Directory.Exists(visibleFolderPath))
+                        SelectedFolderPath = visibleFolderPath;
+                    else
+                        SelectedFolderPath = SelectedFolderPath ?? SelectedFolderText.Text;
+
                     bool isHighlightsMode = FolderHighlightsCheck?.IsChecked == true;
                     bool primaryFolderOk = !string.IsNullOrWhiteSpace(SelectedFolderPath) && Directory.Exists(SelectedFolderPath);
                     if (!primaryFolderOk)
@@ -1978,9 +2068,11 @@ namespace Streamer
                         SelectedFolderPath = _hlExtraFolders.First();
                     }
 
+                    var folderPath = SelectedFolderPath!;
+
                     // gather files
                     var exts = new[] { ".mp4", ".mkv", ".mov", ".avi", ".webm" };
-                    var vids = Directory.EnumerateFiles(SelectedFolderPath)
+                    var vids = Directory.EnumerateFiles(folderPath)
                                 .Where(f => exts.Contains(Path.GetExtension(f).ToLowerInvariant()))
                                 .ToList();
 
@@ -1995,7 +2087,7 @@ namespace Streamer
                     if (capturedHighlights)
                     {
                         var hlCts = ffmpegCts;
-                        var capturedHlFolders = new List<string> { SelectedFolderPath! }
+                        var capturedHlFolders = new List<string> { folderPath }
                             .Concat(_hlExtraFolders.Where(Directory.Exists))
                             .Distinct(StringComparer.OrdinalIgnoreCase)
                             .ToList();
@@ -2302,85 +2394,37 @@ namespace Streamer
                         return;
                     }
 
-                    if (capturedRandom && vids.Count > 0)
-                        vids = vids.OrderBy(_ => Random.Shared.Next()).ToList();
                     string? hwEncoderFolder = (hwAccelFlag && _detectedHwEncoder != null) ? _detectedHwEncoder : null;
+                    if (hwEncoderFolder != null)
+                        AddToHistory($"HWAccel: GPU encoding enabled - encoder: {hwEncoderFolder}");
 
-                    // Validate files with ffprobe asynchronously and build final list
-                    var validationTasks = vids.Select(async v =>
-                    {
-                        var res = await ValidateVideoWithFFprobeAsync(v).ConfigureAwait(false);
-                        return (path: v, result: res);
-                    }).ToList();
-                    var validationResults = await Task.WhenAll(validationTasks).ConfigureAwait(false);
-
-                    var validVids = new List<string>();
-                    var messages = new List<string>();
-                    foreach (var vr in validationResults)
-                    {
-                        if (vr.result.ok) validVids.Add(vr.path);
-                        if (!string.IsNullOrEmpty(vr.result.message)) messages.Add(vr.result.message!);
-                    }
-
-                    // Apply UI updates (history/logs and any message boxes) on UI thread
+                    var initialValidation = await ValidatePlayableFilesAsync(vids).ConfigureAwait(false);
                     await Dispatcher.InvokeAsync(() =>
                     {
-                        foreach (var m in messages)
+                        foreach (var m in initialValidation.messages)
                             AddToHistory(m);
                     });
 
-                    if (validVids.Count == 0 && !capturedWaitMode)
+                    if (initialValidation.validFiles.Count == 0 && !capturedWaitMode)
                     {
                         await Dispatcher.InvokeAsync(() => System.Windows.MessageBox.Show(Str.G("str_msg_no_videos"), Str.G("str_msg_no_videos_title"), MessageBoxButton.OK, MessageBoxImage.Warning));
                         return;
                     }
 
-                    // write playlist (FFmpeg concat demuxer expects lines like: file 'FULL_PATH')
-                    var tempDir = Path.Combine(Path.GetTempPath(), "StreamerPro");
-                    Directory.CreateDirectory(tempDir);
-                    var playlist = Path.Combine(tempDir, "playlist.txt");
-                    // Use UTF8 without BOM to avoid parsing issues
-                    using (var sw = new StreamWriter(playlist, false, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
+                    var capturedCts = ffmpegCts;
+                    var capturedFolder = folderPath;
+                    var capturedExts = new[] { ".mp4", ".mkv", ".mov", ".avi", ".webm" };
+
+                    var folderStreamerArgs = new List<string>
                     {
-                        foreach (var v in validVids)
-                        {
-                            // Escape single quotes for concat demuxer by closing, inserting \' and reopening: e.g. a'b -> a'\'\''b
-                            var escaped = v.Replace("'", "'\\'\\''");
-                            // The required format is: file 'FULL_PATH'
-                            sw.WriteLine($"file '{escaped}'");
-                        }
-                    }
-
-                    // Preview first few lines of the generated playlist for debugging
-                    try
-                    {
-                        AddToHistory($"Playlist path: {playlist}");
-                        var preview = File.ReadLines(playlist).Take(10).ToList();
-                        AddToHistory("Playlist preview:");
-                        foreach (var pl in preview)
-                            AddToHistory(pl);
-                    }
-                    catch (Exception ex)
-                    {
-                        AddToHistory($"Failed to read playlist preview: {ex.Message}");
-                    }
-
-                    // build args for concat (folder) mode
-                    var args = new List<string>();
-                    if (hwEncoderFolder != null)
-                    {
-                        AddToHistory($"HWAccel: GPU encoding enabled - encoder: {hwEncoderFolder}");
-                    }
-
-                    // Stabilize timestamps and concat demuxer behavior for heterogeneous inputs
-                    // Keep +genpts; remove use_wallclock_as_timestamps which can speed up playback.
-                    args.AddRange(new[] { "-hide_banner", "-fflags", "+genpts", "-avoid_negative_ts", "make_zero" });
-
-                    args.AddRange(new[] { "-re", "-f", "concat", "-safe", "0", "-i", playlist });
-                    if (overlayActive) AddOverlayInputArguments(args, overlayPath, overlaySize);
-
-                    // rest of encoding options - use previously captured flags to avoid UI access off-thread
-                    args.AddRange(BuildEncodingArguments(
+                        "-hide_banner",
+                        "-fflags", "+genpts+discardcorrupt",
+                        "-avoid_negative_ts", "make_zero",
+                        "-thread_queue_size", "512",
+                        "-f", "mpegts", "-i", "pipe:0"
+                    };
+                    if (overlayActive) AddOverlayInputArguments(folderStreamerArgs, overlayPath, overlaySize);
+                    folderStreamerArgs.AddRange(BuildEncodingArguments(
                         rtmpUrl: rtmpUrl,
                         preset: preset,
                         videoBitrate: vBitrate,
@@ -2396,63 +2440,124 @@ namespace Streamer
                         overlaySize: overlaySize
                     ));
 
-                    // Optionally show FFmpeg command for folder (concat) mode
-                    if (showCommandFlag)
-                    {
-                        string display = string.Join(" ", args.Select(a => a.Contains(' ') ? $"\"{a}\"" : a));
-                        System.Windows.MessageBox.Show(display, "Comando FFmpeg", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-
-                    // Capture values needed inside Task.Run to avoid cross-thread access
-                    var capturedCts = ffmpegCts;
-                    var capturedArgs = args.ToList();
-                    var capturedFolder = SelectedFolderPath;
-                    var capturedExts = new[] { ".mp4", ".mkv", ".mov", ".avi", ".webm" };
-
-                    // Start a background loop to run ffmpeg and optionally restart
                     _ = Task.Run(async () =>
                     {
                         using var sessionCts = CreateSessionCancellation(capturedCts!, maxDurationSeconds);
+                        var sessionToken = sessionCts.Token;
                         System.Threading.Interlocked.Exchange(ref isStreamingInt, 1);
-                        await Dispatcher.InvokeAsync(() => { streamStartTime = DateTime.Now; timer.Start(); UpdateStreamStatus(true); });
+                        await Dispatcher.InvokeAsync(() => { streamStartTime = DateTime.Now; timer.Start(); UpdateStreamStatusWaiting(); });
+
+                        Process? supplierProc = null;
+                        Process? streamerProc = null;
+                        Stream? streamerStdin = null;
+                        bool streamerStarted = false;
+                        int errorAttempt = 0;
+                        bool commandShown = false;
+                        var pendingClips = new Queue<string>(capturedRandom ? initialValidation.validFiles.OrderBy(_ => Random.Shared.Next()) : initialValidation.validFiles);
+
                         try
                         {
-                            while (true)
+                            while (!sessionToken.IsCancellationRequested)
                             {
-                                // Re-scan folder — if empty and Modo Espera is on, poll every 5s until a video appears
-                                try
+                                if (streamerStarted && (streamerProc == null || streamerProc.HasExited))
                                 {
-                                    List<string> freshVids;
+                                    int exitCode = -1;
+                                    try { exitCode = streamerProc!.ExitCode; } catch { }
+                                    await Dispatcher.InvokeAsync(() => AddToHistory($"⚠ Folder streamer exited ({exitCode}) — restarting..."));
+                                    try { supplierProc?.Kill(entireProcessTree: true); } catch { }
+                                    supplierProc = null;
+                                    streamerProc = null;
+                                    streamerStdin = null;
+                                    streamerStarted = false;
+                                    ResetVideoHealthState();
+                                    errorAttempt++;
+                                    if (errorAttempt > MaxReconnectAttempts) break;
+                                    await Task.Delay(ReconnectDelaysMs[Math.Min(errorAttempt - 1, ReconnectDelaysMs.Length - 1)], sessionToken).ConfigureAwait(false);
+                                    continue;
+                                }
+
+                                if (pendingClips.Count == 0)
+                                {
                                     while (true)
                                     {
-                                        freshVids = Directory.EnumerateFiles(capturedFolder)
+                                        var freshCandidates = Directory.EnumerateFiles(capturedFolder)
                                             .Where(f => capturedExts.Contains(Path.GetExtension(f).ToLowerInvariant()))
                                             .ToList();
-                                        if (freshVids.Count > 0 || !capturedWaitMode || sessionCts.Token.IsCancellationRequested)
-                                            break;
+
+                                        if (capturedRandom && freshCandidates.Count > 0)
+                                            freshCandidates = freshCandidates.OrderBy(_ => Random.Shared.Next()).ToList();
+
+                                        if (freshCandidates.Count > 0)
+                                        {
+                                            var validated = await ValidatePlayableFilesAsync(freshCandidates).ConfigureAwait(false);
+                                            await Dispatcher.InvokeAsync(() =>
+                                            {
+                                                foreach (var m in validated.messages)
+                                                    AddToHistory(m);
+                                            });
+
+                                            if (validated.validFiles.Count > 0)
+                                            {
+                                                pendingClips = new Queue<string>(validated.validFiles);
+                                                break;
+                                            }
+                                        }
+
+                                        bool shouldLoop = await Dispatcher.InvokeAsync(() => ShouldLoopPlayback(isFolderMode: true));
+                                        if (!capturedWaitMode && !shouldLoop)
+                                            goto folder_done;
+
                                         await Dispatcher.InvokeAsync(UpdateStreamStatusWaiting);
-                                        await Task.Delay(5000, sessionCts.Token).ConfigureAwait(false);
-                                    }
-                                    if (capturedRandom)
-                                        freshVids = freshVids.OrderBy(_ => Random.Shared.Next()).ToList();
-                                    if (freshVids.Count > 0)
-                                    {
-                                        await Dispatcher.InvokeAsync(() => UpdateStreamStatus(true));
-                                        bool loopPlaylist = await Dispatcher.InvokeAsync(() => FolderLoop || (FolderLoopCheck?.IsChecked == true));
-                                        // When looping, repeat the playlist 999x inside the concat file so FFmpeg
-                                        // stays connected to RTMP for hours without disconnecting.
-                                        // This eliminates the viewer-side freeze that occurs on every FFmpeg restart.
-                                        int repeatCount = loopPlaylist ? 999 : 1;
-                                        using var sw = new System.IO.StreamWriter(playlist, false, new System.Text.UTF8Encoding(false));
-                                        for (int r = 0; r < repeatCount; r++)
-                                            foreach (var v in freshVids)
-                                                sw.WriteLine($"file '{v.Replace("'", "'\\''")}'");
+                                        await Task.Delay(5000, sessionToken).ConfigureAwait(false);
                                     }
                                 }
-                                catch (OperationCanceledException) { throw; }
-                                catch { /* keep previous playlist if scan fails */ }
 
-                                await ExecuteFFmpegAsync(capturedArgs, sessionCts.Token).ConfigureAwait(false);
+                                if (pendingClips.Count == 0)
+                                    continue;
+
+                                var clipPath = pendingClips.Dequeue();
+                                var clipName = Path.GetFileName(clipPath);
+                                await Dispatcher.InvokeAsync(() => AddToHistory($"▶ Playing clip: {clipName}"));
+
+                                var supArgs = new List<string>
+                                {
+                                    "-hide_banner", "-fflags", "+genpts+discardcorrupt", "-avoid_negative_ts", "make_zero",
+                                    "-dn", "-sn", "-ignore_unknown", "-re", "-i", clipPath,
+                                    "-map", "0:v:0", "-map", "0:a:0?",
+                                    "-map_metadata", "-1", "-map_chapters", "-1",
+                                    "-c:v", "copy", "-c:a", "copy",
+                                    "-muxpreload", "0", "-muxdelay", "0",
+                                    "-f", "mpegts", "pipe:1"
+                                };
+
+                                if (showCommandFlag && !commandShown)
+                                {
+                                    commandShown = true;
+                                    string display = string.Join(" ", supArgs.Select(a => a.Contains(' ') ? $"\"{a}\"" : a));
+                                    await Dispatcher.InvokeAsync(() => System.Windows.MessageBox.Show(display, "Comando FFmpeg", MessageBoxButton.OK, MessageBoxImage.Information));
+                                }
+
+                                try { supplierProc?.Kill(entireProcessTree: true); } catch { }
+                                supplierProc = HlStartSupplier(supArgs);
+
+                                if (!streamerStarted)
+                                {
+                                    streamerProc = HlStartStreamer(folderStreamerArgs, sessionToken);
+                                    ffmpegProcess = streamerProc;
+                                    streamerStdin = streamerProc.StandardInput.BaseStream;
+                                    streamerStarted = true;
+                                }
+
+                                ResetVideoHealthState();
+                                _ = HlRelayAsync(supplierProc.StandardOutput.BaseStream, streamerStdin!, sessionToken);
+                                await Dispatcher.InvokeAsync(() => UpdateStreamStatus(true));
+
+                                bool supplierKilled = false;
+                                try { await supplierProc.WaitForExitAsync(sessionToken).ConfigureAwait(false); }
+                                catch (OperationCanceledException) { supplierKilled = true; try { supplierProc?.Kill(entireProcessTree: true); } catch { } }
+
+                                int supplierExit = -1;
+                                try { supplierExit = supplierProc?.ExitCode ?? -1; } catch { }
 
                                 if (SessionStoppedByMaxDuration(capturedCts!, sessionCts, maxDurationSeconds))
                                 {
@@ -2462,11 +2567,39 @@ namespace Streamer
 
                                 if (capturedCts.Token.IsCancellationRequested) break;
 
-                                bool shouldLoop = await Dispatcher.InvokeAsync(() => ShouldLoopPlayback(isFolderMode: true));
-                                if (!shouldLoop && !capturedWaitMode) break;
+                                if (!supplierKilled && supplierExit == 0)
+                                {
+                                    errorAttempt = 0;
+                                    if (pendingClips.Count == 0)
+                                    {
+                                        bool shouldLoop = await Dispatcher.InvokeAsync(() => ShouldLoopPlayback(isFolderMode: true));
+                                        if (!shouldLoop && !capturedWaitMode)
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    errorAttempt++;
+                                    if (errorAttempt > MaxReconnectAttempts) break;
+                                    pendingClips = new Queue<string>(new[] { clipPath }.Concat(pendingClips));
+                                    int delayMs = ReconnectDelaysMs[Math.Min(errorAttempt - 1, ReconnectDelaysMs.Length - 1)];
+                                    await Dispatcher.InvokeAsync(() => AddToHistory($"Clip failed. Reconnecting in {delayMs / 1000}s (attempt {errorAttempt}/{MaxReconnectAttempts})..."));
+                                    await Task.Delay(delayMs, sessionToken).ConfigureAwait(false);
+                                }
                             }
                         }
                         catch (OperationCanceledException) { }
+
+folder_done:
+                        try
+                        {
+                            try { supplierProc?.Kill(entireProcessTree: true); } catch { }
+                            try { streamerStdin?.Close(); } catch { }
+                            if (streamerProc != null && !streamerProc.HasExited)
+                            {
+                                try { await streamerProc.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false); } catch { }
+                            }
+                        }
                         finally
                         {
                             await Dispatcher.InvokeAsync(() => { System.Threading.Interlocked.Exchange(ref isStreamingInt, 0); timer.Stop(); UpdateStreamStatus(false); });
@@ -2651,9 +2784,9 @@ namespace Streamer
                     if (exitCode != 0 && !ct.IsCancellationRequested)
                     {
                         var lastLines = errorBuffer.TakeLast(30).ToList();
-                        if (lastLines.Any(l => !IsFFmpegProgressLine(l)))
+                        if (lastLines.Any(l => !IsFFmpegProgressLine(l) && !IsBenignFFmpegWarning(l)))
                         {
-                            var errorText = string.Join("\n", lastLines.Where(l => !IsFFmpegProgressLine(l)));
+                            var errorText = string.Join("\n", lastLines.Where(l => !IsFFmpegProgressLine(l) && !IsBenignFFmpegWarning(l)));
                             // Suppress popup for intentional exits (user sent q / Stop button)
                             bool isUserQuit = errorText.Contains("[q] command received") ||
                                              errorText.Contains("Exiting normally");
@@ -2671,6 +2804,10 @@ namespace Streamer
                                                   errorText.Contains("WSAECONN") ||
                                                   errorText.Contains("Error writing interleaved packet") ||
                                                   errorText.Contains("Failed to write packet") ||
+                                                  errorText.Contains("Error submitting a packet to the muxer") ||
+                                                  errorText.Contains("Error writing trailer: End of file") ||
+                                                  errorText.Contains("Error closing file: End of file") ||
+                                                  errorText.Contains("End of file") ||
                                                   errorText.Contains("Input/output error");
                             if (!string.IsNullOrWhiteSpace(errorText) && !isNetworkError && !isUserQuit)
                                 System.Windows.MessageBox.Show(errorText, $"FFmpeg Error (code {exitCode})",
@@ -3438,12 +3575,20 @@ namespace Streamer
                 args.Add("-map");
                 args.Add("[_out]");
                 args.Add("-map");
-                args.Add("0:a?");
+                args.Add("0:a:0?");
             }
             else if (videoFilters.Count > 0)
             {
                 args.Add("-vf");
                 args.Add(string.Join(",", videoFilters));
+            }
+
+            if (!hasOverlay)
+            {
+                args.Add("-map");
+                args.Add("0:v:0");
+                args.Add("-map");
+                args.Add("0:a:0?");
             }
 
             args.Add("-fps_mode");
@@ -4463,13 +4608,35 @@ namespace Streamer
                 Dispatcher.Invoke(() => SelectFolderButton_Click(sender, e));
                 return;
             }
-            var dlg = new System.Windows.Forms.FolderBrowserDialog();
-            var res = dlg.ShowDialog();
-            if (res == System.Windows.Forms.DialogResult.OK)
+            using var dlg = new System.Windows.Forms.FolderBrowserDialog();
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(SelectedFolderPath) && Directory.Exists(SelectedFolderPath))
+                    dlg.SelectedPath = SelectedFolderPath;
+            }
+            catch { }
+
+            var owner = new WindowWrapper(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+            var res = dlg.ShowDialog(owner);
+                    if (res == System.Windows.Forms.DialogResult.OK)
             {
                 var path = dlg.SelectedPath;
-                SelectedFolderPath = path;
-                // No actualizar SelectedFolderText.Text manualmente, el binding lo hará
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    if (string.Equals(SelectedFolderPath, path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Force a visible refresh even if the user re-picked the same folder.
+                        SelectedFolderText.Text = path;
+                    }
+                    else
+                    {
+                        SelectedFolderPath = path;
+                        SelectedFolderText.Text = path;
+                    }
+
+                    AddToHistory($"Folder selected: {path}");
+                    _ = SaveConfigAsync();
+                }
             }
         }
 

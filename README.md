@@ -58,6 +58,8 @@ dotnet publish Streamer/Streamer.csproj /p:PublishProfile="Properties\PublishPro
 
 For the full release process, asset upload, and auto-update validation, see [`RELEASE.md`](RELEASE.md).
 
+For technical notes about the stabilized `Folder` streaming engine, see [`docs/FOLDER_MODE.md`](docs/FOLDER_MODE.md).
+
 ---
 
 ## Credits
