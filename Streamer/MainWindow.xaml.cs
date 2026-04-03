@@ -962,6 +962,47 @@ namespace Streamer
             return true;
         }
 
+        private bool TryRunStreamPreflight(out string rtmpUrl)
+        {
+            rtmpUrl = string.Empty;
+
+            if (!File.Exists(GetFfmpegPath()) || !File.Exists(GetFFprobePath()))
+            {
+                System.Windows.MessageBox.Show(Str.G("str_msg_ffmpeg_body").Replace("\\n", "\n"), Str.G("str_msg_ffmpeg_title"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(GetStreamKeyText()))
+            {
+                System.Windows.MessageBox.Show(Str.G("str_msg_streamkey_required"), Str.G("str_msg_error"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            string rtmpBase = RTMPBase.Text.Trim().TrimEnd('/');
+            if (string.IsNullOrWhiteSpace(rtmpBase) ||
+                !Uri.TryCreate(rtmpBase, UriKind.Absolute, out var rtmpBaseUri) ||
+                (!string.Equals(rtmpBaseUri.Scheme, "rtmp", StringComparison.OrdinalIgnoreCase) &&
+                 !string.Equals(rtmpBaseUri.Scheme, "rtmps", StringComparison.OrdinalIgnoreCase)))
+            {
+                System.Windows.MessageBox.Show(Str.G("str_msg_invalid_rtmp"), Str.G("str_msg_error"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_overlayPath) && !File.Exists(_overlayPath))
+            {
+                System.Windows.MessageBox.Show(Str.G("str_msg_overlay_missing"), Str.G("str_msg_error"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            string streamKey = GetStreamKeyText().TrimStart('/');
+            rtmpUrl = $"{rtmpBase}/{streamKey}";
+            return true;
+        }
+
         private static CancellationTokenSource CreateSessionCancellation(CancellationTokenSource baseCts, int maxDurationSeconds)
         {
             var sessionCts = CancellationTokenSource.CreateLinkedTokenSource(baseCts.Token);
@@ -1378,16 +1419,9 @@ namespace Streamer
                 if (!TryGetMaxDurationSeconds(out var maxDurationSeconds))
                     return;
 
-                if (string.IsNullOrWhiteSpace(GetStreamKeyText()))
-                {
-                    System.Windows.MessageBox.Show(Str.G("str_msg_streamkey_required"), Str.G("str_msg_error"),
-                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                if (!TryRunStreamPreflight(out var rtmpUrl))
                     return;
-                }
 
-                string rtmpBase = RTMPBase.Text.TrimEnd('/');
-                string streamKey = GetStreamKeyText().TrimStart('/');
-                string rtmpUrl = $"{rtmpBase}/{streamKey}";
                 string vBitrate = VideoBitrateManual.Text;
                 string aBitrate = AudioBitrateManual.Text;
 

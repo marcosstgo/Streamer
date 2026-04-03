@@ -117,6 +117,8 @@
     <sys:String x:Key="str_msg_ffmpeg_body">FFmpeg is not installed.\n\nClick the FFmpeg indicator in the top bar to download it automatically.</sys:String>
     <sys:String x:Key="str_msg_ffmpeg_title">FFmpeg not found</sys:String>
     <sys:String x:Key="str_msg_streamkey_required">Stream key is required</sys:String>
+    <sys:String x:Key="str_msg_invalid_rtmp">Enter a valid RTMP or RTMPS destination URL.</sys:String>
+    <sys:String x:Key="str_msg_overlay_missing">The selected overlay file no longer exists. Choose another overlay or clear it before starting.</sys:String>
     <sys:String x:Key="str_msg_select_source">Select a video source</sys:String>
     <sys:String x:Key="str_msg_source_unavailable">Selected source is not available. Choose another or reload sources.</sys:String>
     <sys:String x:Key="str_msg_source_unavailable_title">Source unavailable</sys:String>

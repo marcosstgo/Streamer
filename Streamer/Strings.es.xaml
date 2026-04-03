@@ -117,6 +117,8 @@
     <sys:String x:Key="str_msg_ffmpeg_body">FFmpeg no está instalado.\n\nHaz click en el indicador de FFmpeg en la barra superior para descargarlo automáticamente.</sys:String>
     <sys:String x:Key="str_msg_ffmpeg_title">FFmpeg no encontrado</sys:String>
     <sys:String x:Key="str_msg_streamkey_required">Stream key es requerido</sys:String>
+    <sys:String x:Key="str_msg_invalid_rtmp">Ingresa una URL de destino RTMP o RTMPS válida.</sys:String>
+    <sys:String x:Key="str_msg_overlay_missing">El archivo de overlay seleccionado ya no existe. Elige otro overlay o quítalo antes de iniciar.</sys:String>
     <sys:String x:Key="str_msg_select_source">Selecciona una fuente de video</sys:String>
     <sys:String x:Key="str_msg_source_unavailable">La fuente seleccionada no está disponible. Elige otra o recarga las fuentes.</sys:String>
     <sys:String x:Key="str_msg_source_unavailable_title">Fuente no disponible</sys:String>
