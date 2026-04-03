@@ -9,9 +9,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Streamer Pro</AssemblyName>
     <Product>Streamer Pro</Product>
-    <Version>2.2.2</Version>
-    <AssemblyVersion>2.2.2.0</AssemblyVersion>
-    <FileVersion>2.2.2.0</FileVersion>
+    <Version>2.2.4</Version>
+    <AssemblyVersion>2.2.4.0</AssemblyVersion>
+    <FileVersion>2.2.4.0</FileVersion>
     <ApplicationIcon>streamer.ico</ApplicationIcon>
     <PackageIcon></PackageIcon>
   </PropertyGroup>
@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ffmpeg.exe">
+    <Content Include="ffmpeg.exe" Condition="Exists('ffmpeg.exe')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ffprobe.exe">
+    <Content Include="ffprobe.exe" Condition="Exists('ffprobe.exe')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="streamer.ico" />

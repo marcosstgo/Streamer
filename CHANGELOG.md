@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.4] - 2026-04-03
+
+### Changed
+- FFmpeg binaries are now optional at build time so the app can rely on runtime download when they are missing.
+- Force YUV420p and Save Logs now control the real streaming behavior instead of acting as visual-only options.
+
+### Fixed
+- Loop Infinito and Duración máx. now apply correctly across online, file, folder, and highlights modes.
+- Overlay streaming now tolerates sources without audio instead of failing on strict audio mapping.
+- Audio/video sync was improved for long-running streams with explicit CFR video normalization and audio resampling.
+- Highlights mode now waits for files to stabilize before enqueuing them and ignores duplicate watcher events.
+
 
 
 

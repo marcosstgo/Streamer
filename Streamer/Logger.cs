@@ -11,6 +11,8 @@ namespace Streamer
         private static string? _logPath;
         private const long MaxBytes = 5 * 1024 * 1024; // 5 MB
 
+        public static bool EnableInfoLogging { get; set; }
+
         private static string GetLogPath()
         {
             if (_logPath != null) return _logPath;
@@ -23,6 +25,7 @@ namespace Streamer
 
         public static void LogInfo(string message)
         {
+            if (!EnableInfoLogging) return;
             TryWrite("INFO", message);
         }
 
