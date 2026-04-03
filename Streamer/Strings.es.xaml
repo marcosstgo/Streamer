@@ -16,6 +16,19 @@
     <sys:String x:Key="str_status_waiting">Esperando</sys:String>
     <sys:String x:Key="str_btn_start">▶ Iniciar</sys:String>
     <sys:String x:Key="str_btn_stop">■ Detener</sys:String>
+    <sys:String x:Key="str_schedule_title">Inicio Programado</sys:String>
+    <sys:String x:Key="str_schedule_hint">Deja Streamer Pro abierto o minimizado en la bandeja y arrancará a la hora local programada.</sys:String>
+    <sys:String x:Key="str_schedule_date">Fecha (AAAA-MM-DD)</sys:String>
+    <sys:String x:Key="str_schedule_time">Hora (HH:mm)</sys:String>
+    <sys:String x:Key="str_schedule_set">Programar</sys:String>
+    <sys:String x:Key="str_schedule_cancel">Cancelar</sys:String>
+    <sys:String x:Key="str_schedule_none">Sin inicio programado</sys:String>
+    <sys:String x:Key="str_schedule_active_fmt">Programado para {0}</sys:String>
+    <sys:String x:Key="str_schedule_countdown_fmt">Comienza en {0}</sys:String>
+    <sys:String x:Key="str_schedule_invalid">Ingresa una fecha y hora local válidas usando AAAA-MM-DD y HH:mm.</sys:String>
+    <sys:String x:Key="str_schedule_past">Elige una hora futura.</sys:String>
+    <sys:String x:Key="str_schedule_triggered_fmt">Inicio programado activado a las {0}</sys:String>
+    <sys:String x:Key="str_schedule_skipped_active">El inicio programado se ignoró porque ya hay un stream activo.</sys:String>
 
     <!-- Header -->
     <sys:String x:Key="str_tagline">Streaming profesional simplificado</sys:String>

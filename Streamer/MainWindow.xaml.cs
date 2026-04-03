@@ -123,9 +123,12 @@ namespace Streamer
 
         // UI timer and state
         private readonly DispatcherTimer timer = new DispatcherTimer();
+        private readonly DispatcherTimer _scheduleTimer = new DispatcherTimer();
         private DateTime streamStartTime;
         private volatile int isStreamingInt = 0;
         private bool _uiReady = false;
+        private DateTime? _scheduledStartAtLocal;
+        private bool _scheduledStartLaunching;
 
         // Debounce timer for history save to avoid excessive disk writes
         private DispatcherTimer? _historySaveTimer;
@@ -529,6 +532,17 @@ namespace Streamer
                                 }
                             }
 
+                            if (root.TryGetProperty("ScheduledStartAtLocal", out var scheduledStart))
+                            {
+                                var raw = scheduledStart.GetString() ?? string.Empty;
+                                if (DateTime.TryParse(raw, out var parsed) && parsed > DateTime.Now)
+                                {
+                                    _scheduledStartAtLocal = parsed;
+                                    ScheduleDateText.Text = parsed.ToString("yyyy-MM-dd");
+                                    ScheduleTimeText.Text = parsed.ToString("HH:mm");
+                                }
+                            }
+
                             if (root.TryGetProperty("Mode", out var mode))
                             {
                                 switch ((mode.GetString() ?? string.Empty).ToLowerInvariant())
@@ -549,6 +563,7 @@ namespace Streamer
                             }
 
                             UpdateLoggerSettings();
+                            UpdateScheduledStartUi();
                         }
                         catch { }
                     });
@@ -565,30 +580,33 @@ namespace Streamer
         {
             try
             {
-                var toSave = GetStreamKeyText();
-                var encrypted = EncryptString(toSave);
-                var cfg = new
+                var snapshot = await Dispatcher.InvokeAsync(() =>
                 {
-                    StreamKey = encrypted,
-                    RtmpBase = RTMPBase.Text,
-                    VBitrate = VideoBitrateManual.Text,
-                    ABitrate = AudioBitrateManual.Text,
-                    Preset = (PresetCombo.SelectedItem as ComboBoxItem)?.Content?.ToString(),
-                    Resolution = ResolutionManual.Text,
-                    FPS = FPSManual.Text,
-                    ForceYUV = ForceYUV.IsChecked == true,
-                    LoopInfinite = LoopInfinite.IsChecked == true,
-                    SaveLogs = SaveLogs?.IsChecked == true,
-                    HardwareAccel = HardwareAccel.IsChecked == true,
-                    Mode = ModeCapture.IsChecked == true ? "capture"
-                        : ModeFile.IsChecked == true ? "file"
-                        : ModeFolder.IsChecked == true ? "folder"
-                        : "online",
-                    SelectedFilePath = selectedFilePath,
-                    SelectedFolderPath = SelectedFolderPath,
-                    OverlayPath = !string.IsNullOrWhiteSpace(_overlayPath) && File.Exists(_overlayPath) ? _overlayPath : string.Empty
-                };
-                var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions { WriteIndented = true });
+                    var toSave = GetStreamKeyText();
+                    return new
+                    {
+                        StreamKey = EncryptString(toSave),
+                        RtmpBase = RTMPBase.Text,
+                        VBitrate = VideoBitrateManual.Text,
+                        ABitrate = AudioBitrateManual.Text,
+                        Preset = (PresetCombo.SelectedItem as ComboBoxItem)?.Content?.ToString(),
+                        Resolution = ResolutionManual.Text,
+                        FPS = FPSManual.Text,
+                        ForceYUV = ForceYUV.IsChecked == true,
+                        LoopInfinite = LoopInfinite.IsChecked == true,
+                        SaveLogs = SaveLogs?.IsChecked == true,
+                        HardwareAccel = HardwareAccel.IsChecked == true,
+                        Mode = ModeCapture.IsChecked == true ? "capture"
+                            : ModeFile.IsChecked == true ? "file"
+                            : ModeFolder.IsChecked == true ? "folder"
+                            : "online",
+                        SelectedFilePath = selectedFilePath,
+                        SelectedFolderPath = SelectedFolderPath,
+                        OverlayPath = !string.IsNullOrWhiteSpace(_overlayPath) && File.Exists(_overlayPath) ? _overlayPath : string.Empty,
+                        ScheduledStartAtLocal = _scheduledStartAtLocal?.ToString("O") ?? string.Empty
+                    };
+                });
+                var json = JsonSerializer.Serialize(snapshot, new JsonSerializerOptions { WriteIndented = true });
                 var path = GetConfigPath();
                 await File.WriteAllTextAsync(path, json).ConfigureAwait(false);
             }
@@ -655,6 +673,12 @@ namespace Streamer
         {
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
+            _scheduleTimer.Interval = TimeSpan.FromSeconds(1);
+            _scheduleTimer.Tick += ScheduleTimer_Tick;
+            _scheduleTimer.Start();
+
+            InitializeScheduledStartInputs();
 
             UpdateLoggerSettings();
             if (SaveLogs != null)
@@ -1218,6 +1242,107 @@ namespace Streamer
             }
         }
 
+        private void ScheduleTimer_Tick(object? sender, EventArgs e)
+        {
+            UpdateScheduledStartUi();
+
+            bool isStreaming = Interlocked.CompareExchange(ref isStreamingInt, 0, 0) != 0;
+            if (!isStreaming && _scheduledStartAtLocal.HasValue && !_scheduledStartLaunching && DateTime.Now >= _scheduledStartAtLocal.Value)
+                _ = TriggerScheduledStartAsync();
+        }
+
+        private void InitializeScheduledStartInputs()
+        {
+            try
+            {
+                var suggested = DateTime.Now.AddMinutes(10);
+                ScheduleDateText.Text = suggested.ToString("yyyy-MM-dd");
+                ScheduleTimeText.Text = suggested.ToString("HH:mm");
+                UpdateScheduledStartUi();
+            }
+            catch { }
+        }
+
+        private bool TryGetScheduledStartFromInputs(out DateTime scheduledLocal)
+        {
+            scheduledLocal = default;
+            var datePart = ScheduleDateText.Text.Trim();
+            var timePart = ScheduleTimeText.Text.Trim();
+
+            if (!DateTime.TryParse($"{datePart} {timePart}", out scheduledLocal))
+            {
+                MessageBox.Show(Str.G("str_schedule_invalid"), Str.G("str_msg_error"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (scheduledLocal <= DateTime.Now.AddSeconds(5))
+            {
+                MessageBox.Show(Str.G("str_schedule_past"), Str.G("str_msg_error"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void UpdateScheduledStartUi(string? overrideStatus = null)
+        {
+            try
+            {
+                if (ScheduleStatusText == null || ScheduleCountdownText == null)
+                    return;
+
+                bool isStreaming = Interlocked.CompareExchange(ref isStreamingInt, 0, 0) != 0;
+                if (_scheduledStartAtLocal.HasValue)
+                {
+                    var scheduled = _scheduledStartAtLocal.Value;
+                    ScheduleStatusText.Text = overrideStatus ?? string.Format(Str.G("str_schedule_active_fmt"), scheduled.ToString("yyyy-MM-dd HH:mm"));
+
+                    var remaining = scheduled - DateTime.Now;
+                    if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
+                    ScheduleCountdownText.Text = string.Format(Str.G("str_schedule_countdown_fmt"), $"{remaining:dd\\:hh\\:mm\\:ss}");
+                }
+                else
+                {
+                    ScheduleStatusText.Text = overrideStatus ?? Str.G("str_schedule_none");
+                    ScheduleCountdownText.Text = string.Empty;
+                }
+
+                if (ScheduleStartBtn != null) ScheduleStartBtn.IsEnabled = !isStreaming && !_scheduledStartLaunching;
+                if (ScheduleCancelBtn != null) ScheduleCancelBtn.IsEnabled = !isStreaming && _scheduledStartAtLocal.HasValue && !_scheduledStartLaunching;
+            }
+            catch { }
+        }
+
+        private async Task ClearScheduledStartAsync(bool addHistory, string? historyMessage = null)
+        {
+            _scheduledStartAtLocal = null;
+            _scheduledStartLaunching = false;
+            await Dispatcher.InvokeAsync(() => UpdateScheduledStartUi());
+            if (addHistory && !string.IsNullOrWhiteSpace(historyMessage))
+                AddToHistory(historyMessage);
+            await SaveConfigAsync().ConfigureAwait(false);
+        }
+
+        private async Task TriggerScheduledStartAsync()
+        {
+            if (_scheduledStartLaunching || !_scheduledStartAtLocal.HasValue)
+                return;
+
+            _scheduledStartLaunching = true;
+            var scheduled = _scheduledStartAtLocal.Value;
+
+            if (Interlocked.CompareExchange(ref isStreamingInt, 0, 0) != 0)
+            {
+                await ClearScheduledStartAsync(true, Str.G("str_schedule_skipped_active")).ConfigureAwait(false);
+                return;
+            }
+
+            await Dispatcher.InvokeAsync(() => UpdateScheduledStartUi(Str.G("str_status_waiting")));
+            AddToHistory(string.Format(Str.G("str_schedule_triggered_fmt"), scheduled.ToString("HH:mm")));
+            await ClearScheduledStartAsync(false).ConfigureAwait(false);
+            await Dispatcher.InvokeAsync(() => StartStream_Click(this, new RoutedEventArgs()));
+        }
+
         /// <summary>
         /// Polls GPU utilization on a background thread every 2 seconds.
         /// Uses nvidia-smi for NVIDIA GPUs (fast and accurate), falls back to WMI query.
@@ -1519,6 +1644,9 @@ namespace Streamer
         {
             try
             {
+                if (_scheduledStartAtLocal.HasValue)
+                    await ClearScheduledStartAsync(false).ConfigureAwait(false);
+
                 if (!TryGetMaxDurationSeconds(out var maxDurationSeconds))
                     return;
 
@@ -2402,6 +2530,26 @@ namespace Streamer
                 System.Windows.MessageBox.Show($"Error deteniendo stream: {ex.Message}", "Error",
                               MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private async void ScheduleStartBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryGetScheduledStartFromInputs(out var scheduledLocal))
+                return;
+
+            _scheduledStartAtLocal = scheduledLocal;
+            _scheduledStartLaunching = false;
+            UpdateScheduledStartUi();
+            AddToHistory($"Scheduled start set for {scheduledLocal:yyyy-MM-dd HH:mm}");
+            await SaveConfigAsync().ConfigureAwait(false);
+        }
+
+        private async void ScheduleCancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_scheduledStartAtLocal.HasValue)
+                return;
+
+            await ClearScheduledStartAsync(true, "Scheduled start cancelled").ConfigureAwait(false);
         }
 
         private async Task ExecuteFFmpegAsync(IEnumerable<string> args, CancellationToken ct)
@@ -3495,6 +3643,8 @@ namespace Streamer
                 StopButton.IsEnabled = true;
                 try { StartBig.IsEnabled = false; } catch { }
                 try { StopBig.IsEnabled = true; } catch { }
+                try { ScheduleStartBtn.IsEnabled = false; } catch { }
+                try { ScheduleCancelBtn.IsEnabled = false; } catch { }
                 try { VideoHealthIndicator.Visibility = Visibility.Visible; } catch { }
                 try { VideoHealthText.Visibility = Visibility.Visible; } catch { }
                 ResetVideoHealthState();
@@ -3521,6 +3671,7 @@ namespace Streamer
                 StopButton.IsEnabled = false;
                 try { StartBig.IsEnabled = true; } catch { }
                 try { StopBig.IsEnabled = false; } catch { }
+                UpdateScheduledStartUi();
                 try { VideoHealthIndicator.Visibility = Visibility.Hidden; } catch { }
                 try { VideoHealthText.Visibility = Visibility.Hidden; } catch { }
                 ResetVideoHealthState();

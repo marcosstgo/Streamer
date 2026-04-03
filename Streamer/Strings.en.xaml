@@ -16,6 +16,19 @@
     <sys:String x:Key="str_status_waiting">Waiting</sys:String>
     <sys:String x:Key="str_btn_start">▶ Start</sys:String>
     <sys:String x:Key="str_btn_stop">■ Stop</sys:String>
+    <sys:String x:Key="str_schedule_title">Scheduled Start</sys:String>
+    <sys:String x:Key="str_schedule_hint">Keep Streamer Pro open or minimized to tray and it will start at the scheduled local time.</sys:String>
+    <sys:String x:Key="str_schedule_date">Date (YYYY-MM-DD)</sys:String>
+    <sys:String x:Key="str_schedule_time">Time (HH:mm)</sys:String>
+    <sys:String x:Key="str_schedule_set">Schedule</sys:String>
+    <sys:String x:Key="str_schedule_cancel">Cancel</sys:String>
+    <sys:String x:Key="str_schedule_none">No scheduled start</sys:String>
+    <sys:String x:Key="str_schedule_active_fmt">Scheduled for {0}</sys:String>
+    <sys:String x:Key="str_schedule_countdown_fmt">Starts in {0}</sys:String>
+    <sys:String x:Key="str_schedule_invalid">Enter a valid local date and time using YYYY-MM-DD and HH:mm.</sys:String>
+    <sys:String x:Key="str_schedule_past">Choose a time in the future.</sys:String>
+    <sys:String x:Key="str_schedule_triggered_fmt">Scheduled start triggered at {0}</sys:String>
+    <sys:String x:Key="str_schedule_skipped_active">Scheduled start ignored because a stream is already active.</sys:String>
 
     <!-- Header -->
     <sys:String x:Key="str_tagline">Professional streaming simplified</sys:String>
