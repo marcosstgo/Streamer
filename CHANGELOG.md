@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.8] - 2026-04-03
+
+### Changed
+- Refreshed the visual design across the main window with a cleaner control-room layout, improved spacing, stronger hierarchy, and more polished action panels.
+- Refined ARC mode so it keeps its identity while using more restrained accents and less noisy borders.
+- Updated the Credits window with brighter iconography and a more polished presentation.
+
 ## [2.2.7] - 2026-04-03
 
 ### Changed
