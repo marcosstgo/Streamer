@@ -22,8 +22,13 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Build release project
+        shell: pwsh
+        run: |
+          dotnet build "Streamer/Streamer.csproj" -c Release
+
       - name: Verify FFmpeg checksums
         shell: pwsh
         run: |
           Write-Host "Running verify-ffmpeg.ps1"
-          pwsh -NoProfile -ExecutionPolicy Bypass -File tools/verify-ffmpeg.ps1
+          pwsh -NoProfile -ExecutionPolicy Bypass -File tools/verify-ffmpeg.ps1 -AllowMissing

@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.5] - 2026-04-03
+
+### Changed
+- Release workflows now create draft releases with GitHub CLI and tolerate repos that rely on runtime FFmpeg download instead of committed binaries.
+
+### Fixed
+- The FFmpeg download pill now opens correctly regardless of the active UI language by checking the real binary state instead of matching Spanish text.
+
 ## [2.2.4] - 2026-04-03
 
 ### Changed

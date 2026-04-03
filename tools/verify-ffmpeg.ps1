@@ -11,7 +11,8 @@ This script checks the SHA256 checksums of ffmpeg.exe and ffprobe.exe against th
 recorded in the release.
 #>
 param(
-    [string]$BinDir = (Join-Path $PSScriptRoot "..\Streamer")
+    [string]$BinDir = (Join-Path $PSScriptRoot "..\Streamer"),
+    [switch]$AllowMissing
 )
 
 $expected = @{
@@ -21,12 +22,13 @@ $expected = @{
 
 Write-Host "Verifying FFmpeg binaries in: $BinDir"
 $allOk = $true
+$missing = @()
 
 foreach ($name in $expected.Keys) {
     $path = Join-Path $BinDir $name
     if (-Not (Test-Path $path)) {
         Write-Host "[ERROR] File not found: $path" -ForegroundColor Red
-        $allOk = $false
+        $missing += $name
         continue
     }
 
@@ -47,6 +49,15 @@ foreach ($name in $expected.Keys) {
         Write-Host "[ERROR] Failed to compute hash for $path : $_" -ForegroundColor Red
         $allOk = $false
     }
+}
+
+if ($missing.Count -gt 0 -and $AllowMissing) {
+    Write-Host "FFmpeg binaries are not committed in this tree. Skipping checksum verification because runtime download mode is enabled." -ForegroundColor Yellow
+    exit 0
+}
+
+if ($missing.Count -gt 0) {
+    $allOk = $false
 }
 
 if ($allOk) {

@@ -761,8 +761,8 @@ namespace Streamer
 
         private void FFmpegPill_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // Only open download window if FFmpeg is missing
-            if (FFmpegStatusText.Text.Contains("No encontrado"))
+            // Base the action on actual binary presence so it works in every UI language.
+            if (!File.Exists(GetFfmpegPath()) || !File.Exists(GetFFprobePath()))
             {
                 var win = new FFmpegDownloadWindow { Owner = this };
                 win.ShowDialog();
