@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="https://corillo.live/assets/streamer-pro/screenshot-main.jpg" alt="Streamer Pro v2.1.3" width="860"/>
+  <img src="docs/pro-mode.jpg" alt="Streamer Pro Pro Mode" width="860"/>
+</p>
+
+<p align="center">
+  <img src="docs/arc-mode.jpg" alt="Streamer Pro ARC Mode" width="860"/>
 </p>
 
 # Streamer Pro
