@@ -673,13 +673,13 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="92"/>
+                                    <ColumnDefinition Width="42"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{DynamicResource str_label_image}" Style="{StaticResource LabelStyle}" VerticalAlignment="Center"/>
                                 <TextBox Grid.Column="1" x:Name="OverlayPathText" IsReadOnly="True" Style="{StaticResource TextBoxStyle}" ToolTip="{DynamicResource str_tooltip_png}"/>
-                                <Button Grid.Column="2" x:Name="OverlayBrowseBtn" Content="{DynamicResource str_select}" Style="{StaticResource SecondaryButton}" Margin="8,0,4,0" Padding="8,4" Click="OverlayBrowseBtn_Click"/>
-                                <Button Grid.Column="3" x:Name="OverlayClearBtn" Content="✕" Style="{StaticResource DangerButton}" Width="28" Height="28" Click="OverlayClearBtn_Click" ToolTip="{DynamicResource str_tooltip_clear_overlay}"/>
+                                <Button Grid.Column="2" x:Name="OverlayBrowseBtn" Content="Select..." Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Padding="10,0" Height="34" Click="OverlayBrowseBtn_Click"/>
+                                <Button Grid.Column="3" x:Name="OverlayClearBtn" Content="✕" Style="{StaticResource DangerButton}" Width="34" Height="34" Margin="8,0,0,0" Click="OverlayClearBtn_Click" ToolTip="{DynamicResource str_tooltip_clear_overlay}" FontSize="13" FontWeight="SemiBold"/>
                             </Grid>
                             <Grid Margin="0,10,0,0">
                                 <Grid.ColumnDefinitions>

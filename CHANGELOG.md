@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.2] - 2026-04-03
+
+### Changed
+- Polished the overlay/logo controls so the select and clear actions fit the refreshed UI better.
+- Added operational documentation for source modes, logging behavior, and scheduled start usage.
+
 ## [3.0.1] - 2026-04-03
 
 ### Changed

@@ -25,6 +25,7 @@ Stream to Corillo, Twitch, Kick, YouTube, or any custom RTMP endpoint — from l
 - **4 Source Modes** — Online URL, Folder Playlist, Local File, Screen Capture (NVIDIA, BETA)
 - **Multi-Platform RTMP** — Corillo, Twitch, Kick, YouTube, or any custom endpoint
 - **Quality Profiles** — 480p, 720p, 1080p, 1080p 60fps, or fully custom bitrate/resolution
+- **Scheduled Start** — Program a local date and time and let Streamer Pro begin the stream automatically
 - **Highlight Mode** — Watches SteelSeries Moments / NVIDIA Highlights folders and streams clips in real time
 - **Hardware Acceleration** — NVIDIA NVENC for GPU encoding
 - **Logo Overlay** — Custom watermark burned in by FFmpeg on every frame
@@ -59,6 +60,8 @@ dotnet publish Streamer/Streamer.csproj /p:PublishProfile="Properties\PublishPro
 For the full release process, asset upload, and auto-update validation, see [`RELEASE.md`](RELEASE.md).
 
 For technical notes about the stabilized `Folder` streaming engine, see [`docs/FOLDER_MODE.md`](docs/FOLDER_MODE.md).
+
+For runtime behavior, logs, source-mode notes, and testing guidance, see [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
 
 ---
 

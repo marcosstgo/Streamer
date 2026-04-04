@@ -86,6 +86,10 @@ Before announcing a release, verify the in-app updater end to end:
 
 This was validated successfully for the `v2.2.5` release.
 
+## Runtime Notes
+
+For operational details about source modes, logging, and `Scheduled Start`, see `docs/OPERATIONS.md`.
+
 ## FFmpeg Verification Script
 
 Local check:

@@ -8,6 +8,8 @@ The current release process is documented in `RELEASE.md`.
 
 The current technical notes for the stabilized folder playlist engine are documented in `docs/FOLDER_MODE.md`.
 
+Operational notes for source modes, logging, and scheduled start are documented in `docs/OPERATIONS.md`.
+
 Important updates since `v2.2.5`:
 
 1. `ffmpeg.exe` and `ffprobe.exe` are optional at build time
